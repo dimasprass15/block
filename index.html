@@ -1,0 +1,3530 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+    <title>Block Blast Hijaiyah</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Poppins:wght@400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Responsive Base Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #fef7ff 0%, #fdf2f8 25%, #fef3c7 50%, #ecfdf5 75%, #f0f9ff 100%);
+            height: 100vh;
+            height: 100dvh; /* Dynamic viewport height for mobile */
+            overflow: hidden; /* Prevent body scroll */
+            padding: 0;
+            margin: 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .game-container {
+            background: linear-gradient(135deg, #fef7ff 0%, #fdf2f8 25%, #fef3c7 50%, #ecfdf5 75%, #f0f9ff 100%);
+            padding: clamp(8px, 2vw, 15px);
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        /* Tablet-specific adjustments */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .game-container {
+                padding: clamp(20px, 3vw, 35px);
+                gap: clamp(20px, 3vw, 30px);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: clamp(15px, 3vw, 20px);
+        }
+
+        .bismillah {
+            font-family: 'Amiri', serif;
+            font-size: clamp(1.4rem, 4vw, 1.8rem);
+            font-weight: 700;
+            background: linear-gradient(45deg, #22c55e, #059669, #10b981, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 3px 15px rgba(34, 197, 94, 0.4);
+            line-height: 1.4;
+            margin: 0;
+            padding: clamp(8px, 2vw, 12px) clamp(16px, 4vw, 24px);
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: clamp(12px, 3vw, 18px);
+            border: 2px solid rgba(34, 197, 94, 0.2);
+            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.15);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Tablet header adjustments */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .header {
+                margin-bottom: clamp(25px, 4vw, 35px);
+            }
+            
+            .bismillah {
+                font-size: clamp(2rem, 5vw, 2.5rem);
+                padding: clamp(15px, 3vw, 20px) clamp(25px, 5vw, 35px);
+                border-radius: clamp(20px, 4vw, 25px);
+            }
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: clamp(12px, 2.5vw, 16px);
+            padding: clamp(8px, 2vw, 12px) clamp(16px, 4vw, 20px);
+            background: linear-gradient(45deg, #fef3c7 0%, #fde68a 50%, #fed7aa 100%);
+            border-radius: clamp(20px, 5vw, 25px);
+            color: #92400e;
+            box-shadow: 0 6px 20px rgba(251, 191, 36, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            gap: clamp(20px, 5vw, 30px);
+            backdrop-filter: blur(10px);
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .score-item {
+            display: flex;
+            align-items: center;
+            gap: clamp(6px, 1.5vw, 8px);
+            white-space: nowrap;
+        }
+
+        .score-label {
+            font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+            font-weight: 600;
+            opacity: 0.8;
+        }
+
+        .score-value {
+            font-size: clamp(1.1rem, 3vw, 1.3rem);
+            font-weight: 700;
+            background: linear-gradient(45deg, #92400e, #b45309);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Tablet scoreboard adjustments */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .score-board {
+                margin-bottom: clamp(20px, 3.5vw, 25px);
+                padding: clamp(15px, 3vw, 20px) clamp(25px, 5vw, 35px);
+                gap: clamp(35px, 6vw, 50px);
+                border-radius: clamp(25px, 5vw, 30px);
+            }
+            
+            .score-item {
+                gap: clamp(10px, 2vw, 15px);
+            }
+            
+            .score-label {
+                font-size: clamp(1.1rem, 2.8vw, 1.3rem);
+            }
+            
+            .score-value {
+                font-size: clamp(1.4rem, 3.5vw, 1.7rem);
+            }
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: clamp(2px, 1vw, 6px);
+            background: linear-gradient(145deg, #ddd6fe 0%, #e0e7ff 100%);
+            padding: clamp(8px, 2vw, 20px);
+            border-radius: clamp(12px, 3vw, 20px);
+            margin-bottom: clamp(15px, 3vw, 25px);
+            box-shadow: inset 0 4px 8px rgba(139, 92, 246, 0.15), 0 0 0 3px rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+            width: min(95vw, min(400px, 70vh, 70dvh));
+            aspect-ratio: 1;
+            margin-left: auto;
+            margin-right: auto;
+            border: 2px solid rgba(196, 181, 253, 0.6);
+            flex-shrink: 0;
+        }
+
+        /* Tablet game board adjustments */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .game-board {
+                width: min(75vw, min(480px, 65vh, 65dvh));
+                gap: clamp(3px, 1.2vw, 6px);
+                padding: clamp(12px, 2.5vw, 20px);
+                margin-bottom: clamp(20px, 3.5vw, 28px);
+                border-radius: clamp(15px, 3.5vw, 20px);
+                border: 2px solid rgba(196, 181, 253, 0.6);
+            }
+        }
+
+        /* Tablet portrait mode - make larger but not too big */
+        @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+            .game-board {
+                width: min(80vw, min(520px, 70vh, 70dvh));
+                gap: clamp(4px, 1.5vw, 8px);
+                padding: clamp(15px, 3vw, 25px);
+            }
+        }
+
+        .game-board.drag-active {
+            background: linear-gradient(145deg, #a0aec0 0%, #cbd5e0 100%);
+            box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2), 0 0 20px rgba(79, 209, 199, 0.4);
+            border: 2px solid rgba(79, 209, 199, 0.5);
+        }
+
+        .cell {
+            aspect-ratio: 1;
+            background: linear-gradient(145deg, #fef7ff 0%, #fdf2f8 100%);
+            border-radius: clamp(4px, 1.5vw, 10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Amiri', serif;
+            font-size: clamp(0.8rem, 2.5vw, 1.4rem);
+            font-weight: 700;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(251, 207, 232, 0.6);
+            box-shadow: 0 2px 8px rgba(236, 72, 153, 0.15);
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Tablet cell adjustments */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .cell {
+                border-radius: clamp(6px, 1.8vw, 10px);
+                font-size: clamp(1rem, 2.5vw, 1.5rem);
+                border: 2px solid rgba(251, 207, 232, 0.6);
+                box-shadow: 0 3px 12px rgba(236, 72, 153, 0.2);
+            }
+        }
+
+        /* Tablet portrait mode - slightly larger cells */
+        @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+            .cell {
+                font-size: clamp(1.2rem, 3vw, 1.8rem);
+                border-radius: clamp(8px, 2vw, 12px);
+            }
+        }
+
+        .cell.filled {
+            transform: scale(0.95);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .cell.preview {
+            border: 3px solid #4fd1c7 !important;
+            background: rgba(79, 209, 199, 0.4) !important;
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(79, 209, 199, 0.8), inset 0 0 15px rgba(79, 209, 199, 0.3);
+            animation: previewPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes previewPulse {
+            0%, 100% { 
+                box-shadow: 0 0 25px rgba(79, 209, 199, 0.8), inset 0 0 15px rgba(79, 209, 199, 0.3);
+            }
+            50% { 
+                box-shadow: 0 0 35px rgba(79, 209, 199, 1), inset 0 0 20px rgba(79, 209, 199, 0.5);
+            }
+        }
+
+        .cell.invalid-preview {
+            border: 2px solid #f56565 !important;
+            background: rgba(245, 101, 101, 0.3) !important;
+            transform: scale(0.95);
+            box-shadow: 0 0 20px rgba(245, 101, 101, 0.6), inset 0 0 10px rgba(245, 101, 101, 0.2);
+        }
+
+        .cell.removing {
+            animation: removeCell 0.6s ease-in-out;
+        }
+
+        @keyframes removeCell {
+            0% { 
+                transform: scale(0.95); 
+                opacity: 1; 
+            }
+            25% { 
+                transform: scale(1.1); 
+                opacity: 0.9; 
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+                filter: brightness(1.5);
+            }
+            50% { 
+                transform: scale(1.2); 
+                opacity: 0.7; 
+                box-shadow: 0 0 30px rgba(255, 215, 0, 1);
+                filter: brightness(2);
+            }
+            100% { 
+                transform: scale(0); 
+                opacity: 0; 
+                filter: brightness(3);
+            }
+        }
+
+        .next-blocks {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: clamp(10px, 2vw, 18px);
+            flex-wrap: nowrap;
+            gap: clamp(8px, 2vw, 15px);
+            padding: clamp(10px, 2.5vw, 18px);
+            min-height: clamp(80px, 15vw, 120px);
+            background: linear-gradient(145deg, #ecfdf5 0%, #d1fae5 100%);
+            border-radius: clamp(12px, 3vw, 18px);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.15);
+            flex-shrink: 0;
+        }
+
+        /* Tablet next blocks adjustments */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .next-blocks {
+                padding: clamp(18px, 4vw, 25px);
+                gap: clamp(15px, 3vw, 25px);
+                min-height: clamp(120px, 18vw, 160px);
+                border-radius: clamp(18px, 4vw, 25px);
+                border: 3px solid rgba(255, 255, 255, 0.8);
+                box-shadow: 0 6px 20px rgba(34, 197, 94, 0.2);
+            }
+        }
+
+        /* Tablet portrait mode - even larger next blocks */
+        @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+            .next-blocks {
+                min-height: clamp(140px, 20vw, 180px);
+                padding: clamp(22px, 5vw, 30px);
+            }
+        }
+
+        .next-block {
+            cursor: grab;
+            transition: all 0.3s ease;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            min-width: 0;
+            position: relative;
+        }
+
+        .next-block:hover {
+            transform: translateY(-8px) scale(1.05);
+            filter: brightness(1.1);
+        }
+
+        .next-block.dragging {
+            cursor: grabbing;
+            transform: scale(1.3);
+            z-index: 1000;
+            position: fixed;
+            pointer-events: none;
+            opacity: 0.95;
+            filter: drop-shadow(0 20px 35px rgba(0, 0, 0, 0.5));
+            transition: none;
+        }
+
+        .next-block.used {
+            opacity: 0.3;
+            transform: scale(0.8);
+            pointer-events: none;
+        }
+
+        .block-preview {
+            display: grid;
+            gap: clamp(2px, 0.8vw, 3px);
+        }
+
+        .preview-cell {
+            width: clamp(24px, 6vw, 40px);
+            height: clamp(24px, 6vw, 40px);
+            border-radius: clamp(4px, 1.5vw, 8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Amiri', serif;
+            font-size: clamp(0.9rem, 2.8vw, 1.3rem);
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        /* Tablet preview cell adjustments */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .preview-cell {
+                width: clamp(30px, 6.5vw, 45px);
+                height: clamp(30px, 6.5vw, 45px);
+                border-radius: clamp(5px, 1.8vw, 8px);
+                font-size: clamp(1rem, 2.8vw, 1.3rem);
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
+            }
+        }
+
+        /* Tablet portrait mode - slightly larger preview cells */
+        @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+            .preview-cell {
+                width: clamp(32px, 7vw, 50px);
+                height: clamp(32px, 7vw, 50px);
+                font-size: clamp(1.1rem, 3vw, 1.4rem);
+                border-radius: clamp(6px, 2vw, 10px);
+            }
+        }
+
+        .preview-cell:not(:empty) {
+            transform: scale(0.95);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: clamp(10px, 3vw, 15px);
+        }
+
+        .btn {
+            padding: clamp(12px, 3vw, 15px) clamp(20px, 5vw, 28px);
+            border: none;
+            border-radius: clamp(20px, 5vw, 25px);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+            min-height: 48px; /* Touch-friendly minimum */
+            white-space: nowrap;
+            touch-action: manipulation; /* Prevent double-tap zoom */
+            -webkit-tap-highlight-color: transparent; /* Remove tap highlight */
+        }
+
+        /* Tablet button adjustments */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .btn {
+                padding: clamp(15px, 3.5vw, 18px) clamp(25px, 5vw, 32px);
+                border-radius: clamp(20px, 5vw, 25px);
+                font-size: clamp(1rem, 2.5vw, 1.2rem);
+                min-height: 52px;
+            }
+        }
+
+        /* Tablet portrait mode - slightly larger buttons */
+        @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+            .btn {
+                padding: clamp(16px, 3.8vw, 20px) clamp(28px, 6vw, 35px);
+                font-size: clamp(1.1rem, 2.8vw, 1.3rem);
+                min-height: 55px;
+            }
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #f472b6, #ec4899);
+            color: white;
+            box-shadow: 0 6px 20px rgba(244, 114, 182, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #a855f7, #8b5cf6);
+            color: white;
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+
+
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            font-family: 'Amiri', serif;
+            font-weight: 700;
+            z-index: 1000;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(0.5);
+                opacity: 0;
+            }
+        }
+
+        .celebration-text {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 2000;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .celebration-arabic {
+            font-family: 'Amiri', serif;
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            font-weight: 700;
+            color: #FFD700;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
+            margin-bottom: clamp(5px, 2vw, 10px);
+            display: block;
+        }
+
+        .celebration-latin {
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(1.2rem, 3.5vw, 1.5rem);
+            font-weight: 600;
+            color: #FFF;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            display: block;
+        }
+
+        @keyframes celebrationPulse {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0;
+            }
+            20% {
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 1;
+            }
+            80% {
+                transform: translate(-50%, -50%) scale(1.1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 0;
+            }
+        }
+
+        .celebration-text.show {
+            animation: celebrationPulse 2s ease-in-out;
+        }
+
+        .sparkle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1999;
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+            color: #FFD700;
+            text-shadow: 0 0 10px #FFD700;
+        }
+
+        @keyframes sparkleFloat {
+            0% {
+                transform: translateY(0) rotate(0deg) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+                transform: translateY(-10px) rotate(36deg) scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(-80px) rotate(180deg) scale(1.2);
+            }
+            100% {
+                transform: translateY(-150px) rotate(360deg) scale(0);
+                opacity: 0;
+            }
+        }
+
+        @keyframes sparkleGlow {
+            0%, 100% {
+                text-shadow: 0 0 5px #FFD700, 0 0 10px #FFD700;
+            }
+            50% {
+                text-shadow: 0 0 20px #FFD700, 0 0 30px #FFD700, 0 0 40px #FFD700;
+            }
+        }
+
+        .sparkle.animate {
+            animation: sparkleFloat 2s ease-out forwards, sparkleGlow 0.5s ease-in-out infinite;
+        }
+
+        /* Welcome Screen Styles - Full Screen Layout */
+        .welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            overflow: hidden;
+            padding: clamp(15px, 4vw, 30px);
+            text-align: center;
+            gap: clamp(15px, 3vw, 25px);
+        }
+
+        /* Tablet welcome screen adjustments */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .welcome-screen {
+                padding: clamp(25px, 5vw, 40px);
+                gap: clamp(25px, 4vw, 35px);
+            }
+        }
+
+        /* Tablet portrait mode - even larger welcome screen */
+        @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+            .welcome-screen {
+                padding: clamp(30px, 6vw, 45px);
+                gap: clamp(30px, 5vw, 40px);
+            }
+        }
+
+        .welcome-content {
+            display: contents; /* Remove wrapper behavior */
+        }
+
+        @keyframes welcomeSlideIn {
+            0% {
+                transform: translateY(100px) scale(0.8);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .logo-container {
+            animation: welcomeSlideIn 1s ease-out;
+            animation-delay: 0.2s;
+            animation-fill-mode: both;
+        }
+
+        .logo-blocks {
+            display: flex;
+            justify-content: center;
+            gap: clamp(6px, 2vw, 12px);
+            margin-bottom: clamp(15px, 4vw, 20px);
+        }
+
+        .logo-block {
+            width: clamp(40px, 10vw, 60px);
+            height: clamp(40px, 10vw, 60px);
+            border-radius: clamp(6px, 2vw, 12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Amiri', serif;
+            font-size: clamp(1.3rem, 3.5vw, 1.8rem);
+            font-weight: 700;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            animation: logoFloat 3s ease-in-out infinite;
+            animation-delay: var(--delay, 0s);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Tablet logo block adjustments */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .logo-block {
+                width: clamp(55px, 12vw, 75px);
+                height: clamp(55px, 12vw, 75px);
+                border-radius: clamp(10px, 2.5vw, 15px);
+                font-size: clamp(1.6rem, 4vw, 2.2rem);
+                border: 3px solid rgba(255, 255, 255, 0.3);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            }
+        }
+
+        /* Tablet portrait mode - even larger logo blocks */
+        @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+            .logo-block {
+                width: clamp(65px, 14vw, 85px);
+                height: clamp(65px, 14vw, 85px);
+                font-size: clamp(1.8rem, 4.5vw, 2.6rem);
+                border-radius: clamp(12px, 3vw, 18px);
+            }
+        }
+
+        .logo-block:nth-child(1) { --delay: 0s; }
+        .logo-block:nth-child(2) { --delay: 0.2s; }
+        .logo-block:nth-child(3) { --delay: 0.4s; }
+        .logo-block:nth-child(4) { --delay: 0.6s; }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-10px) rotate(2deg); }
+            50% { transform: translateY(-5px) rotate(-1deg); }
+            75% { transform: translateY(-15px) rotate(1deg); }
+        }
+
+        .welcome-header {
+            animation: welcomeSlideIn 1s ease-out;
+            animation-delay: 0.4s;
+            animation-fill-mode: both;
+        }
+
+        .welcome-title {
+            font-size: clamp(1.8rem, 6vw, 2.8rem);
+            font-weight: 700;
+            background: linear-gradient(45deg, #ffffff, #f0f9ff, #ffffff, #fef7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: clamp(6px, 1.5vw, 10px);
+            animation: titleGlow 2s ease-in-out infinite alternate;
+            line-height: 1.2;
+            text-shadow: 0 3px 15px rgba(255, 255, 255, 0.3);
+            filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.2));
+        }
+
+        /* Tablet welcome title adjustments */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .welcome-title {
+                font-size: clamp(2.4rem, 6.5vw, 3.6rem);
+                margin-bottom: clamp(10px, 2vw, 15px);
+                text-shadow: 0 4px 20px rgba(255, 255, 255, 0.4);
+                filter: drop-shadow(0 2.5px 12px rgba(255, 255, 255, 0.3));
+            }
+        }
+
+        /* Tablet portrait mode - even larger welcome title */
+        @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+            .welcome-title {
+                font-size: clamp(2.8rem, 7.5vw, 4rem);
+                margin-bottom: clamp(12px, 2.5vw, 18px);
+            }
+        }
+
+        @keyframes titleGlow {
+            0% { filter: brightness(1) drop-shadow(0 2px 10px rgba(255, 255, 255, 0.2)); }
+            100% { filter: brightness(1.3) drop-shadow(0 4px 20px rgba(255, 255, 255, 0.4)); }
+        }
+
+        .welcome-subtitle {
+            font-family: 'Amiri', serif;
+            font-size: clamp(1.1rem, 3.2vw, 1.5rem);
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: clamp(5px, 1.2vw, 8px);
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+            font-weight: 700;
+        }
+
+        .welcome-description {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+            margin-bottom: clamp(20px, 4vw, 28px);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+            font-weight: 500;
+        }
+
+        /* Tablet welcome subtitle and description adjustments */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .welcome-subtitle {
+                font-size: clamp(1.4rem, 4vw, 1.8rem);
+                margin-bottom: clamp(8px, 1.5vw, 12px);
+                text-shadow: 2.5px 2.5px 8px rgba(0, 0, 0, 0.4);
+            }
+            
+            .welcome-description {
+                font-size: clamp(1.1rem, 3vw, 1.3rem);
+                margin-bottom: clamp(28px, 5vw, 35px);
+                text-shadow: 1.5px 1.5px 5px rgba(0, 0, 0, 0.4);
+            }
+        }
+
+        /* Tablet portrait mode - even larger subtitle and description */
+        @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+            .welcome-subtitle {
+                font-size: clamp(1.6rem, 4.5vw, 2rem);
+                margin-bottom: clamp(10px, 2vw, 15px);
+            }
+            
+            .welcome-description {
+                font-size: clamp(1.2rem, 3.2vw, 1.5rem);
+                margin-bottom: clamp(32px, 5.5vw, 40px);
+            }
+        }
+
+        .welcome-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(clamp(200px, 25vw, 280px), 1fr));
+            gap: clamp(15px, 4vw, 25px);
+            margin-bottom: clamp(30px, 6vw, 40px);
+            width: 100%;
+            max-width: min(90vw, 800px);
+            animation: welcomeSlideIn 1s ease-out;
+            animation-delay: 0.6s;
+            animation-fill-mode: both;
+        }
+
+        .feature-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: clamp(8px, 2vw, 12px);
+            padding: clamp(15px, 4vw, 20px);
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: clamp(15px, 4vw, 20px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-icon {
+            font-size: clamp(2.5rem, 6vw, 3.5rem);
+            width: clamp(60px, 15vw, 80px);
+            height: clamp(60px, 15vw, 80px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .feature-text {
+            text-align: center;
+            flex: 1;
+        }
+
+        .feature-text h3 {
+            margin: 0 0 5px 0;
+            color: white;
+            font-size: clamp(1.2rem, 3.5vw, 1.4rem);
+            font-weight: 600;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-text p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: clamp(0.95rem, 2.8vw, 1.1rem);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .welcome-controls {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(15px, 4vw, 20px);
+            width: 100%;
+            max-width: min(90vw, 400px);
+            animation: welcomeSlideIn 1s ease-out;
+            animation-delay: 0.8s;
+            animation-fill-mode: both;
+        }
+
+        .btn-start, .btn-tutorial {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(8px, 2vw, 12px);
+            padding: clamp(14px, 3.5vw, 18px) clamp(24px, 5.5vw, 32px);
+            border: none;
+            border-radius: clamp(20px, 5vw, 25px);
+            font-size: clamp(0.95rem, 2.8vw, 1.1rem);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+            min-height: clamp(48px, 10vw, 55px);
+            width: 100%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Tablet welcome buttons adjustments */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .btn-start, .btn-tutorial {
+                padding: clamp(18px, 4vw, 24px) clamp(32px, 6.5vw, 45px);
+                gap: clamp(12px, 2.5vw, 16px);
+                border-radius: clamp(25px, 5.5vw, 30px);
+                font-size: clamp(1.1rem, 3.2vw, 1.4rem);
+                min-height: clamp(58px, 12vw, 68px);
+                border: 3px solid rgba(255, 255, 255, 0.3);
+            }
+        }
+
+        /* Tablet portrait mode - even larger welcome buttons */
+        @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+            .btn-start, .btn-tutorial {
+                padding: clamp(22px, 4.5vw, 28px) clamp(36px, 7.5vw, 50px);
+                font-size: clamp(1.2rem, 3.5vw, 1.5rem);
+                min-height: clamp(62px, 13vw, 72px);
+                gap: clamp(14px, 3vw, 20px);
+            }
+        }
+
+        .btn-start {
+            background: linear-gradient(45deg, rgba(240, 147, 251, 0.9), rgba(245, 87, 108, 0.9));
+            color: white;
+            box-shadow: 0 10px 30px rgba(245, 87, 108, 0.4);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-tutorial {
+            background: linear-gradient(45deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9));
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-start:hover, .btn-tutorial:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-start:active, .btn-tutorial:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        .btn-text {
+            font-weight: 600;
+        }
+
+        .btn-icon {
+            font-size: clamp(1.3rem, 3.5vw, 1.6rem);
+        }
+
+        .floating-letters {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .floating-letter {
+            position: absolute;
+            font-family: 'Amiri', serif;
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.15);
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+            animation: floatAround 20s linear infinite;
+            animation-delay: var(--delay);
+        }
+
+        .floating-letter:nth-child(1) { left: 10%; top: 20%; --delay: 0s; }
+        .floating-letter:nth-child(2) { left: 80%; top: 30%; --delay: 3s; }
+        .floating-letter:nth-child(3) { left: 20%; top: 70%; --delay: 6s; }
+        .floating-letter:nth-child(4) { left: 70%; top: 80%; --delay: 9s; }
+        .floating-letter:nth-child(5) { left: 90%; top: 60%; --delay: 12s; }
+        .floating-letter:nth-child(6) { left: 5%; top: 50%; --delay: 15s; }
+
+        @keyframes floatAround {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.15;
+            }
+            25% {
+                transform: translateY(-30px) rotate(90deg);
+                opacity: 0.25;
+            }
+            50% {
+                transform: translateY(-60px) rotate(180deg);
+                opacity: 0.15;
+            }
+            75% {
+                transform: translateY(-30px) rotate(270deg);
+                opacity: 0.25;
+            }
+            100% {
+                transform: translateY(0) rotate(360deg);
+                opacity: 0.15;
+            }
+        }
+
+        /* Learning Modal Styles */
+        .learning-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 5000;
+            backdrop-filter: blur(15px);
+            padding: clamp(15px, 4vw, 30px);
+            overflow: hidden;
+            animation: modalFadeIn 0.5s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            0% {
+                opacity: 0;
+                backdrop-filter: blur(0px);
+            }
+            100% {
+                opacity: 1;
+                backdrop-filter: blur(15px);
+            }
+        }
+
+        .learning-content {
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 50%, #e2e8f0 100%);
+            border-radius: clamp(25px, 6vw, 35px);
+            padding: clamp(30px, 7vw, 45px);
+            max-width: min(95vw, 600px);
+            width: 100%;
+            max-height: min(90vh, 90dvh);
+            overflow-y: auto;
+            overflow-x: hidden;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 0 3px rgba(255, 255, 255, 0.8);
+            border: 4px solid rgba(34, 197, 94, 0.3);
+            animation: learningSlideIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+        }
+
+        /* Evaluation specific styling */
+        #evaluationModal .learning-content {
+            max-width: min(90vw, 480px);
+            max-height: min(85vh, 85dvh);
+            padding: clamp(20px, 5vw, 30px);
+        }
+
+        .learning-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #22c55e, #059669, #10b981, #06b6d4, #22c55e);
+            background-size: 200% 100%;
+            animation: gradientShift 3s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes learningSlideIn {
+            0% {
+                transform: scale(0.7) translateY(100px) rotate(-5deg);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.05) translateY(-20px) rotate(2deg);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1) translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .learning-header {
+            text-align: center;
+            margin-bottom: clamp(25px, 6vw, 35px);
+            position: relative;
+        }
+
+        .learning-title {
+            font-size: clamp(1.8rem, 5vw, 2.4rem);
+            font-weight: 700;
+            background: linear-gradient(45deg, #22c55e, #059669, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: clamp(8px, 2vw, 12px);
+            text-shadow: 0 2px 10px rgba(34, 197, 94, 0.3);
+            animation: titlePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .learning-subtitle {
+            font-family: 'Amiri', serif;
+            font-size: clamp(1.2rem, 3.5vw, 1.6rem);
+            color: #059669;
+            font-weight: 600;
+            margin-bottom: clamp(15px, 4vw, 20px);
+        }
+
+        .learning-instruction {
+            background: linear-gradient(45deg, rgba(34, 197, 94, 0.1), rgba(16, 185, 129, 0.1));
+            padding: clamp(15px, 4vw, 20px);
+            border-radius: clamp(15px, 4vw, 20px);
+            border: 2px solid rgba(34, 197, 94, 0.2);
+            margin-bottom: clamp(25px, 6vw, 30px);
+            text-align: center;
+        }
+
+        .learning-instruction p {
+            margin: 0;
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            color: #065f46;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        /* Evaluation specific header styling */
+        #evaluationModal .learning-header {
+            margin-bottom: clamp(15px, 4vw, 20px);
+        }
+
+        #evaluationModal .learning-title {
+            font-size: clamp(1.5rem, 4vw, 1.8rem);
+            margin-bottom: clamp(5px, 1.5vw, 8px);
+        }
+
+        #evaluationModal .learning-subtitle {
+            font-size: clamp(1rem, 2.8vw, 1.2rem);
+            margin-bottom: clamp(8px, 2vw, 12px);
+        }
+
+        #evaluationModal .learning-instruction {
+            padding: clamp(10px, 3vw, 15px);
+            margin-bottom: clamp(15px, 4vw, 20px);
+        }
+
+        #evaluationModal .learning-instruction p {
+            font-size: clamp(0.85rem, 2.5vw, 1rem);
+            line-height: 1.3;
+        }
+
+        .hijaiyah-grid {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: clamp(12px, 3vw, 18px);
+            margin-bottom: clamp(25px, 6vw, 35px);
+            padding: clamp(25px, 6vw, 35px);
+            background: linear-gradient(145deg, rgba(34, 197, 94, 0.05), rgba(16, 185, 129, 0.05));
+            border-radius: clamp(15px, 4vw, 20px);
+            border: 2px solid rgba(34, 197, 94, 0.15);
+            min-height: clamp(120px, 20vw, 160px);
+        }
+
+        .hijaiyah-letter {
+            aspect-ratio: 1;
+            background: linear-gradient(145deg, #ffffff, #f1f5f9);
+            border-radius: clamp(12px, 3vw, 16px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Amiri', serif;
+            font-size: clamp(1.8rem, 4.5vw, 2.4rem);
+            font-weight: 700;
+            color: #059669;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+            border: 3px solid rgba(34, 197, 94, 0.2);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            width: clamp(120px, 25vw, 180px);
+            height: clamp(120px, 25vw, 180px);
+        }
+
+        .hijaiyah-letter.single-letter {
+            width: clamp(150px, 30vw, 220px);
+            height: clamp(150px, 30vw, 220px);
+            font-size: clamp(2.5rem, 6vw, 3.5rem);
+            border: 4px solid rgba(34, 197, 94, 0.3);
+            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.2), inset 0 2px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        .hijaiyah-letter.single-letter .letter-main {
+            font-size: clamp(2.5rem, 6vw, 3.5rem);
+            margin-bottom: clamp(4px, 1vw, 8px);
+        }
+
+        .hijaiyah-letter.single-letter .letter-pronunciation {
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+        }
+
+        .hijaiyah-letter::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .hijaiyah-letter:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 12px 30px rgba(34, 197, 94, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            border-color: rgba(34, 197, 94, 0.4);
+        }
+
+        .hijaiyah-letter:hover::before {
+            left: 100%;
+        }
+
+        .hijaiyah-letter:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .letter-main {
+            font-size: clamp(1.8rem, 4.5vw, 2.4rem);
+            margin-bottom: clamp(2px, 0.5vw, 4px);
+        }
+
+        .letter-pronunciation {
+            font-size: clamp(0.7rem, 2vw, 0.9rem);
+            color: #065f46;
+            font-weight: 600;
+            opacity: 0.8;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .learning-controls {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(10px, 2.5vw, 14px);
+            align-items: center;
+        }
+
+        .btn-continue {
+            background: linear-gradient(45deg, #22c55e, #059669);
+            color: white;
+            border: none;
+            padding: clamp(12px, 3vw, 16px) clamp(24px, 5vw, 32px);
+            border-radius: clamp(18px, 4.5vw, 22px);
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            min-height: 45px;
+            display: flex;
+            align-items: center;
+            gap: clamp(6px, 1.5vw, 10px);
+        }
+
+        .btn-continue:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4);
+            background: linear-gradient(45deg, #16a34a, #047857);
+        }
+
+        .btn-continue:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        .progress-indicator {
+            display: flex;
+            align-items: center;
+            gap: clamp(6px, 1.5vw, 10px);
+            font-size: clamp(0.8rem, 2.2vw, 0.9rem);
+            color: #065f46;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            width: clamp(80px, 18vw, 120px);
+            height: clamp(5px, 1.2vw, 7px);
+            background: rgba(34, 197, 94, 0.2);
+            border-radius: clamp(2.5px, 0.8vw, 3.5px);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e, #059669);
+            border-radius: clamp(2.5px, 0.8vw, 3.5px);
+            transition: width 0.5s ease;
+        }
+
+        /* Evaluation specific controls styling */
+        #evaluationModal .learning-controls {
+            gap: clamp(8px, 2vw, 12px);
+        }
+
+        #evaluationModal .progress-indicator {
+            font-size: clamp(0.75rem, 2vw, 0.85rem);
+            gap: clamp(5px, 1.2vw, 8px);
+        }
+
+        #evaluationModal .progress-bar {
+            width: clamp(70px, 15vw, 100px);
+            height: clamp(4px, 1vw, 6px);
+        }
+
+        /* Evaluation Modal Styles */
+        .evaluation-content {
+            margin-bottom: clamp(15px, 4vw, 20px);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.95));
+            border-radius: clamp(15px, 4vw, 20px);
+            padding: clamp(15px, 4vw, 25px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            max-height: none;
+            overflow: visible;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: clamp(15px, 4vw, 20px);
+            padding: clamp(10px, 3vw, 15px);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(147, 51, 234, 0.15));
+            border-radius: clamp(12px, 3vw, 15px);
+            border: 2px solid rgba(59, 130, 246, 0.25);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+        }
+
+        .question-number {
+            font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+            font-weight: 700;
+            color: #1e40af;
+            display: flex;
+            align-items: center;
+            gap: clamp(6px, 1.5vw, 8px);
+        }
+
+        .question-number::before {
+            content: '📝';
+            font-size: clamp(1rem, 2.8vw, 1.2rem);
+        }
+
+        .evaluation-score-display {
+            font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+            font-weight: 700;
+            color: #059669;
+            display: flex;
+            align-items: center;
+            gap: clamp(6px, 1.5vw, 8px);
+            background: linear-gradient(45deg, rgba(34, 197, 94, 0.1), rgba(16, 185, 129, 0.1));
+            padding: clamp(6px, 1.5vw, 10px) clamp(10px, 2.5vw, 14px);
+            border-radius: clamp(8px, 2vw, 10px);
+            border: 2px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .evaluation-score-display::before {
+            content: '🏆';
+            font-size: clamp(1rem, 2.8vw, 1.2rem);
+        }
+
+        .question-container {
+            text-align: center;
+            margin-bottom: clamp(15px, 3vw, 20px);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(248, 250, 252, 0.8));
+            border-radius: clamp(15px, 4vw, 20px);
+            padding: clamp(15px, 3vw, 20px);
+            border: 2px solid rgba(34, 197, 94, 0.15);
+            box-shadow: 0 6px 15px rgba(34, 197, 94, 0.1);
+        }
+
+        .question-text {
+            font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: clamp(12px, 2.5vw, 15px);
+            background: linear-gradient(45deg, #374151, #1f2937);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.3;
+        }
+
+        .question-letter {
+            width: clamp(100px, 20vw, 140px);
+            height: clamp(100px, 20vw, 140px);
+            margin: 0 auto clamp(15px, 3vw, 20px) auto;
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border-radius: clamp(15px, 4vw, 20px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Amiri', serif;
+            font-size: clamp(2rem, 5vw, 2.8rem);
+            font-weight: 700;
+            color: #059669;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
+            border: 3px solid rgba(34, 197, 94, 0.3);
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .question-letter::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .question-letter:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 20px 45px rgba(34, 197, 94, 0.3), inset 0 2px 0 rgba(255, 255, 255, 0.9);
+            border-color: rgba(34, 197, 94, 0.5);
+        }
+
+        .question-letter:hover::before {
+            left: 100%;
+        }
+
+        .question-letter:active {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(34, 197, 94, 0.4);
+        }
+
+        .question-letter.answered {
+            background: linear-gradient(145deg, #22c55e, #16a34a);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+            animation: successPulse 0.6s ease-out;
+        }
+
+        @keyframes successPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1.1); }
+        }
+
+        .evaluation-feedback {
+            text-align: center;
+            padding: clamp(10px, 2.5vw, 15px);
+            border-radius: clamp(12px, 3vw, 15px);
+            margin-bottom: clamp(10px, 2.5vw, 15px);
+            font-size: clamp(0.9rem, 2.2vw, 1rem);
+            font-weight: 600;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            animation: feedbackSlideIn 0.5s ease-out;
+        }
+
+        @keyframes feedbackSlideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(15px) scale(0.95);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .evaluation-feedback.correct {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(16, 185, 129, 0.15));
+            border: 2px solid rgba(34, 197, 94, 0.4);
+            color: #065f46;
+        }
+
+        .evaluation-feedback.incorrect {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.15));
+            border: 2px solid rgba(239, 68, 68, 0.4);
+            color: #991b1b;
+        }
+
+        .feedback-icon {
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+            margin-bottom: clamp(5px, 1.5vw, 8px);
+            display: block;
+            animation: iconBounce 0.6s ease-out;
+        }
+
+        @keyframes iconBounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-8px); }
+            60% { transform: translateY(-4px); }
+        }
+
+        .feedback-text {
+            margin-bottom: clamp(5px, 1.5vw, 8px);
+            font-size: clamp(0.9rem, 2.2vw, 1rem);
+            line-height: 1.2;
+        }
+
+        .feedback-pronunciation {
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(0.85rem, 2vw, 0.95rem);
+            opacity: 0.8;
+        }
+
+        /* Tutorial Modal Styles */
+        .tutorial-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 4000;
+            backdrop-filter: blur(10px);
+            padding: clamp(15px, 4vw, 30px);
+            overflow: hidden;
+        }
+
+        .tutorial-content {
+            background: linear-gradient(145deg, #ffffff 0%, #f7fafc 100%);
+            border-radius: clamp(20px, 5vw, 25px);
+            padding: clamp(25px, 6vw, 35px);
+            max-width: min(90vw, 450px);
+            width: 100%;
+            max-height: min(85vh, 85dvh);
+            overflow-y: auto;
+            overflow-x: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            animation: modalSlideIn 0.4s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            0% {
+                transform: scale(0.8) translateY(50px);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .tutorial-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: clamp(20px, 5vw, 25px);
+            padding-bottom: clamp(12px, 3vw, 15px);
+            border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .tutorial-header h2 {
+            color: #2d3748;
+            font-size: clamp(1.5rem, 4vw, 1.8rem);
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            color: #a0aec0;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            width: clamp(35px, 8vw, 40px);
+            height: clamp(35px, 8vw, 40px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(245, 101, 101, 0.1);
+            color: #f56565;
+            transform: scale(1.1);
+        }
+
+        .tutorial-steps {
+            margin-bottom: clamp(25px, 5vw, 30px);
+        }
+
+        .tutorial-step {
+            display: flex;
+            align-items: flex-start;
+            gap: clamp(15px, 4vw, 20px);
+            margin-bottom: clamp(20px, 4vw, 25px);
+            padding: clamp(15px, 4vw, 20px);
+            background: linear-gradient(45deg, rgba(102, 126, 234, 0.05), rgba(240, 147, 251, 0.05));
+            border-radius: clamp(12px, 3vw, 15px);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .step-number {
+            width: clamp(35px, 8vw, 40px);
+            height: clamp(35px, 8vw, 40px);
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: clamp(1.1rem, 3vw, 1.2rem);
+            flex-shrink: 0;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .step-content h3 {
+            margin: 0 0 8px 0;
+            color: #2d3748;
+            font-size: clamp(1.1rem, 3vw, 1.2rem);
+            font-weight: 600;
+        }
+
+        .step-content p {
+            margin: 0;
+            color: #718096;
+            line-height: 1.5;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+        }
+
+        /* Mobile Responsive Adjustments */
+        @media (max-width: 768px) {
+            .welcome-features {
+                grid-template-columns: 1fr;
+                gap: clamp(12px, 3vw, 18px);
+            }
+            
+            .feature-item {
+                flex-direction: row;
+                text-align: left;
+                gap: clamp(12px, 3vw, 15px);
+            }
+            
+            .feature-text {
+                text-align: left;
+            }
+            
+            .feature-icon {
+                width: clamp(50px, 12vw, 65px);
+                height: clamp(50px, 12vw, 65px);
+                font-size: clamp(2rem, 5vw, 2.8rem);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .welcome-screen {
+                gap: clamp(12px, 2.5vw, 20px);
+                padding: clamp(10px, 3vw, 20px);
+            }
+            
+            .logo-blocks {
+                gap: clamp(4px, 1.5vw, 8px);
+            }
+            
+            .logo-block {
+                width: clamp(40px, 10vw, 55px);
+                height: clamp(40px, 10vw, 55px);
+                font-size: clamp(1.3rem, 3.5vw, 1.8rem);
+            }
+            
+            .welcome-features {
+                margin-bottom: clamp(20px, 4vw, 30px);
+            }
+            
+            .feature-item {
+                padding: clamp(12px, 3vw, 15px);
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .feature-text {
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .welcome-screen {
+                gap: clamp(10px, 2vw, 15px);
+            }
+            
+            .logo-block {
+                width: clamp(35px, 9vw, 45px);
+                height: clamp(35px, 9vw, 45px);
+                font-size: clamp(1.2rem, 3vw, 1.5rem);
+            }
+        }
+
+        /* Landscape orientation adjustments */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .welcome-screen {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: space-around;
+                align-items: flex-start;
+                gap: clamp(10px, 2vw, 20px);
+                padding: clamp(10px, 2vw, 20px);
+            }
+            
+            .logo-container, .welcome-header {
+                flex: 1;
+                min-width: 300px;
+            }
+            
+            .welcome-features {
+                flex: 2;
+                min-width: 400px;
+                grid-template-columns: repeat(3, 1fr);
+                gap: clamp(8px, 2vw, 15px);
+                margin-bottom: clamp(15px, 3vw, 25px);
+            }
+            
+            .welcome-controls {
+                flex: 1;
+                min-width: 300px;
+                flex-direction: row;
+                gap: clamp(10px, 2vw, 15px);
+            }
+            
+            .feature-item {
+                padding: clamp(8px, 2vw, 12px);
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .feature-text {
+                text-align: center;
+            }
+            
+            .feature-icon {
+                width: clamp(40px, 8vw, 50px);
+                height: clamp(40px, 8vw, 50px);
+                font-size: clamp(1.5rem, 3vw, 2rem);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Welcome Screen -->
+    <div class="welcome-screen" id="welcomeScreen">
+        <div class="welcome-content">
+            <div class="logo-container">
+                <div class="logo-blocks">
+                    <div class="logo-block" style="background: linear-gradient(45deg, #f472b6, #ec4899);">ا</div>
+                    <div class="logo-block" style="background: linear-gradient(45deg, #a855f7, #8b5cf6);">ل</div>
+                    <div class="logo-block" style="background: linear-gradient(45deg, #06b6d4, #0891b2);">ع</div>
+                    <div class="logo-block" style="background: linear-gradient(45deg, #22c55e, #059669);">ب</div>
+                </div>
+            </div>
+            
+            <div class="welcome-header">
+                <h1 class="welcome-title">Block Blast Hijaiyah</h1>
+                <p class="welcome-subtitle">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم</p>
+                <p class="welcome-description">Belajar huruf Hijaiyah sambil bermain puzzle!</p>
+            </div>
+            
+            <div class="welcome-features">
+                <div class="feature-item">
+                    <div class="feature-icon">🧩</div>
+                    <div class="feature-text">
+                        <h3>Puzzle Seru</h3>
+                        <p>Susun blok huruf Hijaiyah</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📚</div>
+                    <div class="feature-text">
+                        <h3>Belajar Sambil Main</h3>
+                        <p>Hafal 28 huruf Hijaiyah</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🏆</div>
+                    <div class="feature-text">
+                        <h3>Skor Tinggi</h3>
+                        <p>Raih skor terbaik</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="welcome-controls">
+                <button class="btn-start" onclick="startGame()">
+                    <span class="btn-text">Mulai Bermain</span>
+                    <span class="btn-icon">🎮</span>
+                </button>
+                <button class="btn-tutorial" onclick="showTutorial()">
+                    <span class="btn-text">Cara Bermain</span>
+                    <span class="btn-icon">❓</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="floating-letters">
+            <div class="floating-letter">ا</div>
+            <div class="floating-letter">ب</div>
+            <div class="floating-letter">ت</div>
+            <div class="floating-letter">ث</div>
+            <div class="floating-letter">ج</div>
+            <div class="floating-letter">ح</div>
+        </div>
+    </div>
+
+    <!-- Learning Modal -->
+    <div class="learning-modal" id="learningModal">
+        <div class="learning-content">
+            <div class="learning-header">
+                <h2 class="learning-title">Waktunya Belajar! 📚</h2>
+                <p class="learning-subtitle">تَعَلَّمُوا الْحُرُوفَ الْهِجَائِيَّةَ</p>
+            </div>
+            
+            <div class="learning-instruction">
+                <p>🎯 Belajar dulu ya sebelum lanjut main!</p>
+                <p>👨‍🏫 Ikuti bacaan Ustadz/Ustadzah</p>
+            </div>
+            
+            <div class="hijaiyah-grid" id="hijaiyahGrid">
+                <!-- Huruf Hijaiyah akan diisi oleh JavaScript -->
+            </div>
+            
+            <div class="learning-controls">
+                <div class="progress-indicator">
+                    <span>Progress:</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                    <span id="progressText">0/28</span>
+                </div>
+                <button class="btn-continue" id="continueBtn" onclick="continuePlaying()" disabled>
+                    <span>Lanjut Bermain</span>
+                    <span>🎮</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Evaluation Modal -->
+    <div class="learning-modal" id="evaluationModal">
+        <div class="learning-content">
+            <div class="learning-header">
+                <h2 class="learning-title">Waktunya Evaluasi! 📝</h2>
+                <p class="learning-subtitle">اِمْتِحَانُ الْحُرُوفِ الْهِجَائِيَّةِ</p>
+            </div>
+            
+            <div class="learning-instruction">
+                <p>🎯 Ayo uji pemahaman 5 huruf yang sudah dipelajari!</p>
+                <p>📚 Klik huruf untuk melanjutkan - 10 huruf acak</p>
+            </div>
+            
+            <div class="evaluation-content" id="evaluationContent">
+                <div class="question-header">
+                    <div class="question-number">
+                        <span>Soal <span id="currentQuestionNum">1</span> dari 10</span>
+                    </div>
+                    <div class="evaluation-score-display">
+                        <span>Skor: <span id="evaluationScoreDisplay">0</span>/10</span>
+                    </div>
+                </div>
+                
+                <div class="question-container">
+                    <div class="question-text" id="questionText">
+                        Klik huruf ini jika kamu mengenalnya!
+                    </div>
+                    
+                    <div class="question-letter" id="questionLetter">
+                        <!-- Huruf akan ditampilkan di sini -->
+                    </div>
+                    
+                    <!-- Tidak ada pilihan jawaban - siswa harus mengingat sendiri -->
+                </div>
+                
+                <div class="evaluation-feedback" id="evaluationFeedback" style="display: none;">
+                    <!-- Feedback akan ditampilkan di sini -->
+                </div>
+            </div>
+            
+            <div class="learning-controls">
+                <div class="progress-indicator">
+                    <span>Progress:</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="evaluationProgressFill" style="width: 0%"></div>
+                    </div>
+                    <span id="evaluationProgressText">0/10</span>
+                </div>
+                <!-- Buttons removed - auto-advance after clicking letter -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Tutorial Modal -->
+    <div class="tutorial-modal" id="tutorialModal">
+        <div class="tutorial-content">
+            <div class="tutorial-header">
+                <h2>Cara Bermain</h2>
+                <button class="close-btn" onclick="closeTutorial()">×</button>
+            </div>
+            <div class="tutorial-steps">
+                <div class="tutorial-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Drag & Drop</h3>
+                        <p>Seret blok huruf dari bawah ke papan permainan</p>
+                    </div>
+                </div>
+                <div class="tutorial-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Susun Baris</h3>
+                        <p>Isi baris atau kolom penuh untuk menghapusnya</p>
+                    </div>
+                </div>
+                <div class="tutorial-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Raih Skor</h3>
+                        <p>Semakin banyak baris yang dihapus, semakin tinggi skor!</p>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-start" onclick="startGameFromTutorial()">Mulai Bermain</button>
+        </div>
+    </div>
+
+    <div class="game-container" id="gameContainer" style="display: none;">
+        <div class="header">
+            <p class="bismillah">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم</p>
+        </div>
+
+        <div class="score-board">
+            <div class="score-item">
+                <div class="score-label">Skor</div>
+                <div class="score-value" id="score">0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">Level</div>
+                <div class="score-value" id="level">1</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">Baris</div>
+                <div class="score-value" id="lines">0</div>
+            </div>
+        </div>
+
+        <div class="game-board" id="gameBoard"></div>
+
+        <div class="next-blocks" id="nextBlocks"></div>
+
+    </div>
+
+
+
+    <div class="celebration-text" id="celebrationText"></div>
+
+    <script>
+        // Huruf Hijaiyah dengan warna pastel
+        const hijaiyahLetters = [
+            {letter: 'ا', name: 'alif', color: '#f472b6'},
+            {letter: 'ب', name: 'ba', color: '#ec4899'},
+            {letter: 'ت', name: 'ta', color: '#db2777'},
+            {letter: 'ث', name: 'tha', color: '#be185d'},
+            {letter: 'ج', name: 'jim', color: '#a855f7'},
+            {letter: 'ح', name: 'ha', color: '#8b5cf6'},
+            {letter: 'خ', name: 'kha', color: '#7c3aed'},
+            {letter: 'د', name: 'dal', color: '#6366f1'},
+            {letter: 'ذ', name: 'thal', color: '#4f46e5'},
+            {letter: 'ر', name: 'ra', color: '#3b82f6'},
+            {letter: 'ز', name: 'zay', color: '#06b6d4'},
+            {letter: 'س', name: 'sin', color: '#0891b2'},
+            {letter: 'ش', name: 'shin', color: '#10b981'},
+            {letter: 'ص', name: 'sad', color: '#059669'},
+            {letter: 'ض', name: 'dad', color: '#22c55e'},
+            {letter: 'ط', name: 'ta2', color: '#65a30d'},
+            {letter: 'ظ', name: 'za', color: '#84cc16'},
+            {letter: 'ع', name: 'ain', color: '#eab308'},
+            {letter: 'غ', name: 'ghain', color: '#f59e0b'},
+            {letter: 'ف', name: 'fa', color: '#f97316'},
+            {letter: 'ق', name: 'qaf', color: '#ea580c'},
+            {letter: 'ك', name: 'kaf', color: '#ef4444'},
+            {letter: 'ل', name: 'lam', color: '#dc2626'},
+            {letter: 'م', name: 'mim', color: '#fb7185'},
+            {letter: 'ن', name: 'nun', color: '#f9a8d4'},
+            {letter: 'ه', name: 'ha2', color: '#c084fc'},
+            {letter: 'و', name: 'waw', color: '#93c5fd'},
+            {letter: 'ي', name: 'ya', color: '#67e8f9'}
+        ];
+
+        // Block shapes - Simplified and balanced
+        const blockShapes = [
+            // Single blocks
+            [[1]],
+            
+            // 2-block shapes
+            [[1, 1]], // Horizontal line
+            [[1], [1]], // Vertical line
+            
+            // 3-block shapes
+            [[1, 1, 1]], // Horizontal line 3
+            [[1], [1], [1]], // Vertical line 3
+            
+            // L-shapes (3 blocks)
+            [[1, 0], [1, 1]], // L └
+            [[0, 1], [1, 1]], // L ┘
+            [[1, 1], [1, 0]], // L ┌
+            [[1, 1], [0, 1]], // L ┐
+            
+            // Square
+            [[1, 1], [1, 1]], // 2x2 square
+            
+            // T-shapes
+            [[0, 1, 0], [1, 1, 1]], // T ┴
+            [[1, 0], [1, 1], [1, 0]], // T ├
+        ];
+
+        // Game state
+        let gameState = {
+            board: Array(8).fill().map(() => Array(8).fill(null)),
+            score: 0,
+            level: 1,
+            lines: 0,
+            nextBlocks: [],
+            gameRunning: true,
+            draggedBlock: null,
+            draggedBlockIndex: -1,
+            floatingBlock: null,
+            isDragging: false,
+            dragOffset: null,
+            isProcessingLines: false,
+            currentValidPlacement: null,
+            winsCount: 0,
+            learningProgress: 0,
+            currentLetterIndex: 0,
+            letterLearned: false,
+            learnedLetters: [], // Track all learned letters
+            evaluationMode: false,
+            evaluationQuestions: [],
+            currentQuestionIndex: 0,
+            evaluationScore: 0
+        };
+
+        // Huruf Hijaiyah dengan harakat fathah untuk pembelajaran (dimulai dari hamzah)
+        const hijaiyahWithFathah = [
+            {letter: 'ءَ', name: 'hamzah', pronunciation: 'a'},
+            {letter: 'أَ', name: 'alif', pronunciation: 'a'},
+            {letter: 'بَ', name: 'ba', pronunciation: 'ba'},
+            {letter: 'تَ', name: 'ta', pronunciation: 'ta'},
+            {letter: 'ثَ', name: 'tha', pronunciation: 'tsa'},
+            {letter: 'جَ', name: 'jim', pronunciation: 'ja'},
+            {letter: 'حَ', name: 'ha', pronunciation: 'ha'},
+            {letter: 'خَ', name: 'kha', pronunciation: 'kha'},
+            {letter: 'دَ', name: 'dal', pronunciation: 'da'},
+            {letter: 'ذَ', name: 'thal', pronunciation: 'dza'},
+            {letter: 'رَ', name: 'ra', pronunciation: 'ra'},
+            {letter: 'زَ', name: 'zay', pronunciation: 'za'},
+            {letter: 'سَ', name: 'sin', pronunciation: 'sa'},
+            {letter: 'شَ', name: 'shin', pronunciation: 'sya'},
+            {letter: 'صَ', name: 'sad', pronunciation: 'sha'},
+            {letter: 'ضَ', name: 'dad', pronunciation: 'dha'},
+            {letter: 'طَ', name: 'ta2', pronunciation: 'tha'},
+            {letter: 'ظَ', name: 'za', pronunciation: 'zha'},
+            {letter: 'عَ', name: 'ain', pronunciation: 'a'},
+            {letter: 'غَ', name: 'ghain', pronunciation: 'gha'},
+            {letter: 'فَ', name: 'fa', pronunciation: 'fa'},
+            {letter: 'قَ', name: 'qaf', pronunciation: 'qa'},
+            {letter: 'كَ', name: 'kaf', pronunciation: 'ka'},
+            {letter: 'لَ', name: 'lam', pronunciation: 'la'},
+            {letter: 'مَ', name: 'mim', pronunciation: 'ma'},
+            {letter: 'نَ', name: 'nun', pronunciation: 'na'},
+            {letter: 'هَ', name: 'ha2', pronunciation: 'ha'},
+            {letter: 'وَ', name: 'waw', pronunciation: 'wa'},
+            {letter: 'يَ', name: 'ya', pronunciation: 'ya'}
+        ];
+
+        // Sound effects using Web Audio API
+        let audioContext;
+        
+        function initAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                console.log('Audio not supported');
+            }
+        }
+        
+        function playSound(frequency, duration, type = 'sine', volume = 0.3) {
+            if (!audioContext || !gameState.gameRunning) return;
+            
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                oscillator.type = type;
+                
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            } catch (e) {
+                // Silently fail if audio doesn't work
+            }
+        }
+        
+        function playDragSound() {
+            playSound(400, 0.1, 'sine', 0.2);
+        }
+        
+        function playDropSound() {
+            playSound(600, 0.2, 'triangle', 0.3);
+            setTimeout(() => playSound(800, 0.1, 'sine', 0.2), 50);
+        }
+        
+        function playClearSound() {
+            // Ascending notes for line clear
+            playSound(523, 0.15, 'square', 0.4); // C5
+            setTimeout(() => playSound(659, 0.15, 'square', 0.4), 100); // E5
+            setTimeout(() => playSound(784, 0.2, 'square', 0.4), 200); // G5
+        }
+        
+        function playComboSound(comboCount) {
+            // Different sounds for different combo levels
+            if (comboCount === 1) {
+                playClearSound();
+            } else if (comboCount === 2) {
+                // Double combo - more dramatic
+                playSound(523, 0.1, 'sawtooth', 0.4);
+                setTimeout(() => playSound(659, 0.1, 'sawtooth', 0.4), 80);
+                setTimeout(() => playSound(784, 0.1, 'sawtooth', 0.4), 160);
+                setTimeout(() => playSound(1047, 0.2, 'sawtooth', 0.4), 240);
+            } else if (comboCount === 3) {
+                // Triple combo - even more dramatic
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        playSound(523 + (i * 131), 0.08, 'sawtooth', 0.3);
+                    }, i * 60);
+                }
+            } else {
+                // Mega combo - celebration sound
+                for (let i = 0; i < 8; i++) {
+                    setTimeout(() => {
+                        playSound(400 + (i * 100), 0.06, 'square', 0.25);
+                    }, i * 40);
+                }
+            }
+        }
+        
+        function playGameOverSound() {
+            // Descending sad sound
+            playSound(523, 0.3, 'sine', 0.3);
+            setTimeout(() => playSound(440, 0.3, 'sine', 0.3), 200);
+            setTimeout(() => playSound(349, 0.5, 'sine', 0.3), 400);
+        }
+
+        function initGame() {
+            initAudio();
+            createBoard();
+            addStartingBlocks();
+            generateNextBlocks();
+            updateDisplay();
+        }
+
+        function startGame() {
+            document.getElementById('welcomeScreen').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'block';
+            initGame();
+        }
+
+        function showTutorial() {
+            document.getElementById('tutorialModal').style.display = 'flex';
+        }
+
+        function closeTutorial() {
+            document.getElementById('tutorialModal').style.display = 'none';
+        }
+
+        function startGameFromTutorial() {
+            closeTutorial();
+            startGame();
+        }
+
+        function createBoard() {
+            const board = document.getElementById('gameBoard');
+            board.innerHTML = '';
+            
+            for (let i = 0; i < 64; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.row = Math.floor(i / 8);
+                cell.dataset.col = i % 8;
+                board.appendChild(cell);
+            }
+        }
+
+        function addStartingBlocks() {
+            // Add some random starting blocks to make the game more interesting
+            const startingPositions = [
+                {row: 1, col: 2}, {row: 1, col: 5},
+                {row: 2, col: 1}, {row: 2, col: 6},
+                {row: 3, col: 3}, {row: 3, col: 4},
+                {row: 4, col: 0}, {row: 4, col: 7},
+                {row: 5, col: 2}, {row: 5, col: 5},
+                {row: 6, col: 1}, {row: 6, col: 4}, {row: 6, col: 6}
+            ];
+            
+            // Randomly select 8-12 positions from the starting positions
+            const numStartingBlocks = Math.floor(Math.random() * 5) + 8; // 8-12 blocks
+            const selectedPositions = [];
+            
+            // Shuffle and select positions
+            const shuffled = [...startingPositions].sort(() => Math.random() - 0.5);
+            for (let i = 0; i < Math.min(numStartingBlocks, shuffled.length); i++) {
+                selectedPositions.push(shuffled[i]);
+            }
+            
+            // Place blocks at selected positions
+            selectedPositions.forEach(pos => {
+                const randomLetter = hijaiyahLetters[Math.floor(Math.random() * hijaiyahLetters.length)];
+                gameState.board[pos.row][pos.col] = randomLetter;
+                
+                // Update visual
+                const cellElement = document.querySelector(`[data-row="${pos.row}"][data-col="${pos.col}"]`);
+                if (cellElement) {
+                    cellElement.style.background = randomLetter.color;
+                    cellElement.textContent = randomLetter.letter;
+                    cellElement.style.color = 'white';
+                    cellElement.style.textShadow = '1px 1px 2px rgba(0,0,0,0.5)';
+                    cellElement.classList.add('filled');
+                    
+                    // Add a subtle entrance animation
+                    cellElement.style.transform = 'scale(0)';
+                    setTimeout(() => {
+                        cellElement.style.transition = 'transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+                        cellElement.style.transform = 'scale(0.95)';
+                    }, Math.random() * 500 + 100);
+                }
+            });
+        }
+
+        function generateNextBlocks() {
+            gameState.nextBlocks = [];
+            for (let i = 0; i < 3; i++) {
+                const shape = blockShapes[Math.floor(Math.random() * blockShapes.length)];
+                const letter = hijaiyahLetters[Math.floor(Math.random() * hijaiyahLetters.length)];
+                gameState.nextBlocks.push({
+                    shape: shape,
+                    letter: letter,
+                    used: false
+                });
+            }
+            renderNextBlocks();
+        }
+
+        function renderNextBlocks() {
+            const container = document.getElementById('nextBlocks');
+            container.innerHTML = '';
+
+            gameState.nextBlocks.forEach((block, index) => {
+                if (block.used) return; // Skip used blocks
+                
+                const blockDiv = document.createElement('div');
+                blockDiv.className = 'next-block';
+                blockDiv.dataset.index = index;
+                
+                const preview = document.createElement('div');
+                preview.className = 'block-preview';
+                preview.style.display = 'grid';
+                preview.style.gap = 'clamp(2px, 0.8vw, 3px)';
+                preview.style.justifyItems = 'center';
+                preview.style.alignItems = 'center';
+                
+                // Set grid template based on shape dimensions
+                const rows = block.shape.length;
+                const cols = block.shape[0].length;
+                preview.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+                preview.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+                
+                // Create cells
+                block.shape.forEach((row, rowIndex) => {
+                    row.forEach((cell, colIndex) => {
+                        const cellDiv = document.createElement('div');
+                        cellDiv.className = 'preview-cell';
+                        cellDiv.style.gridRow = rowIndex + 1;
+                        cellDiv.style.gridColumn = colIndex + 1;
+                        
+                        if (cell) {
+                            cellDiv.style.background = block.letter.color;
+                            cellDiv.textContent = block.letter.letter;
+                            cellDiv.style.color = 'white';
+                            cellDiv.style.textShadow = '1px 1px 2px rgba(0,0,0,0.5)';
+                        } else {
+                            cellDiv.style.background = 'transparent';
+                            cellDiv.style.border = 'none';
+                            cellDiv.style.boxShadow = 'none';
+                        }
+                        
+                        preview.appendChild(cellDiv);
+                    });
+                });
+                
+                blockDiv.appendChild(preview);
+                container.appendChild(blockDiv);
+                
+                // Add drag functionality with debouncing
+                blockDiv.addEventListener('mousedown', startDrag);
+                blockDiv.addEventListener('touchstart', startDrag);
+                
+                // Prevent double-click issues
+                blockDiv.addEventListener('dblclick', (e) => e.preventDefault());
+                blockDiv.addEventListener('selectstart', (e) => e.preventDefault());
+            });
+        }
+
+        function startDrag(e) {
+            if (gameState.isProcessingLines || !gameState.gameRunning || gameState.isDragging) return;
+            
+            e.preventDefault();
+            const blockIndex = parseInt(e.currentTarget.dataset.index);
+            
+            if (gameState.nextBlocks[blockIndex].used) return;
+            
+            // Play drag start sound
+            playDragSound();
+            
+            gameState.draggedBlock = gameState.nextBlocks[blockIndex];
+            gameState.draggedBlockIndex = blockIndex;
+            
+            const originalBlock = e.currentTarget;
+            const originalRect = originalBlock.getBoundingClientRect();
+            
+            // Get initial cursor position with better touch handling
+            const clientX = e.clientX || (e.touches && e.touches[0] && e.touches[0].clientX) || 0;
+            const clientY = e.clientY || (e.touches && e.touches[0] && e.touches[0].clientY) || 0;
+            
+            if (clientX === 0 && clientY === 0) return; // Safety check
+            
+            // Store offset so block follows cursor naturally
+            gameState.dragOffset = {
+                x: originalRect.left - clientX,
+                y: originalRect.top - clientY - 60 // Slightly above cursor
+            };
+            
+            // Remove any existing floating blocks first
+            if (gameState.floatingBlock) {
+                gameState.floatingBlock.remove();
+                gameState.floatingBlock = null;
+            }
+            
+            // Create a floating copy of the block
+            const floatingBlock = originalBlock.cloneNode(true);
+            floatingBlock.classList.add('dragging');
+            floatingBlock.style.position = 'fixed';
+            floatingBlock.style.zIndex = '1000';
+            floatingBlock.style.pointerEvents = 'none';
+            floatingBlock.style.transition = 'none';
+            floatingBlock.style.transform = 'scale(1.1)';
+            floatingBlock.style.transformOrigin = 'center center';
+            floatingBlock.style.filter = 'drop-shadow(0 15px 30px rgba(0,0,0,0.4))';
+            floatingBlock.style.width = originalRect.width + 'px';
+            floatingBlock.style.height = originalRect.height + 'px';
+            
+            // Position floating block using offset
+            floatingBlock.style.left = (clientX + gameState.dragOffset.x) + 'px';
+            floatingBlock.style.top = (clientY + gameState.dragOffset.y) + 'px';
+            
+            document.body.appendChild(floatingBlock);
+            
+            // Hide original block smoothly
+            originalBlock.style.transition = 'all 0.2s ease';
+            originalBlock.style.opacity = '0.2';
+            originalBlock.style.transform = 'scale(0.8)';
+            
+            // Add drag-active class to game board
+            document.getElementById('gameBoard').classList.add('drag-active');
+            
+            gameState.floatingBlock = floatingBlock;
+            gameState.isDragging = true;
+            
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchmove', drag);
+            document.addEventListener('touchend', endDrag);
+        }
+
+        function drag(e) {
+            if (!gameState.isDragging || !gameState.floatingBlock) return;
+            
+            e.preventDefault();
+            const clientX = e.clientX || (e.touches && e.touches[0] && e.touches[0].clientX) || 0;
+            const clientY = e.clientY || (e.touches && e.touches[0] && e.touches[0].clientY) || 0;
+            
+            if (clientX === 0 && clientY === 0) return;
+            
+            // Always follow cursor smoothly first
+            gameState.floatingBlock.style.left = (clientX + gameState.dragOffset.x) + 'px';
+            gameState.floatingBlock.style.top = (clientY + gameState.dragOffset.y) + 'px';
+            gameState.floatingBlock.style.transition = 'none'; // Remove transition for smooth following
+            
+            // Get board position - refresh for accuracy
+            const gameBoard = document.getElementById('gameBoard');
+            const boardRect = gameBoard.getBoundingClientRect();
+            
+            // Only show preview when directly over the board
+            const detectionMargin = 30;
+            const isOverBoard = clientX >= boardRect.left - detectionMargin && 
+                               clientX <= boardRect.right + detectionMargin && 
+                               clientY >= boardRect.top - detectionMargin && 
+                               clientY <= boardRect.bottom + detectionMargin;
+            
+            if (isOverBoard) {
+                // Map cursor position to board coordinates
+                const relativeX = Math.max(0, Math.min(boardRect.width - 1, clientX - boardRect.left));
+                const relativeY = Math.max(0, Math.min(boardRect.height - 1, clientY - boardRect.top));
+                
+                // Get cell coordinates
+                const cellWidth = boardRect.width / 8;
+                const cellHeight = boardRect.height / 8;
+                
+                const targetCol = Math.floor(relativeX / cellWidth);
+                const targetRow = Math.floor(relativeY / cellHeight);
+                
+                // Ensure target is within bounds
+                if (targetRow >= 0 && targetRow < 8 && targetCol >= 0 && targetCol < 8) {
+                    // Find best placement for this position
+                    let validPlacement = findPlacementForTargetCell(gameState.draggedBlock.shape, targetRow, targetCol);
+                    
+                    // If direct placement fails, try nearby positions
+                    if (!validPlacement || !canPlaceBlock(gameState.draggedBlock.shape, validPlacement.row, validPlacement.col)) {
+                        validPlacement = findNearestValidPlacement(gameState.draggedBlock.shape, targetRow, targetCol);
+                    }
+                    
+                    if (validPlacement && canPlaceBlock(gameState.draggedBlock.shape, validPlacement.row, validPlacement.col)) {
+                        // Store valid placement and show subtle preview
+                        gameState.currentValidPlacement = validPlacement;
+                        showValidPreview(validPlacement.row, validPlacement.col);
+                        
+                        // Subtle visual feedback for valid placement
+                        gameState.floatingBlock.style.opacity = '0.95';
+                        gameState.floatingBlock.style.transform = 'scale(1.1)';
+                        gameState.floatingBlock.style.filter = 'drop-shadow(0 15px 30px rgba(79, 209, 199, 0.5)) brightness(1.1)';
+                    } else {
+                        gameState.currentValidPlacement = null;
+                        clearPreview();
+                        
+                        // Subtle feedback for invalid placement
+                        gameState.floatingBlock.style.opacity = '0.8';
+                        gameState.floatingBlock.style.transform = 'scale(1.05)';
+                        gameState.floatingBlock.style.filter = 'drop-shadow(0 15px 30px rgba(245, 101, 101, 0.3)) brightness(0.95)';
+                    }
+                } else {
+                    gameState.currentValidPlacement = null;
+                    clearPreview();
+                }
+            } else {
+                // Outside board - clear preview and normal appearance
+                gameState.currentValidPlacement = null;
+                clearPreview();
+                
+                gameState.floatingBlock.style.opacity = '0.95';
+                gameState.floatingBlock.style.transform = 'scale(1.1)';
+                gameState.floatingBlock.style.filter = 'drop-shadow(0 15px 30px rgba(0,0,0,0.4))';
+            }
+        }
+
+
+
+        function endDrag(e) {
+            if (!gameState.isDragging) return;
+            
+            let blockPlaced = false;
+            
+            // Use the stored valid placement if available
+            if (gameState.currentValidPlacement && canPlaceBlock(gameState.draggedBlock.shape, gameState.currentValidPlacement.row, gameState.currentValidPlacement.col)) {
+                placeBlock(gameState.draggedBlock, gameState.currentValidPlacement.row, gameState.currentValidPlacement.col);
+                markBlockAsUsed();
+                blockPlaced = true;
+                
+                // Play drop sound
+                playDropSound();
+                
+                // Check for completed lines after a short delay
+                setTimeout(() => {
+                    checkForCompletedLines();
+                    updateDisplay();
+                    
+                    // Check if all blocks are used
+                    if (gameState.nextBlocks.every(block => block.used)) {
+                        generateNextBlocks();
+                    }
+                    
+                    // Check if board needs reset
+                    setTimeout(() => {
+                        if (!canPlaceAnyBlock()) {
+                            resetBoardWithRandomBlocks();
+                        }
+                    }, 100);
+                }, 100);
+            }
+            
+            // Clean up
+            document.getElementById('gameBoard').classList.remove('drag-active');
+            clearPreview();
+            
+            // Remove floating block with animation
+            if (gameState.floatingBlock) {
+                if (blockPlaced) {
+                    gameState.floatingBlock.style.transition = 'all 0.4s ease';
+                    gameState.floatingBlock.style.opacity = '0';
+                    gameState.floatingBlock.style.transform = 'scale(0.5)';
+                    gameState.floatingBlock.style.filter = 'brightness(2) drop-shadow(0 0 20px rgba(0,255,0,0.8))';
+                } else {
+                    const originalBlock = document.querySelector(`[data-index="${gameState.draggedBlockIndex}"]`);
+                    if (originalBlock) {
+                        const rect = originalBlock.getBoundingClientRect();
+                        gameState.floatingBlock.style.transition = 'all 0.3s ease';
+                        gameState.floatingBlock.style.left = rect.left + 'px';
+                        gameState.floatingBlock.style.top = rect.top + 'px';
+                        gameState.floatingBlock.style.transform = 'scale(1)';
+                        gameState.floatingBlock.style.filter = 'none';
+                    }
+                }
+                
+                setTimeout(() => {
+                    if (gameState.floatingBlock) {
+                        gameState.floatingBlock.remove();
+                        gameState.floatingBlock = null;
+                    }
+                }, blockPlaced ? 400 : 300);
+            }
+            
+            // Restore original block
+            const originalBlock = document.querySelector(`[data-index="${gameState.draggedBlockIndex}"]`);
+            if (originalBlock) {
+                if (blockPlaced) {
+                    originalBlock.classList.add('used');
+                } else {
+                    originalBlock.style.transition = 'all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+                    originalBlock.style.opacity = '1';
+                    originalBlock.style.transform = 'scale(1)';
+                }
+            }
+            
+            // Reset state
+            gameState.draggedBlock = null;
+            gameState.draggedBlockIndex = -1;
+            gameState.isDragging = false;
+            gameState.dragOffset = null;
+            gameState.currentValidPlacement = null;
+            
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', endDrag);
+            document.removeEventListener('touchmove', drag);
+            document.removeEventListener('touchend', endDrag);
+        }
+
+        function findBestPlacement(shape, targetRow, targetCol) {
+            // Try to center the shape around the target position
+            const shapeHeight = shape.length;
+            const shapeWidth = shape[0].length;
+            
+            // Calculate center offset
+            const centerRow = Math.floor(shapeHeight / 2);
+            const centerCol = Math.floor(shapeWidth / 2);
+            
+            let placementRow = targetRow - centerRow;
+            let placementCol = targetCol - centerCol;
+            
+            // Ensure the shape fits within the board
+            placementRow = Math.max(0, Math.min(placementRow, 8 - shapeHeight));
+            placementCol = Math.max(0, Math.min(placementCol, 8 - shapeWidth));
+            
+            return { row: placementRow, col: placementCol };
+        }
+
+        function findPlacementForTargetCell(shape, targetRow, targetCol) {
+            // Try to place the shape so that one of its filled cells lands on the target cell
+            for (let r = 0; r < shape.length; r++) {
+                for (let c = 0; c < shape[r].length; c++) {
+                    if (shape[r][c]) {
+                        // Calculate where the shape would need to be placed
+                        const placementRow = targetRow - r;
+                        const placementCol = targetCol - c;
+                        
+                        // Check if this placement is valid (within bounds)
+                        if (placementRow >= 0 && placementCol >= 0 && 
+                            placementRow + shape.length <= 8 && 
+                            placementCol + shape[0].length <= 8) {
+                            return { row: placementRow, col: placementCol };
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        function findNearestValidPlacement(shape, targetRow, targetCol) {
+            // Search in expanding circles around the target position
+            const maxRadius = 4;
+            
+            for (let radius = 0; radius <= maxRadius; radius++) {
+                const positions = [];
+                
+                if (radius === 0) {
+                    positions.push({row: targetRow, col: targetCol});
+                } else {
+                    // Generate positions in a circle around target
+                    for (let dr = -radius; dr <= radius; dr++) {
+                        for (let dc = -radius; dc <= radius; dc++) {
+                            if (Math.abs(dr) === radius || Math.abs(dc) === radius) {
+                                positions.push({
+                                    row: targetRow + dr,
+                                    col: targetCol + dc,
+                                    distance: Math.sqrt(dr * dr + dc * dc)
+                                });
+                            }
+                        }
+                    }
+                    // Sort by distance to target
+                    positions.sort((a, b) => a.distance - b.distance);
+                }
+                
+                // Try each position in this radius
+                for (const pos of positions) {
+                    if (pos.row >= 0 && pos.col >= 0 && pos.row < 8 && pos.col < 8) {
+                        const placement = findPlacementForTargetCell(shape, pos.row, pos.col);
+                        if (placement && canPlaceBlock(shape, placement.row, placement.col)) {
+                            return placement;
+                        }
+                    }
+                }
+            }
+            
+            return null;
+        }
+
+        function findOptimalPlacement(shape, targetRow, targetCol) {
+            // Bounds check first
+            if (targetRow < 0 || targetCol < 0) return null;
+            
+            // Find the center of mass of the shape for better snapping
+            let totalCells = 0;
+            let centerRow = 0;
+            let centerCol = 0;
+            
+            for (let r = 0; r < shape.length; r++) {
+                for (let c = 0; c < shape[r].length; c++) {
+                    if (shape[r][c]) {
+                        centerRow += r;
+                        centerCol += c;
+                        totalCells++;
+                    }
+                }
+            }
+            
+            if (totalCells === 0) return null;
+            
+            centerRow = centerRow / totalCells;
+            centerCol = centerCol / totalCells;
+            
+            // Calculate placement position to align center of mass with target
+            let placementRow = Math.round(targetRow - centerRow);
+            let placementCol = Math.round(targetCol - centerCol);
+            
+            // Ensure the shape fits within the board
+            const shapeHeight = shape.length;
+            const shapeWidth = shape[0].length;
+            
+            placementRow = Math.max(0, Math.min(placementRow, 8 - shapeHeight));
+            placementCol = Math.max(0, Math.min(placementCol, 8 - shapeWidth));
+            
+            return { row: placementRow, col: placementCol };
+        }
+
+        function findBestPlacementWithSnap(shape, targetRow, targetCol) {
+            return findOptimalPlacement(shape, targetRow, targetCol);
+        }
+
+        function findPlacementFromPreview(previewRow, previewCol) {
+            // Find where the shape should be placed based on the first preview cell
+            const shape = gameState.draggedBlock.shape;
+            
+            // Find the position of the first filled cell in the shape
+            for (let r = 0; r < shape.length; r++) {
+                for (let c = 0; c < shape[r].length; c++) {
+                    if (shape[r][c]) {
+                        return {
+                            row: previewRow - r,
+                            col: previewCol - c
+                        };
+                    }
+                }
+            }
+            return null;
+        }
+
+        function showValidPreview(startRow, startCol) {
+            clearPreview();
+            
+            const shape = gameState.draggedBlock.shape;
+            const letter = gameState.draggedBlock.letter;
+            
+            shape.forEach((row, r) => {
+                row.forEach((cell, c) => {
+                    if (cell) {
+                        const cellElement = document.querySelector(`[data-row="${startRow + r}"][data-col="${startCol + c}"]`);
+                        if (cellElement && !cellElement.classList.contains('filled')) {
+                            cellElement.classList.add('preview');
+                            cellElement.style.background = letter.color;
+                            cellElement.style.opacity = '0.8';
+                            cellElement.textContent = letter.letter;
+                            cellElement.style.color = 'white';
+                            cellElement.style.textShadow = '2px 2px 4px rgba(0,0,0,0.8)';
+                        }
+                    }
+                });
+            });
+        }
+
+        function showInvalidPreview() {
+            clearPreview();
+            // Just clear the preview - no need to show invalid placement
+        }
+
+        function clearPreview() {
+            document.querySelectorAll('.cell.preview, .cell.invalid-preview').forEach(cell => {
+                cell.classList.remove('preview', 'invalid-preview');
+                if (!cell.classList.contains('filled')) {
+                    cell.style.background = 'linear-gradient(145deg, #fef7ff 0%, #fdf2f8 100%)';
+                    cell.style.opacity = '1';
+                    cell.textContent = '';
+                    cell.style.color = '';
+                    cell.style.textShadow = '';
+                    cell.style.border = '2px solid rgba(251, 207, 232, 0.6)';
+                    cell.style.boxShadow = '0 3px 10px rgba(236, 72, 153, 0.1)';
+                    cell.style.transform = '';
+                }
+            });
+        }
+
+        function canPlaceBlock(shape, startRow, startCol) {
+            for (let r = 0; r < shape.length; r++) {
+                for (let c = 0; c < shape[r].length; c++) {
+                    if (shape[r][c]) {
+                        const newRow = startRow + r;
+                        const newCol = startCol + c;
+                        
+                        if (newRow >= 8 || newCol >= 8 || newRow < 0 || newCol < 0) {
+                            return false;
+                        }
+                        
+                        if (gameState.board[newRow][newCol] !== null) {
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+        function placeBlock(block, startRow, startCol) {
+            block.shape.forEach((row, r) => {
+                row.forEach((cell, c) => {
+                    if (cell) {
+                        const newRow = startRow + r;
+                        const newCol = startCol + c;
+                        gameState.board[newRow][newCol] = block.letter;
+                        
+                        // Update visual
+                        const cellElement = document.querySelector(`[data-row="${newRow}"][data-col="${newCol}"]`);
+                        if (cellElement) {
+                            cellElement.style.background = block.letter.color;
+                            cellElement.textContent = block.letter.letter;
+                            cellElement.style.color = 'white';
+                            cellElement.style.textShadow = '1px 1px 2px rgba(0,0,0,0.5)';
+                            cellElement.classList.add('filled');
+                            cellElement.classList.remove('preview');
+                            
+                            // Add placement animation
+                            cellElement.style.transform = 'scale(1.2)';
+                            setTimeout(() => {
+                                cellElement.style.transform = 'scale(0.95)';
+                            }, 150);
+                        }
+                    }
+                });
+            });
+            
+            // Add score for placing block
+            const blockSize = block.shape.flat().filter(cell => cell).length;
+            gameState.score += blockSize * 10;
+        }
+
+        function markBlockAsUsed() {
+            gameState.nextBlocks[gameState.draggedBlockIndex].used = true;
+            renderNextBlocks();
+        }
+
+        function checkForCompletedLines() {
+            if (gameState.isProcessingLines) return;
+            
+            gameState.isProcessingLines = true;
+            
+            let completedRows = [];
+            let completedCols = [];
+            
+            // Check rows
+            for (let row = 0; row < 8; row++) {
+                if (gameState.board[row].every(cell => cell !== null)) {
+                    completedRows.push(row);
+                }
+            }
+            
+            // Check columns
+            for (let col = 0; col < 8; col++) {
+                if (gameState.board.every(row => row[col] !== null)) {
+                    completedCols.push(col);
+                }
+            }
+            
+            // Remove completed lines
+            if (completedRows.length > 0 || completedCols.length > 0) {
+                const totalLines = completedRows.length + completedCols.length;
+                
+                // Play combo sound based on number of lines cleared
+                playComboSound(totalLines);
+                
+                animateLineRemoval(completedRows, completedCols);
+                
+                setTimeout(() => {
+                    // Clear completed rows and columns simultaneously
+                    const clearedCells = new Set();
+                    
+                    // Mark cells to be cleared
+                    completedRows.forEach(row => {
+                        for (let col = 0; col < 8; col++) {
+                            clearedCells.add(`${row}-${col}`);
+                        }
+                    });
+                    
+                    completedCols.forEach(col => {
+                        for (let row = 0; row < 8; row++) {
+                            clearedCells.add(`${row}-${col}`);
+                        }
+                    });
+                    
+                    // Clear all marked cells
+                    clearedCells.forEach(cellKey => {
+                        const [row, col] = cellKey.split('-').map(Number);
+                        gameState.board[row][col] = null;
+                        const cellElement = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                        if (cellElement) {
+                            resetCell(cellElement);
+                        }
+                    });
+                    
+                    // Calculate score with proper bonuses
+                    const totalCells = clearedCells.size;
+                    gameState.lines += totalLines;
+                    
+                    // Base score for cleared cells plus line bonus
+                    let lineScore = totalCells * 10; // Base score per cell
+                    
+                    // Bonus for completing lines
+                    if (totalLines === 1) {
+                        lineScore += 100;
+                    } else if (totalLines === 2) {
+                        lineScore += 300;
+                    } else if (totalLines === 3) {
+                        lineScore += 600;
+                    } else if (totalLines >= 4) {
+                        lineScore += 1000;
+                    }
+                    
+                    gameState.score += lineScore * gameState.level;
+                    gameState.level = Math.floor(gameState.lines / 10) + 1;
+                    
+                    updateDisplay();
+                    createParticleEffect(completedRows, completedCols);
+                    
+                    // Show celebration text based on combo
+                    showCelebrationText(totalLines);
+                    
+                    // Check for more completed lines after clearing (chain reactions)
+                    setTimeout(() => {
+                        gameState.isProcessingLines = false;
+                        checkForCompletedLines(); // Recursive check for chain reactions
+                        
+                        // Check if this was a win (cleared lines) and show learning modal
+                        if (totalLines > 0) {
+                            gameState.winsCount++;
+                            if (gameState.winsCount % 2 === 0) {
+                                setTimeout(() => {
+                                    showLearningModal();
+                                }, 1000);
+                            }
+                        }
+                    }, 200);
+                }, 600);
+            } else {
+                gameState.isProcessingLines = false;
+            }
+        }
+
+        function showLearningModal() {
+            gameState.gameRunning = false;
+            document.getElementById('learningModal').style.display = 'flex';
+            initializeLearningSession();
+        }
+
+        function initializeLearningSession() {
+            gameState.learningProgress = 0;
+            // Show letters in sequence, not randomly
+            if (gameState.currentLetterIndex >= hijaiyahWithFathah.length) {
+                gameState.currentLetterIndex = 0; // Reset to hamzah when reaching the end
+            }
+            gameState.letterLearned = false;
+            
+            renderSingleLetter();
+            updateLearningProgress();
+        }
+
+        function renderSingleLetter() {
+            const grid = document.getElementById('hijaiyahGrid');
+            grid.innerHTML = '';
+            
+            const letterData = hijaiyahWithFathah[gameState.currentLetterIndex];
+            
+            const letterDiv = document.createElement('div');
+            letterDiv.className = 'hijaiyah-letter single-letter';
+            letterDiv.dataset.learned = 'false';
+            
+            letterDiv.innerHTML = `
+                <div class="letter-main">${letterData.letter}</div>
+            `;
+            
+            letterDiv.addEventListener('click', () => {
+                markLetterAsLearned(letterDiv);
+                playLetterSound(letterData.pronunciation);
+            });
+            
+            grid.appendChild(letterDiv);
+        }
+
+        function markLetterAsLearned(letterElement) {
+            if (letterElement.dataset.learned === 'true') return;
+            
+            letterElement.dataset.learned = 'true';
+            gameState.letterLearned = true;
+            letterElement.style.background = 'linear-gradient(145deg, #22c55e, #16a34a)';
+            letterElement.style.color = 'white';
+            letterElement.style.transform = 'scale(1.1)';
+            letterElement.style.boxShadow = '0 8px 25px rgba(34, 197, 94, 0.4)';
+            
+            // Add to learned letters array
+            const currentLetter = hijaiyahWithFathah[gameState.currentLetterIndex];
+            if (!gameState.learnedLetters.find(l => l.letter === currentLetter.letter)) {
+                gameState.learnedLetters.push(currentLetter);
+            }
+            
+            // Add checkmark animation
+            setTimeout(() => {
+                letterElement.style.transform = 'scale(1)';
+                const checkmark = document.createElement('div');
+                checkmark.innerHTML = '✓';
+                checkmark.style.position = 'absolute';
+                checkmark.style.top = '5px';
+                checkmark.style.right = '5px';
+                checkmark.style.fontSize = 'clamp(1.2rem, 3vw, 1.5rem)';
+                checkmark.style.color = 'white';
+                checkmark.style.fontWeight = 'bold';
+                letterElement.appendChild(checkmark);
+            }, 200);
+            
+            gameState.learningProgress = 1;
+            updateLearningProgress();
+            
+            // Play success sound
+            playSound(800, 0.2, 'sine', 0.3);
+        }
+
+        function playLetterSound(pronunciation) {
+            // Simple pronunciation sound using different frequencies
+            const frequencies = {
+                'a': 440, 'ba': 494, 'ta': 523, 'tsa': 554, 'ja': 587,
+                'ha': 622, 'kha': 659, 'da': 698, 'dza': 740, 'ra': 784,
+                'za': 831, 'sa': 880, 'sya': 932, 'sha': 988, 'dha': 1047,
+                'tha': 1109, 'zha': 1175, 'gha': 1245, 'fa': 1319, 'qa': 1397,
+                'ka': 1480, 'la': 1568, 'ma': 1661, 'na': 1760, 'wa': 1865, 'ya': 1976
+            };
+            
+            const frequency = frequencies[pronunciation] || 440;
+            playSound(frequency, 0.4, 'sine', 0.4);
+        }
+
+        function updateLearningProgress() {
+            const totalLetters = 1; // Always 1 letter per session
+            const progressPercentage = (gameState.learningProgress / totalLetters) * 100;
+            
+            document.getElementById('progressFill').style.width = progressPercentage + '%';
+            document.getElementById('progressText').textContent = `${gameState.learningProgress}/${totalLetters}`;
+            
+            const continueBtn = document.getElementById('continueBtn');
+            if (gameState.letterLearned) {
+                continueBtn.disabled = false;
+                continueBtn.style.background = 'linear-gradient(45deg, #22c55e, #059669)';
+                continueBtn.style.opacity = '1';
+                continueBtn.innerHTML = '<span>Lanjut Bermain</span><span>🎮</span>';
+                
+                // Play completion sound
+                setTimeout(() => playSound(523, 0.2, 'triangle', 0.4), 100);
+                setTimeout(() => playSound(659, 0.2, 'triangle', 0.4), 300);
+                setTimeout(() => playSound(784, 0.3, 'triangle', 0.4), 500);
+            } else {
+                continueBtn.disabled = true;
+                continueBtn.style.background = 'linear-gradient(45deg, #9ca3af, #6b7280)';
+                continueBtn.style.opacity = '0.6';
+                continueBtn.innerHTML = '<span>Klik huruf untuk belajar</span><span>📚</span>';
+            }
+        }
+
+        function continuePlaying() {
+            document.getElementById('learningModal').style.display = 'none';
+            
+            // Move to next letter for next learning session
+            gameState.currentLetterIndex++;
+            
+            // Check if we need evaluation (every 5 letters)
+            if (gameState.learnedLetters.length > 0 && gameState.learnedLetters.length % 5 === 0) {
+                // Show evaluation modal
+                setTimeout(() => {
+                    showEvaluationModal();
+                }, 500);
+            } else {
+                gameState.gameRunning = true;
+                // Play continue sound
+                playSound(659, 0.3, 'triangle', 0.4);
+            }
+        }
+
+        function showEvaluationModal() {
+            gameState.gameRunning = false;
+            gameState.evaluationMode = true;
+            gameState.currentQuestionIndex = 0;
+            gameState.evaluationScore = 0;
+            
+            // Generate 10 questions from the last 5 learned letters
+            generateEvaluationQuestions();
+            
+            document.getElementById('evaluationModal').style.display = 'flex';
+            showCurrentQuestion();
+        }
+
+        function generateEvaluationQuestions() {
+            gameState.evaluationQuestions = [];
+            
+            // Get the last 5 learned letters
+            const last5Letters = gameState.learnedLetters.slice(-5);
+            
+            // Generate 10 questions (2 questions per letter on average)
+            for (let i = 0; i < 10; i++) {
+                const correctLetter = last5Letters[Math.floor(Math.random() * last5Letters.length)];
+                
+                gameState.evaluationQuestions.push({
+                    correctLetter: correctLetter,
+                    answered: false,
+                    correct: false
+                });
+            }
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function showCurrentQuestion() {
+            const question = gameState.evaluationQuestions[gameState.currentQuestionIndex];
+            
+            // Update question number
+            document.getElementById('currentQuestionNum').textContent = gameState.currentQuestionIndex + 1;
+            document.getElementById('evaluationScoreDisplay').textContent = gameState.evaluationScore;
+            
+            // Show the letter to identify
+            const questionLetter = document.getElementById('questionLetter');
+            questionLetter.textContent = question.correctLetter.letter;
+            questionLetter.classList.remove('answered'); // Reset visual state
+            questionLetter.style.pointerEvents = 'auto'; // Re-enable clicking
+            
+            // Make the letter clickable for answer
+            questionLetter.style.cursor = 'pointer';
+            questionLetter.onclick = () => {
+                if (!question.answered) {
+                    // Siswa harus mengingat sendiri - anggap benar jika diklik
+                    selectAnswer(true);
+                }
+            };
+            
+            // Hide feedback and buttons initially
+            document.getElementById('evaluationFeedback').style.display = 'none';
+            document.getElementById('nextQuestionBtn').style.display = 'none';
+            document.getElementById('finishEvaluationBtn').style.display = 'none';
+            
+            // Update progress
+            updateEvaluationProgress();
+        }
+
+        function selectAnswer(isCorrect) {
+            const question = gameState.evaluationQuestions[gameState.currentQuestionIndex];
+            if (question.answered) return;
+            
+            question.answered = true;
+            question.correct = isCorrect;
+            
+            // Update score - dalam evaluasi tanpa pilihan, semua dianggap benar karena siswa sudah belajar
+            gameState.evaluationScore++;
+            playSound(800, 0.2, 'sine', 0.3); // Success sound
+            
+            // Add visual feedback to the clicked letter
+            const questionLetter = document.getElementById('questionLetter');
+            questionLetter.classList.add('answered');
+            questionLetter.style.pointerEvents = 'none'; // Prevent multiple clicks
+            
+            // Show feedback briefly
+            showEvaluationFeedback(true, question.correctLetter);
+            
+            // Update progress
+            updateEvaluationProgress();
+            
+            // Auto-advance to next question after 1.5 seconds
+            setTimeout(() => {
+                if (gameState.currentQuestionIndex < gameState.evaluationQuestions.length - 1) {
+                    nextQuestion();
+                } else {
+                    finishEvaluation();
+                }
+            }, 1500);
+        }
+
+        function showEvaluationFeedback(isCorrect, correctLetter) {
+            const feedbackDiv = document.getElementById('evaluationFeedback');
+            feedbackDiv.style.display = 'block';
+            feedbackDiv.className = `evaluation-feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+            
+            if (isCorrect) {
+                feedbackDiv.innerHTML = `
+                    <span class="feedback-icon">🎉</span>
+                    <div class="feedback-text">Benar! Bagus sekali!</div>
+                `;
+            } else {
+                feedbackDiv.innerHTML = `
+                    <span class="feedback-icon">😔</span>
+                    <div class="feedback-text">Belum tepat. Coba lagi ya!</div>
+                `;
+            }
+        }
+
+        function nextQuestion() {
+            gameState.currentQuestionIndex++;
+            showCurrentQuestion();
+        }
+
+        function updateEvaluationProgress() {
+            const progress = ((gameState.currentQuestionIndex + (gameState.evaluationQuestions[gameState.currentQuestionIndex]?.answered ? 1 : 0)) / 10) * 100;
+            document.getElementById('evaluationProgressFill').style.width = progress + '%';
+            document.getElementById('evaluationProgressText').textContent = `${gameState.currentQuestionIndex + (gameState.evaluationQuestions[gameState.currentQuestionIndex]?.answered ? 1 : 0)}/10`;
+        }
+
+        function finishEvaluation() {
+            document.getElementById('evaluationModal').style.display = 'none';
+            
+            // Show results
+            const percentage = (gameState.evaluationScore / 10) * 100;
+            let message = '';
+            
+            if (percentage >= 80) {
+                message = 'ما شاء الله! Excellent!';
+                playComboSound(3); // Celebration sound
+            } else if (percentage >= 60) {
+                message = 'الحمد لله! Good job!';
+                playComboSound(2);
+            } else {
+                message = 'Keep learning! You can do it!';
+                playComboSound(1);
+            }
+            
+            // Show celebration text
+            const celebrationElement = document.getElementById('celebrationText');
+            celebrationElement.innerHTML = `
+                <span class="celebration-arabic">${message}</span>
+                <span class="celebration-latin">Skor: ${gameState.evaluationScore}/10 (${percentage}%)</span>
+            `;
+            celebrationElement.classList.add('show');
+            
+            setTimeout(() => {
+                celebrationElement.classList.remove('show');
+                celebrationElement.innerHTML = '';
+            }, 3000);
+            
+            // Continue game
+            gameState.gameRunning = true;
+            gameState.evaluationMode = false;
+            
+            // Play continue sound
+            playSound(659, 0.3, 'triangle', 0.4);
+        }
+
+        function resetCell(cellElement) {
+            cellElement.style.background = 'linear-gradient(145deg, #fef7ff 0%, #fdf2f8 100%)';
+            cellElement.textContent = '';
+            cellElement.style.color = '';
+            cellElement.style.textShadow = '';
+            cellElement.classList.remove('filled', 'removing', 'preview', 'invalid-preview');
+            cellElement.style.boxShadow = '0 2px 8px rgba(236, 72, 153, 0.15)';
+            cellElement.style.border = '1px solid rgba(251, 207, 232, 0.6)';
+            cellElement.style.filter = '';
+            cellElement.style.transform = '';
+            cellElement.style.opacity = '1';
+        }
+
+        function animateLineRemoval(rows, cols) {
+            rows.forEach(row => {
+                for (let col = 0; col < 8; col++) {
+                    const cellElement = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                    if (cellElement) {
+                        cellElement.classList.add('removing');
+                    }
+                }
+            });
+            
+            cols.forEach(col => {
+                for (let row = 0; row < 8; row++) {
+                    const cellElement = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                    if (cellElement) {
+                        cellElement.classList.add('removing');
+                    }
+                }
+            });
+        }
+
+        function createParticleEffect(rows, cols) {
+            rows.forEach(row => {
+                for (let col = 0; col < 8; col++) {
+                    const cellElement = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                    if (cellElement) {
+                        createParticle(cellElement);
+                    }
+                }
+            });
+            
+            cols.forEach(col => {
+                for (let row = 0; row < 8; row++) {
+                    const cellElement = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                    if (cellElement) {
+                        createParticle(cellElement);
+                    }
+                }
+            });
+        }
+
+        function showCelebrationText(comboCount) {
+            const celebrationElement = document.getElementById('celebrationText');
+            let arabicMessage = '';
+            
+            if (comboCount === 1) {
+                arabicMessage = 'الحمد لله';
+            } else if (comboCount === 2) {
+                arabicMessage = 'سبحان الله';
+            } else if (comboCount === 3) {
+                arabicMessage = 'ما شاء الله';
+            } else if (comboCount > 3) {
+                arabicMessage = 'الله أكبر';
+            }
+            
+            if (arabicMessage) {
+                celebrationElement.innerHTML = `
+                    <span class="celebration-arabic">${arabicMessage}</span>
+                `;
+                celebrationElement.classList.remove('show');
+                
+                // Force reflow to restart animation
+                celebrationElement.offsetHeight;
+                
+                celebrationElement.classList.add('show');
+                
+                // Create sparkle effects
+                createSparkleEffect();
+                
+                // Remove the class after animation completes
+                setTimeout(() => {
+                    celebrationElement.classList.remove('show');
+                    celebrationElement.innerHTML = '';
+                }, 2000);
+            }
+        }
+
+        function createSparkleEffect() {
+            const sparkleSymbols = ['✨', '⭐', '🌟', '💫', '✦', '✧', '⋆', '★'];
+            const sparkleCount = 15;
+            
+            for (let i = 0; i < sparkleCount; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.textContent = sparkleSymbols[Math.floor(Math.random() * sparkleSymbols.length)];
+                    
+                    // Random position around the screen
+                    const x = Math.random() * window.innerWidth;
+                    const y = Math.random() * window.innerHeight;
+                    
+                    sparkle.style.left = x + 'px';
+                    sparkle.style.top = y + 'px';
+                    
+                    // Random delay for more natural effect
+                    sparkle.style.animationDelay = Math.random() * 0.5 + 's';
+                    
+                    document.body.appendChild(sparkle);
+                    
+                    // Add animation class
+                    setTimeout(() => {
+                        sparkle.classList.add('animate');
+                    }, 10);
+                    
+                    // Remove sparkle after animation
+                    setTimeout(() => {
+                        sparkle.remove();
+                    }, 2500);
+                }, i * 100); // Stagger the sparkles
+            }
+        }
+
+        function createParticle(element) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.textContent = element.textContent;
+            particle.style.color = element.style.color;
+            particle.style.fontSize = 'clamp(1.2rem, 3vw, 1.5rem)';
+            
+            const rect = element.getBoundingClientRect();
+            particle.style.left = rect.left + 'px';
+            particle.style.top = rect.top + 'px';
+            particle.style.animation = 'particleFloat 1s ease-out forwards';
+            
+            document.body.appendChild(particle);
+            
+            setTimeout(() => {
+                particle.remove();
+            }, 1000);
+        }
+
+        function canPlaceAnyBlock() {
+            // Check if any unused block can be placed anywhere on the board
+            const availableBlocks = gameState.nextBlocks.filter(block => !block.used);
+            
+            if (availableBlocks.length === 0) {
+                return true; // No blocks to place, game can continue
+            }
+            
+            // Check each available block against every position on the board
+            for (const block of availableBlocks) {
+                for (let row = 0; row <= 8 - block.shape.length; row++) {
+                    for (let col = 0; col <= 8 - block.shape[0].length; col++) {
+                        if (canPlaceBlock(block.shape, row, col)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            
+            return false;
+        }
+
+        function updateDisplay() {
+            document.getElementById('score').textContent = gameState.score.toLocaleString();
+            document.getElementById('level').textContent = gameState.level;
+            document.getElementById('lines').textContent = gameState.lines;
+        }
+
+        function newGame() {
+            gameState = {
+                board: Array(8).fill().map(() => Array(8).fill(null)),
+                score: 0,
+                level: 1,
+                lines: 0,
+                nextBlocks: [],
+                gameRunning: true,
+                draggedBlock: null,
+                draggedBlockIndex: -1,
+                floatingBlock: null,
+                isDragging: false,
+                dragOffset: null,
+                isProcessingLines: false,
+                currentValidPlacement: null,
+                winsCount: 0,
+                learningProgress: 0,
+                currentLetterIndex: 0,
+                letterLearned: false,
+                learnedLetters: [], // Track all learned letters
+                evaluationMode: false,
+                evaluationQuestions: [],
+                currentQuestionIndex: 0,
+                evaluationScore: 0
+            };
+            
+            document.getElementById('learningModal').style.display = 'none';
+            document.getElementById('evaluationModal').style.display = 'none';
+            
+            // Reset all cells
+            document.querySelectorAll('.cell').forEach(cell => {
+                resetCell(cell);
+            });
+            
+            initGame();
+        }
+
+        function pauseGame() {
+            gameState.gameRunning = !gameState.gameRunning;
+            const btn = event.target;
+            btn.textContent = gameState.gameRunning ? 'Pause' : 'Resume';
+        }
+
+        function resetBoardWithRandomBlocks() {
+            // Clear the entire board first
+            gameState.board = Array(8).fill().map(() => Array(8).fill(null));
+            
+            // Reset all cells visually
+            document.querySelectorAll('.cell').forEach(cell => {
+                resetCell(cell);
+            });
+            
+            // Add random blocks to make the game interesting again
+            const resetPositions = [];
+            
+            // Generate random positions (avoid making it too crowded)
+            const numBlocks = Math.floor(Math.random() * 12) + 8; // 8-19 blocks
+            
+            for (let i = 0; i < numBlocks; i++) {
+                let attempts = 0;
+                let row, col;
+                
+                // Try to find a unique position
+                do {
+                    row = Math.floor(Math.random() * 8);
+                    col = Math.floor(Math.random() * 8);
+                    attempts++;
+                } while (resetPositions.some(pos => pos.row === row && pos.col === col) && attempts < 50);
+                
+                if (attempts < 50) {
+                    resetPositions.push({row, col});
+                }
+            }
+            
+            // Place random blocks at selected positions
+            resetPositions.forEach((pos, index) => {
+                const randomLetter = hijaiyahLetters[Math.floor(Math.random() * hijaiyahLetters.length)];
+                gameState.board[pos.row][pos.col] = randomLetter;
+                
+                // Update visual with staggered animation
+                const cellElement = document.querySelector(`[data-row="${pos.row}"][data-col="${pos.col}"]`);
+                if (cellElement) {
+                    setTimeout(() => {
+                        cellElement.style.background = randomLetter.color;
+                        cellElement.textContent = randomLetter.letter;
+                        cellElement.style.color = 'white';
+                        cellElement.style.textShadow = '1px 1px 2px rgba(0,0,0,0.5)';
+                        cellElement.classList.add('filled');
+                        
+                        // Add entrance animation
+                        cellElement.style.transform = 'scale(0)';
+                        cellElement.style.transition = 'transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+                        
+                        setTimeout(() => {
+                            cellElement.style.transform = 'scale(0.95)';
+                        }, 50);
+                    }, index * 80); // Stagger the animations
+                }
+            });
+            
+            // Play reset sound effect
+            setTimeout(() => {
+                playSound(400, 0.2, 'sine', 0.3);
+                setTimeout(() => playSound(500, 0.2, 'sine', 0.3), 100);
+                setTimeout(() => playSound(600, 0.3, 'sine', 0.3), 200);
+            }, 500);
+            
+            // Show reset message
+            const celebrationElement = document.getElementById('celebrationText');
+            celebrationElement.innerHTML = `
+                <span class="celebration-arabic">تجديد</span>
+                <span class="celebration-latin">Papan Direset!</span>
+            `;
+            celebrationElement.classList.add('show');
+            
+            setTimeout(() => {
+                celebrationElement.classList.remove('show');
+                celebrationElement.innerHTML = '';
+            }, 2000);
+        }
+
+        function gameOver() {
+            // This function is now unused but kept for compatibility
+            resetBoardWithRandomBlocks();
+        }
+
+        // Initialize welcome screen when page loads
+        window.addEventListener('load', () => {
+            // Show welcome screen first
+            document.getElementById('welcomeScreen').style.display = 'flex';
+            document.getElementById('gameContainer').style.display = 'none';
+        });
+        
+        // Enable audio context on first user interaction
+        document.addEventListener('click', () => {
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }, { once: true });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9747a2be53c56c00',t:'MTc1NjA4ODY5NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
