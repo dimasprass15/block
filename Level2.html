@@ -1,0 +1,2548 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blast Hijaiyah 2</title>
+    <style>
+        /* ===== RESET & BASE STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ===== BACKGROUND & BODY STYLING ===== */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            /* Gradient background yang bergerak */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: white;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Efek overlay dekoratif di background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Animasi pergeseran gradient background */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* ===== HEADER GAME (JUDUL & STATISTIK) ===== */
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Styling judul game dengan efek gradient dan glow */
+        .game-title {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #ffd700, #ff6b6b, #4ecdc4, #45b7d1);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleGlow 3s ease-in-out infinite;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            letter-spacing: 2px;
+        }
+
+        /* Animasi glow untuk judul */
+        @keyframes titleGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* Container untuk statistik game (skor, level, baris) */
+        .game-stats {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Styling individual stat item */
+        .stat-item {
+            background: linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.1));
+            padding: 15px 25px;
+            border-radius: 20px;
+            backdrop-filter: blur(15px); /* Efek blur glass */
+            border: 2px solid rgba(255,255,255,0.3);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            text-align: center;
+            min-width: 100px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+        }
+
+        /* Label statistik (Skor, Level, Baris) */
+        .stat-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            opacity: 0.8;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Nilai statistik dengan efek gradient */
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ffd700, #ff6b6b, #4ecdc4);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: statGlow 2s ease-in-out infinite;
+        }
+
+        /* Animasi glow untuk nilai statistik */
+        @keyframes statGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* Animasi khusus saat level up */
+        @keyframes levelUpPulse {
+            0% { 
+                transform: scale(1);
+                box-shadow: 0 0 0 rgba(255, 215, 0, 0.7);
+            }
+            25% {
+                transform: scale(1.3);
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.9);
+            }
+            50% { 
+                transform: scale(1.5);
+                box-shadow: 0 0 40px rgba(255, 215, 0, 1);
+            }
+            75% {
+                transform: scale(1.3);
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.9);
+            }
+            100% { 
+                transform: scale(1);
+                box-shadow: 0 0 0 rgba(255, 215, 0, 0.7);
+            }
+        }
+
+        /* ===== PAPAN PERMAINAN (GRID 8x8) ===== */
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(8, 50px); /* 8 kolom dengan lebar 50px */
+            grid-template-rows: repeat(8, 50px); /* 8 baris dengan tinggi 50px */
+            gap: 3px;
+            background: linear-gradient(145deg, rgba(0,0,0,0.4), rgba(255,255,255,0.1));
+            padding: 15px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 
+                0 20px 40px rgba(0,0,0,0.3),
+                inset 0 1px 0 rgba(255,255,255,0.2),
+                0 0 0 1px rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        /* Styling individual cell di grid */
+        .grid-cell {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: 700;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Efek shimmer saat hover */
+        .grid-cell::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .grid-cell:hover::before {
+            left: 100%;
+        }
+
+        /* Cell yang sudah terisi huruf hijaiyah */
+        .grid-cell.filled {
+            color: white;
+            box-shadow: 
+                0 8px 25px rgba(0,0,0,0.3),
+                inset 0 1px 0 rgba(255,255,255,0.3);
+            transform: scale(1.05);
+            border: 2px solid rgba(255,255,255,0.4);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        /* Highlight saat piece bisa ditempatkan */
+        .grid-cell.highlight {
+            background: linear-gradient(135deg, rgba(255,215,0,0.6), rgba(255,165,0,0.4));
+            border-color: #ffd700;
+            box-shadow: 
+                0 0 20px rgba(255,215,0,0.8),
+                inset 0 0 20px rgba(255,255,255,0.3);
+            transform: scale(1.1);
+            animation: pulseGlow 1s ease-in-out infinite alternate;
+        }
+
+        /* Highlight merah saat piece tidak bisa ditempatkan */
+        .grid-cell.invalid-highlight {
+            background: linear-gradient(135deg, rgba(255,0,0,0.5), rgba(255,100,100,0.3));
+            border-color: #ff4757;
+            box-shadow: 
+                0 0 15px rgba(255,0,0,0.6),
+                inset 0 0 10px rgba(255,255,255,0.2);
+            animation: shakeError 0.5s ease-in-out;
+        }
+
+        /* Animasi pulse untuk highlight valid */
+        @keyframes pulseGlow {
+            0% { 
+                box-shadow: 
+                    0 0 20px rgba(255,215,0,0.8),
+                    inset 0 0 20px rgba(255,255,255,0.3);
+            }
+            100% { 
+                box-shadow: 
+                    0 0 30px rgba(255,215,0,1),
+                    inset 0 0 30px rgba(255,255,255,0.5);
+            }
+        }
+
+        /* Animasi shake untuk error */
+        @keyframes shakeError {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+
+        /* ===== CONTAINER PIECES (BAGIAN BAWAH) ===== */
+        .pieces-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: -10px;
+        }
+
+        /* ===== STYLING PIECE YANG BISA DI-DRAG ===== */
+        .piece {
+            background: transparent;
+            border-radius: 20px;
+            padding: 20px;
+            cursor: grab; /* Cursor menunjukkan bisa di-drag */
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            backdrop-filter: none;
+            box-shadow: none;
+            /* Disable text selection untuk mobile */
+            user-select: none;
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Disable efek shimmer untuk piece */
+        .piece::before {
+            display: none;
+        }
+
+        .piece:hover::before {
+            display: none;
+        }
+
+        /* Efek hover untuk piece */
+        .piece:hover {
+            transform: translateY(-3px) scale(1.02);
+        }
+
+        /* Styling saat piece sedang di-drag */
+        .piece.dragging {
+            cursor: grabbing;
+            transform: scale(1.15) rotate(2deg);
+            z-index: 1000;
+            opacity: 0.9;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            transition: none;
+        }
+
+        /* Preview piece saat drag (clone yang mengikuti cursor) */
+        .piece.drag-preview {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1001;
+            opacity: 0.8;
+            will-change: transform;
+            transition: none;
+        }
+
+        /* Grid layout untuk piece */
+        .piece-grid {
+            display: grid;
+            gap: 2px;
+        }
+
+        /* Individual cell dalam piece */
+        .piece-cell {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        /* Cell yang terisi dalam piece */
+        .piece-cell.filled {
+            color: white;
+            box-shadow: 
+                0 4px 15px rgba(0,0,0,0.3),
+                inset 0 1px 0 rgba(255,255,255,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        /* Cell kosong dalam piece */
+        .piece-cell.empty {
+            background: transparent;
+        }
+
+        /* ===== ANIMASI CLEAR LINES ===== */
+        .clear-animation {
+            animation: clearEffect 0.8s ease-in-out;
+        }
+
+        /* Animasi saat baris/kolom terhapus */
+        @keyframes clearEffect {
+            0% { 
+                transform: scale(1) rotate(0deg); 
+                background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+                box-shadow: 0 0 20px rgba(255,107,107,0.6);
+            }
+            25% {
+                transform: scale(1.3) rotate(90deg);
+                background: linear-gradient(135deg, #ffd700, #ffb347);
+                box-shadow: 0 0 30px rgba(255,215,0,0.8);
+            }
+            50% { 
+                transform: scale(1.5) rotate(180deg); 
+                background: linear-gradient(135deg, #00ff00, #32cd32);
+                box-shadow: 0 0 40px rgba(0,255,0,0.8);
+            }
+            75% {
+                transform: scale(1.2) rotate(270deg);
+                background: linear-gradient(135deg, #4ecdc4, #44a08d);
+                box-shadow: 0 0 35px rgba(78,205,196,0.8);
+            }
+            100% { 
+                transform: scale(0) rotate(360deg); 
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                box-shadow: 0 0 50px rgba(102,126,234,1);
+                opacity: 0;
+            }
+        }
+
+        /* ===== EFEK TEKS ISLAMI ===== */
+        .islamic-text-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 1500;
+        }
+
+        /* Styling teks "Alhamdulillah" */
+        .alhamdulillah-text {
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #ffd700, #ff6b6b, #4ecdc4, #45b7d1, #ffd700);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 50px rgba(255, 215, 0, 0.8);
+            animation: alhamdulillahEffect 3s ease-in-out;
+            text-align: center;
+            letter-spacing: 3px;
+            opacity: 0;
+        }
+
+        /* Styling teks "Maasyaa Allah" */
+        .maasyaallah-text {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #00ff88, #00d4ff, #ff6b6b, #ffd700);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.8);
+            animation: maasyaallahEffect 2s ease-in-out;
+            text-align: center;
+            letter-spacing: 2px;
+            opacity: 0;
+        }
+
+        /* Animasi untuk teks "Alhamdulillah" */
+        @keyframes alhamdulillahEffect {
+            0% {
+                opacity: 0;
+                transform: scale(0.3) translateY(100px) rotate(-10deg);
+                background-position: 0% 50%;
+            }
+            20% {
+                opacity: 1;
+                transform: scale(1.2) translateY(-20px) rotate(2deg);
+                background-position: 25% 50%;
+            }
+            40% {
+                transform: scale(1.1) translateY(-10px) rotate(-1deg);
+                background-position: 50% 50%;
+            }
+            60% {
+                transform: scale(1.15) translateY(-15px) rotate(1deg);
+                background-position: 75% 50%;
+            }
+            80% {
+                transform: scale(1.05) translateY(-5px) rotate(0deg);
+                background-position: 100% 50%;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.8) translateY(-50px) rotate(0deg);
+                background-position: 100% 50%;
+            }
+        }
+
+        /* Animasi untuk teks "Maasyaa Allah" */
+        @keyframes maasyaallahEffect {
+            0% {
+                opacity: 0;
+                transform: scale(0.5) translateY(-50px) rotate(5deg);
+                background-position: 0% 50%;
+            }
+            25% {
+                opacity: 1;
+                transform: scale(1.3) translateY(10px) rotate(-2deg);
+                background-position: 33% 50%;
+            }
+            50% {
+                transform: scale(1.1) translateY(0px) rotate(1deg);
+                background-position: 66% 50%;
+            }
+            75% {
+                transform: scale(1.2) translateY(5px) rotate(-1deg);
+                background-position: 100% 50%;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.7) translateY(-30px) rotate(0deg);
+                background-position: 100% 50%;
+            }
+        }
+
+        /* ===== EFEK SPARKLE (BINTIK EMAS) ===== */
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, #ffd700, transparent);
+            border-radius: 50%;
+            animation: sparkleFloat 2s ease-in-out infinite;
+        }
+
+        /* Animasi sparkle melayang */
+        @keyframes sparkleFloat {
+            0% {
+                opacity: 0;
+                transform: translateY(0px) scale(0);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(-30px) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-60px) scale(0);
+            }
+        }
+
+        /* ===== POPUP PEMBELAJARAN ===== */
+        .learning-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        /* Container popup pembelajaran */
+        .learning-popup {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85));
+            border-radius: 30px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 
+                0 25px 50px rgba(0,0,0,0.3),
+                inset 0 1px 0 rgba(255,255,255,0.8);
+            border: 3px solid rgba(255,215,0,0.6);
+            position: relative;
+            overflow: hidden;
+            animation: popupSlideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* Efek dekoratif di background popup */
+        .learning-popup::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 30% 70%, rgba(255,215,0,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 70% 30%, rgba(78,205,196,0.1) 0%, transparent 50%);
+            animation: gentleRotate 20s linear infinite;
+            pointer-events: none;
+        }
+
+        /* Animasi fade in/out */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        /* Animasi slide in untuk popup */
+        @keyframes popupSlideIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3) translateY(-100px) rotate(-10deg);
+            }
+            50% {
+                transform: scale(1.1) translateY(10px) rotate(2deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0) rotate(0deg);
+            }
+        }
+
+        /* Animasi rotasi lembut */
+        @keyframes gentleRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* ===== ELEMEN DALAM POPUP PEMBELAJARAN ===== */
+        .learning-popup-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .learning-popup-message {
+            font-size: 1.3rem;
+            color: #34495e;
+            margin-bottom: 25px;
+            line-height: 1.6;
+            font-weight: 600;
+        }
+
+        .learning-popup-instruction {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        /* Container contoh bacaan hijaiyah */
+        .learning-example {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 20px;
+            margin: 25px 0;
+            box-shadow: 
+                0 15px 30px rgba(102,126,234,0.3),
+                inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+
+        .learning-example-title {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Teks Arab dalam contoh */
+        .learning-arabic {
+            font-size: 4rem;
+            font-weight: 900;
+            margin: 15px 0;
+            text-shadow: 0 3px 6px rgba(0,0,0,0.3);
+            letter-spacing: 3px;
+        }
+
+        /* Pronunciation (cara baca) */
+        .learning-pronunciation {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 10px;
+            background: linear-gradient(45deg, #ffd700, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Tombol dalam popup pembelajaran */
+        .learning-popup-button {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(78,205,196,0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .learning-popup-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(78,205,196,0.4);
+            background: linear-gradient(135deg, #44a08d, #4ecdc4);
+        }
+
+        .learning-popup-button:active {
+            transform: translateY(0);
+        }
+
+        /* ===== TOMBOL PILIHAN EVALUASI ===== */
+        .evaluation-option {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
+            color: #2c3e50;
+            border: 2px solid rgba(102,126,234,0.3);
+            padding: 15px 20px;
+            border-radius: 15px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .evaluation-option:hover {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102,126,234,0.3);
+        }
+
+        .evaluation-option:active {
+            transform: translateY(0);
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        
+        /* Mobile (sampai 767px) */
+        @media (max-width: 767px) {
+            .learning-popup {
+                padding: 25px;
+                margin: 20px;
+            }
+            
+            .learning-popup-title {
+                font-size: 1.8rem;
+            }
+            
+            .learning-popup-message {
+                font-size: 1.1rem;
+            }
+            
+            .learning-arabic {
+                font-size: 3rem;
+            }
+            
+            .learning-pronunciation {
+                font-size: 1.2rem;
+            }
+
+            .evaluation-option {
+                padding: 12px 15px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Animasi khusus untuk teks Latin "Alhamdulillah" */
+        @keyframes alhamdulillahLatinGlow {
+            0% {
+                background-position: 0% 50%;
+                text-shadow: 0 0 20px rgba(255,215,0,0.8), 0 0 40px rgba(255,107,107,0.6);
+                transform: scale(1);
+            }
+            25% {
+                background-position: 25% 50%;
+                text-shadow: 0 0 25px rgba(255,107,107,0.9), 0 0 50px rgba(78,205,196,0.7);
+                transform: scale(1.05);
+            }
+            50% {
+                background-position: 50% 50%;
+                text-shadow: 0 0 30px rgba(78,205,196,1), 0 0 60px rgba(69,183,209,0.8);
+                transform: scale(1.1);
+            }
+            75% {
+                background-position: 75% 50%;
+                text-shadow: 0 0 25px rgba(69,183,209,0.9), 0 0 50px rgba(255,215,0,0.7);
+                transform: scale(1.05);
+            }
+            100% {
+                background-position: 100% 50%;
+                text-shadow: 0 0 20px rgba(255,215,0,0.8), 0 0 40px rgba(255,107,107,0.6);
+                transform: scale(1);
+            }
+        }
+
+        /* ===== RESPONSIVE BREAKPOINTS ===== */
+        
+        /* Tablet Landscape (1024px ke atas) - Pengalaman gaming optimal */
+        @media (min-width: 1024px) and (max-width: 1439px) {
+            .game-title {
+                font-size: 4rem;
+                margin-bottom: 25px;
+            }
+            
+            .game-stats {
+                gap: 30px;
+                margin-bottom: 30px;
+            }
+            
+            .stat-item {
+                padding: 20px 35px;
+                min-width: 140px;
+            }
+            
+            .stat-label {
+                font-size: 1.1rem;
+            }
+            
+            .stat-value {
+                font-size: 2.2rem;
+            }
+            
+            .game-board {
+                grid-template-columns: repeat(8, 70px);
+                grid-template-rows: repeat(8, 70px);
+                gap: 4px;
+                padding: 25px;
+                margin-bottom: 40px;
+            }
+            
+            .grid-cell {
+                width: 70px;
+                height: 70px;
+                font-size: 1.8rem;
+                border-radius: 16px;
+            }
+            
+            .piece-cell {
+                width: 48px;
+                height: 48px;
+                font-size: 1.4rem;
+                border-radius: 12px;
+            }
+            
+            .piece {
+                padding: 20px;
+            }
+            
+            .piece-grid {
+                gap: 2px;
+            }
+            
+            .alhamdulillah-text {
+                font-size: 5rem;
+                letter-spacing: 4px;
+            }
+            
+            .maasyaallah-text {
+                font-size: 4rem;
+                letter-spacing: 3px;
+            }
+        }
+
+        /* Tablet Portrait (768px sampai 1023px) */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .game-title {
+                font-size: 3.5rem;
+                margin-bottom: 20px;
+            }
+            
+            .game-stats {
+                gap: 25px;
+                margin-bottom: 25px;
+            }
+            
+            .stat-item {
+                padding: 18px 30px;
+                min-width: 120px;
+            }
+            
+            .stat-label {
+                font-size: 1rem;
+            }
+            
+            .stat-value {
+                font-size: 2rem;
+            }
+            
+            .game-board {
+                grid-template-columns: repeat(8, 60px);
+                grid-template-rows: repeat(8, 60px);
+                gap: 4px;
+                padding: 20px;
+                margin-bottom: 35px;
+            }
+            
+            .grid-cell {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+                border-radius: 14px;
+            }
+            
+            .piece-cell {
+                width: 42px;
+                height: 42px;
+                font-size: 1.2rem;
+                border-radius: 10px;
+            }
+            
+            .piece {
+                padding: 18px;
+            }
+            
+            .piece-grid {
+                gap: 2px;
+            }
+            
+            .pieces-container {
+                gap: 25px;
+            }
+            
+            .alhamdulillah-text {
+                font-size: 4rem;
+                letter-spacing: 3px;
+            }
+            
+            .maasyaallah-text {
+                font-size: 3rem;
+                letter-spacing: 2px;
+            }
+        }
+
+        /* Mobile (sampai 767px) - Pengalaman mobile yang kompak */
+        @media (max-width: 767px) {
+            .game-title {
+                font-size: 2.2rem;
+            }
+            
+            .game-stats {
+                gap: 10px;
+            }
+            
+            .stat-item {
+                padding: 10px 15px;
+                min-width: 80px;
+            }
+            
+            .stat-label {
+                font-size: 0.8rem;
+            }
+            
+            .stat-value {
+                font-size: 1.4rem;
+            }
+            
+            .game-board {
+                grid-template-columns: repeat(8, 40px);
+                grid-template-rows: repeat(8, 40px);
+            }
+            
+            .grid-cell {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+            
+            .piece-cell {
+                width: 25px;
+                height: 25px;
+                font-size: 0.8rem;
+            }
+            
+            .piece {
+                padding: 15px;
+            }
+            
+            .alhamdulillah-text {
+                font-size: 2.5rem;
+                letter-spacing: 2px;
+            }
+            
+            .maasyaallah-text {
+                font-size: 2rem;
+                letter-spacing: 1px;
+            }
+        }
+
+        /* Large Desktop (1440px ke atas) - Pengalaman premium */
+        @media (min-width: 1440px) {
+            .game-title {
+                font-size: 4.5rem;
+                margin-bottom: 30px;
+            }
+            
+            .game-stats {
+                gap: 40px;
+                margin-bottom: 35px;
+            }
+            
+            .stat-item {
+                padding: 25px 40px;
+                min-width: 160px;
+            }
+            
+            .stat-label {
+                font-size: 1.2rem;
+            }
+            
+            .stat-value {
+                font-size: 2.5rem;
+            }
+            
+            .game-board {
+                grid-template-columns: repeat(8, 80px);
+                grid-template-rows: repeat(8, 80px);
+                gap: 5px;
+                padding: 30px;
+                margin-bottom: 45px;
+            }
+            
+            .grid-cell {
+                width: 80px;
+                height: 80px;
+                font-size: 2rem;
+                border-radius: 18px;
+            }
+            
+            .piece-cell {
+                width: 50px;
+                height: 50px;
+                font-size: 1.4rem;
+                border-radius: 12px;
+            }
+            
+            .piece {
+                padding: 30px;
+            }
+            
+            .pieces-container {
+                gap: 35px;
+            }
+            
+            .alhamdulillah-text {
+                font-size: 6rem;
+                letter-spacing: 5px;
+            }
+            
+            .maasyaallah-text {
+                font-size: 5rem;
+                letter-spacing: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== HEADER GAME ===== -->
+    <div class="game-header">
+        <h1 class="game-title">🕌 Blast Hijaiyah 2</h1>
+        <div class="game-stats">
+            <div class="stat-item">
+                <div class="stat-label">Skor</div>
+                <div class="stat-value" id="score">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Level</div>
+                <div class="stat-value" id="level">1</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Baris</div>
+                <div class="stat-value" id="linesCleared">0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PAPAN PERMAINAN (GRID 8x8) ===== -->
+    <div class="game-board" id="gameBoard"></div>
+
+    <!-- ===== CONTAINER PIECES ===== -->
+    <div class="pieces-container" id="piecesContainer"></div>
+
+    <script>
+        // ===== DATA HURUF HIJAIYAH DENGAN WARNA =====
+        // Array berisi 28 huruf hijaiyah dengan gradient warna yang lembut
+        const hijaiyahLetters = [
+            { letter: 'ا', color: 'linear-gradient(135deg, #FFB6C1, #FFC0CB)' }, // Light Pink
+            { letter: 'ب', color: 'linear-gradient(135deg, #98FB98, #90EE90)' }, // Light Green
+            { letter: 'ت', color: 'linear-gradient(135deg, #87CEEB, #87CEFA)' }, // Sky Blue
+            { letter: 'ث', color: 'linear-gradient(135deg, #DDA0DD, #E6E6FA)' }, // Plum
+            { letter: 'ج', color: 'linear-gradient(135deg, #F0E68C, #FFFFE0)' }, // Khaki
+            { letter: 'ح', color: 'linear-gradient(135deg, #FFA07A, #FFB07A)' }, // Light Salmon
+            { letter: 'خ', color: 'linear-gradient(135deg, #20B2AA, #48D1CC)' }, // Light Sea Green
+            { letter: 'د', color: 'linear-gradient(135deg, #F5DEB3, #FFEAA7)' }, // Wheat
+            { letter: 'ذ', color: 'linear-gradient(135deg, #CD853F, #D2B48C)' }, // Sandy Brown
+            { letter: 'ر', color: 'linear-gradient(135deg, #FF69B4, #FF91A4)' }, // Hot Pink
+            { letter: 'ز', color: 'linear-gradient(135deg, #40E0D0, #7FDBDA)' }, // Turquoise
+            { letter: 'س', color: 'linear-gradient(135deg, #9370DB, #BA55D3)' }, // Medium Purple
+            { letter: 'ش', color: 'linear-gradient(135deg, #32CD32, #7CFC00)' }, // Lime Green
+            { letter: 'ص', color: 'linear-gradient(135deg, #FF6347, #FF7F7F)' }, // Tomato
+            { letter: 'ض', color: 'linear-gradient(135deg, #4169E1, #6495ED)' }, // Royal Blue
+            { letter: 'ط', color: 'linear-gradient(135deg, #FF8C00, #FFA500)' }, // Dark Orange
+            { letter: 'ظ', color: 'linear-gradient(135deg, #8FBC8F, #98FB98)' }, // Dark Sea Green
+            { letter: 'ع', color: 'linear-gradient(135deg, #DC143C, #F08080)' }, // Crimson
+            { letter: 'غ', color: 'linear-gradient(135deg, #00CED1, #40E0D0)' }, // Dark Turquoise
+            { letter: 'ف', color: 'linear-gradient(135deg, #9932CC, #DA70D6)' }, // Dark Orchid
+            { letter: 'ق', color: 'linear-gradient(135deg, #228B22, #32CD32)' }, // Forest Green
+            { letter: 'ك', color: 'linear-gradient(135deg, #FF4500, #FF6347)' }, // Orange Red
+            { letter: 'ل', color: 'linear-gradient(135deg, #4682B4, #5F9EA0)' }, // Steel Blue
+            { letter: 'م', color: 'linear-gradient(135deg, #D2691E, #F4A460)' }, // Chocolate
+            { letter: 'ن', color: 'linear-gradient(135deg, #FF1493, #FF69B4)' }, // Deep Pink
+            { letter: 'ه', color: 'linear-gradient(135deg, #00FA9A, #7FFFD4)' }, // Medium Spring Green
+            { letter: 'و', color: 'linear-gradient(135deg, #8A2BE2, #9370DB)' }, // Blue Violet
+            { letter: 'ي', color: 'linear-gradient(135deg, #FF7F50, #FFA07A)' }  // Coral
+        ];
+
+        // ===== VARIABEL GAME STATE =====
+        let score = 0;                    // Skor pemain
+        let level = 1;                    // Level saat ini
+        let linesCleared = 0;             // Jumlah baris yang sudah dihapus
+        let gameBoard = [];               // Array 2D untuk papan permainan
+        let currentPieces = [];           // Array pieces yang sedang aktif
+        let draggedPiece = null;          // Piece yang sedang di-drag
+        let draggedElement = null;        // Element DOM yang sedang di-drag
+        let comboCount = 0;               // Hitungan combo
+        let lastClearTime = 0;            // Waktu terakhir clear untuk combo
+        let winCount = 0;                 // Hitungan kemenangan untuk popup pembelajaran
+
+        // ===== BENTUK-BENTUK PIECE =====
+        // Array berisi berbagai bentuk piece yang bisa muncul
+        const pieceShapes = [
+            // Single block (1 kotak)
+            [[1]],
+            // Line horizontal (3 kotak horizontal)
+            [[1, 1, 1]],
+            // Line vertical (3 kotak vertikal)
+            [[1], [1], [1]],
+            // L shape (bentuk L)
+            [[1, 0], [1, 0], [1, 1]],
+            // Square (kotak 2x2)
+            [[1, 1], [1, 1]],
+            // T shape (bentuk T)
+            [[1, 1, 1], [0, 1, 0]],
+            // Z shape (bentuk Z)
+            [[1, 1, 0], [0, 1, 1]]
+        ];
+
+        // ===== FUNGSI INISIALISASI GAME =====
+        function initGame() {
+            createGameBoard();    // Buat papan permainan
+            generateNewPieces();  // Generate pieces baru
+            updateAllStats();     // Update semua statistik
+        }
+
+        // ===== FUNGSI MEMBUAT PAPAN PERMAINAN =====
+        function createGameBoard() {
+            const board = document.getElementById('gameBoard');
+            board.innerHTML = '';
+            gameBoard = [];
+
+            // Buat grid 8x8
+            for (let row = 0; row < 8; row++) {
+                gameBoard[row] = [];
+                for (let col = 0; col < 8; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    
+                    // Event listeners untuk drag & drop
+                    cell.addEventListener('dragover', handleDragOver);
+                    cell.addEventListener('drop', handleDrop);
+                    cell.addEventListener('dragenter', handleDragEnter);
+                    cell.addEventListener('dragleave', handleDragLeave);
+                    
+                    board.appendChild(cell);
+                    gameBoard[row][col] = { filled: false, letter: '', element: cell };
+                }
+            }
+            
+            // Tambahkan beberapa cell terisi di awal
+            addInitialCells();
+        }
+
+        // ===== FUNGSI MENAMBAH CELL AWAL =====
+        function addInitialCells() {
+            // Tambahkan 8-12 cell random di awal permainan
+            const cellCount = Math.floor(Math.random() * 5) + 8; // 8-12 cells
+            const positions = [];
+            
+            // Generate posisi random
+            while (positions.length < cellCount) {
+                const row = Math.floor(Math.random() * 8);
+                const col = Math.floor(Math.random() * 8);
+                const posKey = `${row}-${col}`;
+                
+                if (!positions.includes(posKey)) {
+                    positions.push(posKey);
+                    
+                    // Tambahkan huruf hijaiyah random
+                    const randomLetter = hijaiyahLetters[Math.floor(Math.random() * hijaiyahLetters.length)];
+                    gameBoard[row][col].filled = true;
+                    gameBoard[row][col].letter = randomLetter.letter;
+                    gameBoard[row][col].element.classList.add('filled');
+                    gameBoard[row][col].element.textContent = randomLetter.letter;
+                    gameBoard[row][col].element.style.background = randomLetter.color;
+                }
+            }
+        }
+
+        // ===== FUNGSI GENERATE PIECES BARU =====
+        function generateNewPieces() {
+            currentPieces = [];
+            const container = document.getElementById('piecesContainer');
+            container.innerHTML = '';
+
+            // Buat 3 pieces baru
+            for (let i = 0; i < 3; i++) {
+                const shape = pieceShapes[Math.floor(Math.random() * pieceShapes.length)];
+                const piece = createPiece(shape, i);
+                currentPieces.push(piece);
+                container.appendChild(piece.element);
+            }
+        }
+
+        // ===== FUNGSI MEMBUAT PIECE =====
+        function createPiece(shape, id) {
+            const pieceDiv = document.createElement('div');
+            pieceDiv.className = 'piece';
+            pieceDiv.draggable = true;
+            pieceDiv.dataset.pieceId = id;
+
+            const grid = document.createElement('div');
+            grid.className = 'piece-grid';
+            
+            // Dynamic sizing berdasarkan ukuran layar
+            let cellSize = '30px';
+            if (window.innerWidth >= 1440) {
+                cellSize = '50px';
+            } else if (window.innerWidth >= 1024) {
+                cellSize = '48px';
+            } else if (window.innerWidth >= 768) {
+                cellSize = '42px';
+            } else if (window.innerWidth <= 767) {
+                cellSize = '25px';
+            }
+            
+            grid.style.gridTemplateColumns = `repeat(${shape[0].length}, ${cellSize})`;
+            grid.style.gridTemplateRows = `repeat(${shape.length}, ${cellSize})`;
+
+            const cells = [];
+            // Buat cell untuk setiap bagian piece
+            for (let row = 0; row < shape.length; row++) {
+                for (let col = 0; col < shape[row].length; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'piece-cell';
+                    
+                    if (shape[row][col] === 1) {
+                        cell.classList.add('filled');
+                        const randomLetter = hijaiyahLetters[Math.floor(Math.random() * hijaiyahLetters.length)];
+                        cell.textContent = randomLetter.letter;
+                        cell.style.background = randomLetter.color;
+                        cells.push({ row, col, letter: randomLetter.letter, color: randomLetter.color });
+                    } else {
+                        cell.classList.add('empty');
+                    }
+                    
+                    grid.appendChild(cell);
+                }
+            }
+
+            pieceDiv.appendChild(grid);
+
+            // Event listeners untuk drag
+            pieceDiv.addEventListener('dragstart', handleDragStart);
+            pieceDiv.addEventListener('dragend', handleDragEnd);
+            pieceDiv.addEventListener('mousedown', handleMouseDown);
+            pieceDiv.addEventListener('touchstart', handleMouseDown, { passive: false });
+
+            return {
+                element: pieceDiv,
+                shape: shape,
+                cells: cells,
+                id: id,
+                used: false
+            };
+        }
+
+        // ===== VARIABEL UNTUK DRAG & DROP =====
+        let isDragging = false;           // Status sedang drag
+        let dragPreview = null;           // Element preview saat drag
+        let dragOffset = { x: 0, y: 0 };  // Offset posisi drag
+
+        // ===== EVENT HANDLERS UNTUK DRAG & DROP =====
+        
+        function handleDragStart(e) {
+            e.preventDefault(); // Prevent default drag behavior
+        }
+
+        // Handler saat mulai drag (mouse/touch down)
+        function handleMouseDown(e) {
+            e.preventDefault(); // Prevent default touch behavior
+            
+            const pieceElement = e.target.closest('.piece');
+            if (!pieceElement || pieceElement.style.display === 'none') return;
+            
+            const pieceId = parseInt(pieceElement.dataset.pieceId);
+            draggedPiece = currentPieces[pieceId];
+            draggedElement = pieceElement;
+            isDragging = true;
+            
+            // Get coordinates dari touch atau mouse
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            // Hitung offset
+            const rect = pieceElement.getBoundingClientRect();
+            dragOffset.x = clientX - rect.left;
+            dragOffset.y = clientY - rect.top;
+            
+            // Buat drag preview
+            dragPreview = pieceElement.cloneNode(true);
+            dragPreview.classList.add('drag-preview');
+            dragPreview.style.left = '0px';
+            dragPreview.style.top = '0px';
+            dragPreview.style.transform = `translate(${clientX - dragOffset.x}px, ${clientY - dragOffset.y}px) scale(1.1)`;
+            document.body.appendChild(dragPreview);
+            
+            // Style original piece
+            pieceElement.classList.add('dragging');
+            pieceElement.style.opacity = '0.3';
+            
+            // Play pickup sound
+            playPickupSound();
+            
+            // Add event listeners untuk mouse dan touch
+            document.addEventListener('mousemove', handleMouseMove, { passive: false });
+            document.addEventListener('mouseup', handleMouseUp);
+            document.addEventListener('touchmove', handleMouseMove, { passive: false });
+            document.addEventListener('touchend', handleMouseUp);
+            document.addEventListener('touchcancel', handleMouseUp);
+        }
+
+        // Handler saat drag bergerak
+        function handleMouseMove(e) {
+            if (!isDragging || !dragPreview) return;
+            
+            e.preventDefault(); // Prevent scrolling pada touch devices
+            
+            // Get coordinates dari touch atau mouse
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            // Update posisi preview dengan transform untuk performa lebih baik
+            dragPreview.style.transform = `translate(${clientX - dragOffset.x}px, ${clientY - dragOffset.y}px) scale(1.1)`;
+            
+            // Gunakan requestAnimationFrame untuk highlighting yang smooth
+            requestAnimationFrame(() => {
+                clearHighlights();
+                
+                // Get game board bounds untuk deteksi yang lebih baik
+                const gameBoard = document.getElementById('gameBoard');
+                const boardRect = gameBoard.getBoundingClientRect();
+                
+                // Cek apakah cursor ada di atas game board
+                if (clientX >= boardRect.left && clientX <= boardRect.right && 
+                    clientY >= boardRect.top && clientY <= boardRect.bottom) {
+                    
+                    // Hitung cell mana yang sedang di-hover
+                    let cellSize;
+                    if (window.innerWidth <= 767) {
+                        cellSize = 40 + 3; // Mobile
+                    } else if (window.innerWidth <= 1023) {
+                        cellSize = 60 + 4; // Tablet Portrait
+                    } else if (window.innerWidth <= 1439) {
+                        cellSize = 70 + 4; // Tablet Landscape
+                    } else {
+                        cellSize = 80 + 5; // Large Desktop
+                    }
+                    
+                    // Hitung padding berdasarkan ukuran layar
+                    let padding;
+                    if (window.innerWidth <= 767) {
+                        padding = 15; // Mobile
+                    } else if (window.innerWidth <= 1023) {
+                        padding = 20; // Tablet Portrait
+                    } else if (window.innerWidth <= 1439) {
+                        padding = 25; // Tablet Landscape
+                    } else {
+                        padding = 30; // Large Desktop
+                    }
+                    
+                    const relativeX = clientX - boardRect.left - padding;
+                    const relativeY = clientY - boardRect.top - padding;
+                    
+                    const col = Math.floor(relativeX / cellSize);
+                    const row = Math.floor(relativeY / cellSize);
+                    
+                    // Cari posisi placement terbaik berdasarkan bentuk piece
+                    if (draggedPiece) {
+                        const bestPosition = findBestPlacementPosition(row, col, draggedPiece);
+                        if (bestPosition) {
+                            highlightValidPlacement(bestPosition.row, bestPosition.col);
+                        }
+                    }
+                }
+            });
+        }
+
+        // Fungsi mencari posisi placement terbaik
+        function findBestPlacementPosition(hoverRow, hoverCol, piece) {
+            // Coba posisi berbeda di sekitar hover point untuk mencari yang paling pas
+            const searchRadius = Math.max(piece.shape.length, piece.shape[0].length);
+            
+            for (let radius = 0; radius <= searchRadius; radius++) {
+                // Coba posisi dalam lingkaran yang mengembang di sekitar hover point
+                for (let dr = -radius; dr <= radius; dr++) {
+                    for (let dc = -radius; dc <= radius; dc++) {
+                        if (Math.abs(dr) + Math.abs(dc) !== radius && radius > 0) continue;
+                        
+                        const testRow = hoverRow + dr;
+                        const testCol = hoverCol + dc;
+                        
+                        if (testRow >= 0 && testRow < 8 && testCol >= 0 && testCol < 8) {
+                            if (canPlacePiece(piece, testRow, testCol)) {
+                                return { row: testRow, col: testCol };
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return null;
+        }
+
+        // Handler saat drag selesai (mouse/touch up)
+        function handleMouseUp(e) {
+            if (!isDragging) return;
+            
+            // Get coordinates dari touch atau mouse
+            const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+            const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+            
+            let targetRow = -1;
+            let targetCol = -1;
+            
+            // Get game board bounds untuk kalkulasi yang presisi
+            const gameBoard = document.getElementById('gameBoard');
+            const boardRect = gameBoard.getBoundingClientRect();
+            
+            // Cek apakah drop di atas game board
+            if (clientX >= boardRect.left && clientX <= boardRect.right && 
+                clientY >= boardRect.top && clientY <= boardRect.bottom) {
+                
+                // Hitung posisi grid yang presisi
+                let cellSize, padding;
+                if (window.innerWidth <= 767) {
+                    cellSize = 40 + 3; // Mobile
+                    padding = 15;
+                } else if (window.innerWidth <= 1023) {
+                    cellSize = 60 + 4; // Tablet Portrait
+                    padding = 20;
+                } else if (window.innerWidth <= 1439) {
+                    cellSize = 70 + 4; // Tablet Landscape
+                    padding = 25;
+                } else {
+                    cellSize = 80 + 5; // Large Desktop
+                    padding = 30;
+                }
+                
+                const relativeX = clientX - boardRect.left - padding;
+                const relativeY = clientY - boardRect.top - padding;
+                
+                const hoverCol = Math.floor(relativeX / cellSize);
+                const hoverRow = Math.floor(relativeY / cellSize);
+                
+                // Cari posisi placement terbaik berdasarkan bentuk piece
+                if (draggedPiece) {
+                    const bestPosition = findBestPlacementPosition(hoverRow, hoverCol, draggedPiece);
+                    if (bestPosition) {
+                        targetRow = bestPosition.row;
+                        targetCol = bestPosition.col;
+                    }
+                }
+            }
+            
+            // Coba tempatkan piece jika koordinat valid
+            if (targetRow >= 0 && targetCol >= 0 && draggedPiece) {
+                if (canPlacePiece(draggedPiece, targetRow, targetCol)) {
+                    placePiece(draggedPiece, targetRow, targetCol);
+                    draggedElement.style.display = 'none';
+                    draggedPiece.used = true;
+                    
+                    // Play drop sound
+                    playDropSound();
+                    
+                    // Cek untuk clears dan game state
+                    setTimeout(() => {
+                        checkForClears();
+                        
+                        if (currentPieces.every(piece => piece.used)) {
+                            setTimeout(() => {
+                                generateNewPieces();
+                                // Cek apakah board perlu reset setelah pieces baru di-generate
+                                setTimeout(() => {
+                                    if (checkGameOver()) {
+                                        resetBoard();
+                                    }
+                                }, 100);
+                            }, 500);
+                        } else {
+                            // Cek apakah board perlu reset
+                            setTimeout(() => {
+                                if (checkGameOver()) {
+                                    resetBoard();
+                                }
+                            }, 300);
+                        }
+                    }, 100);
+                } else {
+                    // Animasi kembali ke posisi original
+                    animateBackToOriginal();
+                    // Play invalid sound
+                    playInvalidSound();
+                }
+            } else {
+                animateBackToOriginal();
+                // Play invalid sound jika drop di luar board
+                if (targetRow === -1 && targetCol === -1) {
+                    playInvalidSound();
+                }
+            }
+            
+            cleanup();
+        }
+
+        // Fungsi animasi kembali ke posisi original
+        function animateBackToOriginal() {
+            if (draggedElement) {
+                draggedElement.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    if (draggedElement) {
+                        draggedElement.style.transform = '';
+                    }
+                }, 200);
+            }
+        }
+
+        // Fungsi cleanup setelah drag selesai
+        function cleanup() {
+            isDragging = false;
+            
+            if (dragPreview) {
+                dragPreview.remove();
+                dragPreview = null;
+            }
+            
+            if (draggedElement) {
+                draggedElement.classList.remove('dragging');
+                draggedElement.style.opacity = '';
+            }
+            
+            clearHighlights();
+            draggedPiece = null;
+            draggedElement = null;
+            
+            // Remove event listeners untuk mouse dan touch
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+            document.removeEventListener('touchmove', handleMouseMove);
+            document.removeEventListener('touchend', handleMouseUp);
+            document.removeEventListener('touchcancel', handleMouseUp);
+        }
+
+        // Event handlers untuk kompatibilitas drag & drop
+        function handleDragEnd(e) {
+            cleanup();
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+        }
+
+        function handleDragLeave(e) {
+            // Keep untuk kompatibilitas
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+        }
+
+        // ===== FUNGSI HIGHLIGHTING =====
+        
+        // Highlight placement yang valid
+        function highlightValidPlacement(startRow, startCol) {
+            clearHighlights();
+            
+            const canPlace = canPlacePiece(draggedPiece, startRow, startCol);
+            
+            draggedPiece.cells.forEach(cell => {
+                const targetRow = startRow + cell.row;
+                const targetCol = startCol + cell.col;
+                
+                if (targetRow >= 0 && targetRow < 8 && targetCol >= 0 && targetCol < 8) {
+                    if (canPlace) {
+                        gameBoard[targetRow][targetCol].element.classList.add('highlight');
+                    } else {
+                        gameBoard[targetRow][targetCol].element.classList.add('invalid-highlight');
+                    }
+                }
+            });
+        }
+
+        // Clear semua highlights
+        function clearHighlights() {
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    gameBoard[row][col].element.classList.remove('highlight', 'invalid-highlight');
+                }
+            }
+        }
+
+        // ===== FUNGSI GAME LOGIC =====
+        
+        // Cek apakah piece bisa ditempatkan di posisi tertentu
+        function canPlacePiece(piece, startRow, startCol) {
+            for (let cell of piece.cells) {
+                const targetRow = startRow + cell.row;
+                const targetCol = startCol + cell.col;
+                
+                // Cek batas board
+                if (targetRow < 0 || targetRow >= 8 || targetCol < 0 || targetCol >= 8) {
+                    return false;
+                }
+                
+                // Cek apakah cell sudah terisi
+                if (gameBoard[targetRow][targetCol].filled) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // Tempatkan piece di board
+        function placePiece(piece, startRow, startCol) {
+            piece.cells.forEach(cell => {
+                const targetRow = startRow + cell.row;
+                const targetCol = startCol + cell.col;
+                
+                gameBoard[targetRow][targetCol].filled = true;
+                gameBoard[targetRow][targetCol].letter = cell.letter;
+                gameBoard[targetRow][targetCol].element.classList.add('filled');
+                gameBoard[targetRow][targetCol].element.textContent = cell.letter;
+                gameBoard[targetRow][targetCol].element.style.background = cell.color;
+            });
+            
+            // Skor dasar untuk menempatkan piece
+            const baseScore = piece.cells.length * 10;
+            const levelMultiplier = Math.max(1, level * 0.5);
+            score += Math.floor(baseScore * levelMultiplier);
+            updateAllStats();
+        }
+
+        // Cek untuk baris/kolom yang bisa dihapus
+        function checkForClears() {
+            const rowsToClear = [];
+            const colsToClear = [];
+            
+            // Cek baris
+            for (let row = 0; row < 8; row++) {
+                if (gameBoard[row].every(cell => cell.filled)) {
+                    rowsToClear.push(row);
+                }
+            }
+            
+            // Cek kolom
+            for (let col = 0; col < 8; col++) {
+                let columnFilled = true;
+                for (let row = 0; row < 8; row++) {
+                    if (!gameBoard[row][col].filled) {
+                        columnFilled = false;
+                        break;
+                    }
+                }
+                if (columnFilled) {
+                    colsToClear.push(col);
+                }
+            }
+            
+            // Hapus baris dan kolom dengan animasi
+            if (rowsToClear.length > 0 || colsToClear.length > 0) {
+                // Play clear sound
+                playClearSound();
+                
+                // Cek untuk multiple clears
+                const totalClears = rowsToClear.length + colsToClear.length;
+                if (totalClears > 1) {
+                    // Show Maasyaa Allah untuk multiple line clears
+                    setTimeout(() => showMaasyaAllahEffect(totalClears), 200);
+                } else {
+                    // Show Alhamdulillah untuk single line clears
+                    setTimeout(() => showAlhamdulillahEffect(), 200);
+                }
+                
+                clearLinesWithAnimation(rowsToClear, colsToClear);
+            }
+        }
+
+        // Hapus baris/kolom dengan animasi
+        function clearLinesWithAnimation(rows, cols) {
+            const cellsToClear = new Set();
+            
+            // Kumpulkan semua cell yang akan dihapus
+            rows.forEach(row => {
+                for (let col = 0; col < 8; col++) {
+                    cellsToClear.add(`${row}-${col}`);
+                }
+            });
+            
+            cols.forEach(col => {
+                for (let row = 0; row < 8; row++) {
+                    cellsToClear.add(`${row}-${col}`);
+                }
+            });
+            
+            // Cek untuk combo (multiple clears dalam waktu singkat)
+            const currentTime = Date.now();
+            const timeSinceLastClear = currentTime - lastClearTime;
+            
+            if (timeSinceLastClear < 3000 && lastClearTime > 0) { // Dalam 3 detik
+                comboCount++;
+                // Show Maasyaa Allah untuk combo
+                setTimeout(() => showMaasyaAllahEffect(0), 400);
+            } else {
+                comboCount = 1;
+            }
+            lastClearTime = currentTime;
+            
+            // Update lines cleared count SEBELUM kalkulasi level
+            const previousLevel = level;
+            linesCleared += rows.length + cols.length;
+            
+            // Tambah animation class
+            cellsToClear.forEach(cellKey => {
+                const [row, col] = cellKey.split('-').map(Number);
+                gameBoard[row][col].element.classList.add('clear-animation');
+            });
+            
+            // Hapus cells setelah animasi
+            setTimeout(() => {
+                cellsToClear.forEach(cellKey => {
+                    const [row, col] = cellKey.split('-').map(Number);
+                    gameBoard[row][col].filled = false;
+                    gameBoard[row][col].letter = '';
+                    gameBoard[row][col].element.classList.remove('filled', 'clear-animation');
+                    gameBoard[row][col].element.textContent = '';
+                    gameBoard[row][col].element.style.background = '';
+                });
+                
+                // Hitung level untuk mendapat multiplier yang benar
+                const newLevel = Math.floor(linesCleared / 10) + 1;
+                
+                // Tambah bonus score dengan level multiplier saat ini
+                const clearedCount = cellsToClear.size;
+                let baseScore = clearedCount * 50 + (rows.length + cols.length) * 100;
+                
+                // Combo bonus
+                if (comboCount >= 2) {
+                    baseScore *= (1 + (comboCount - 1) * 0.5); // 50% bonus per combo level
+                }
+                
+                const levelMultiplier = Math.max(1, newLevel * 0.5);
+                score += Math.floor(baseScore * levelMultiplier);
+                
+                // Update level dan show animasi jika level up
+                if (newLevel > previousLevel) {
+                    level = newLevel;
+                    showLevelUpAnimation();
+                    // Play level up sound
+                    setTimeout(() => playLevelUpSound(), 200);
+                }
+                
+                updateAllStats();
+            }, 500);
+        }
+
+        // ===== FUNGSI EFEK VISUAL =====
+        
+        // Show efek "Alhamdulillah"
+        function showAlhamdulillahEffect() {
+            // Increment win count dan cek untuk learning popup
+            winCount++;
+            if (winCount % 2 === 0) {
+                // Show learning popup setelah setiap 2 kemenangan
+                setTimeout(() => {
+                    showLearningPopup();
+                }, 3500); // Show setelah efek Alhamdulillah
+            }
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'islamic-text-overlay';
+            
+            const text = document.createElement('div');
+            text.className = 'alhamdulillah-text';
+            text.innerHTML = '🌟 الحمد لله 🌟';
+            
+            overlay.appendChild(text);
+            document.body.appendChild(overlay);
+            
+            // Tambah sparkles
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.style.left = Math.random() * 100 + '%';
+                    sparkle.style.top = Math.random() * 100 + '%';
+                    sparkle.style.animationDelay = Math.random() * 1 + 's';
+                    overlay.appendChild(sparkle);
+                }, i * 100);
+            }
+            
+            // Remove setelah animasi
+            setTimeout(() => {
+                overlay.remove();
+            }, 3000);
+        }
+
+        // ===== DATA PEMBELAJARAN =====
+        // Contoh pembelajaran dengan kombinasi huruf Arab spesifik
+        const learningExamples = [
+            { arabic: 'بَتَ', pronunciation: 'BA-TA' },
+            { arabic: 'بَدَ', pronunciation: 'BA-DA' },
+            { arabic: 'تَرَ', pronunciation: 'TA-RA' },
+            { arabic: 'تَتَ', pronunciation: 'TA-TA' },
+            { arabic: 'تَدَ', pronunciation: 'TA-DA' },
+            { arabic: 'بَوَ', pronunciation: 'BA-WA' },
+            { arabic: 'بَبَ', pronunciation: 'BA-BA' },
+            { arabic: 'تَزَ', pronunciation: 'TA-ZA' },
+            { arabic: 'بَرَ', pronunciation: 'BA-RA' },
+            { arabic: 'تَبَ', pronunciation: 'TA-BA' },
+            { arabic: 'دَرَ', pronunciation: 'DA-RA' },
+            { arabic: 'رَبَ', pronunciation: 'RA-BA' }
+        ];
+
+        // ===== VARIABEL PEMBELAJARAN =====
+        let shownExamples = [];           // Contoh yang sudah ditampilkan
+        let evaluationMode = false;       // Mode evaluasi aktif
+        let evaluationQuestions = [];     // Soal evaluasi
+        let currentEvaluationIndex = 0;   // Index soal saat ini
+        let evaluationScore = 0;          // Skor evaluasi
+
+        // ===== FUNGSI POPUP PEMBELAJARAN =====
+        function showLearningPopup() {
+            // Cek apakah perlu mulai evaluasi setelah menampilkan semua 12 contoh
+            if (shownExamples.length >= 12 && !evaluationMode) {
+                // Show pesan transisi sebelum evaluasi
+                showEvaluationTransition();
+                return;
+            }
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'learning-popup-overlay';
+            
+            const popup = document.createElement('div');
+            popup.className = 'learning-popup';
+            
+            // Ambil contoh berikutnya yang belum ditampilkan
+            let selectedExample;
+            const availableExamples = learningExamples.filter(example => 
+                !shownExamples.some(shown => shown.arabic === example.arabic)
+            );
+            
+            if (availableExamples.length > 0) {
+                selectedExample = availableExamples[Math.floor(Math.random() * availableExamples.length)];
+                shownExamples.push(selectedExample);
+            } else {
+                // Semua contoh sudah ditampilkan, ini seharusnya tidak terjadi tapi fallback
+                selectedExample = learningExamples[Math.floor(Math.random() * learningExamples.length)];
+            }
+            
+            popup.innerHTML = `
+                <div class="learning-popup-title">📚 Waktu Belajar! 📚</div>
+                <div class="learning-popup-message">Belajar dulu ya, nanti lanjut main.</div>
+                <div class="learning-popup-instruction">Ikuti bacaan ustadz/ah</div>
+                <div style="font-size: 0.9rem; color: #7f8c8d; margin-bottom: 15px;">
+                    Progress: ${shownExamples.length}/12 contoh
+                </div>
+                
+                <div class="learning-example">
+                    <div class="learning-example-title">Contoh Bacaan:</div>
+                    <div class="learning-arabic">${selectedExample.arabic}</div>
+                    <div class="learning-pronunciation">${selectedExample.pronunciation}</div>
+                </div>
+                
+                <button class="learning-popup-button" onclick="closeLearningPopup()">
+                    Siap! Lanjut Main 🎮
+                </button>
+            `;
+            
+            overlay.appendChild(popup);
+            document.body.appendChild(overlay);
+            
+            // Tambah sparkles di sekitar popup
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.style.left = Math.random() * 100 + '%';
+                    sparkle.style.top = Math.random() * 100 + '%';
+                    sparkle.style.background = `radial-gradient(circle, ${['#ffd700', '#4ecdc4', '#ff6b6b', '#667eea'][Math.floor(Math.random() * 4)]}, transparent)`;
+                    sparkle.style.animationDelay = Math.random() * 1 + 's';
+                    overlay.appendChild(sparkle);
+                }, i * 100);
+            }
+            
+            // Play learning sound
+            playLearningSound();
+        }
+
+        // Show popup transisi ke evaluasi
+        function showEvaluationTransition() {
+            const overlay = document.createElement('div');
+            overlay.className = 'learning-popup-overlay';
+            
+            const popup = document.createElement('div');
+            popup.className = 'learning-popup';
+            
+            popup.innerHTML = `
+                <div class="learning-popup-title">🎯 Saatnya Evaluasi! 🎯</div>
+                <div class="learning-popup-message">
+                    Alhamdulillah! Kamu sudah mempelajari 12 contoh bacaan hijaiyah.
+                </div>
+                <div class="learning-popup-instruction">
+                    Sekarang waktunya ujian untuk naik ke Level 2!
+                </div>
+                
+                <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 15px; margin: 20px 0;">
+                    <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 10px;">📋 Aturan Evaluasi:</div>
+                    <div style="font-size: 1rem; line-height: 1.5;">
+                        • 12 soal bacaan<br>
+                        • Baca dengan benar lalu klik<br>
+                        • Semua soal akan dianggap benar<br>
+                        • Naik Level 2 setelah selesai ✅
+                    </div>
+                </div>
+                
+                <button class="learning-popup-button" onclick="startEvaluationFromTransition()">
+                    Mulai Evaluasi! 📝
+                </button>
+            `;
+            
+            overlay.appendChild(popup);
+            document.body.appendChild(overlay);
+            
+            // Tambah celebration sparkles
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.style.left = Math.random() * 100 + '%';
+                    sparkle.style.top = Math.random() * 100 + '%';
+                    sparkle.style.background = `radial-gradient(circle, ${['#ffd700', '#4ecdc4', '#ff6b6b', '#667eea'][Math.floor(Math.random() * 4)]}, transparent)`;
+                    sparkle.style.animationDelay = Math.random() * 1 + 's';
+                    overlay.appendChild(sparkle);
+                }, i * 80);
+            }
+            
+            // Play transition sound
+            playLearningSound();
+        }
+
+        // Mulai evaluasi dari transisi
+        function startEvaluationFromTransition() {
+            const overlay = document.querySelector('.learning-popup-overlay');
+            if (overlay) {
+                overlay.remove();
+            }
+            
+            setTimeout(() => {
+                startEvaluation();
+            }, 300);
+        }
+
+        // Tutup popup pembelajaran
+        function closeLearningPopup() {
+            const overlay = document.querySelector('.learning-popup-overlay');
+            if (overlay) {
+                overlay.style.animation = 'fadeOut 0.3s ease-in-out';
+                setTimeout(() => {
+                    overlay.remove();
+                }, 300);
+            }
+            
+            // Play continue sound
+            playDropSound();
+        }
+
+        // ===== FUNGSI EVALUASI =====
+        
+        // Mulai evaluasi
+        function startEvaluation() {
+            evaluationMode = true;
+            evaluationQuestions = [...shownExamples].sort(() => Math.random() - 0.5); // Shuffle
+            currentEvaluationIndex = 0;
+            evaluationScore = 0;
+            
+            showEvaluationPopup();
+        }
+
+        // Show popup evaluasi
+        function showEvaluationPopup() {
+            if (currentEvaluationIndex >= evaluationQuestions.length) {
+                showEvaluationResults();
+                return;
+            }
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'learning-popup-overlay';
+            
+            const popup = document.createElement('div');
+            popup.className = 'learning-popup';
+            
+            const currentQuestion = evaluationQuestions[currentEvaluationIndex];
+            
+            popup.innerHTML = `
+                <div class="learning-popup-title">📝 Evaluasi Level 1 📝</div>
+                <div class="learning-popup-message">Baca dengan benar, lalu klik kotak hurufnya:</div>
+                <div style="font-size: 0.9rem; color: #7f8c8d; margin-bottom: 15px;">
+                    Soal ${currentEvaluationIndex + 1}/12 | Skor: ${evaluationScore}/${currentEvaluationIndex}
+                </div>
+                
+                <div class="learning-example" onclick="nextEvaluationQuestion()" style="cursor: pointer; transition: all 0.3s ease; border: 3px solid rgba(255,215,0,0.5);">
+                    <div class="learning-example-title">Klik setelah dibaca:</div>
+                    <div class="learning-arabic" style="font-size: 5rem; margin: 20px 0;">${currentQuestion.arabic}</div>
+                    <div class="learning-pronunciation" style="font-size: 1.2rem; opacity: 0.8;">${currentQuestion.pronunciation}</div>
+                </div>
+                
+                <div style="font-size: 0.9rem; color: #666; margin-top: 15px; font-style: italic;">
+                    💡 Baca huruf di atas dengan benar, lalu klik kotaknya untuk lanjut
+                </div>
+            `;
+            
+            overlay.appendChild(popup);
+            document.body.appendChild(overlay);
+            
+            // Tambah hover effect untuk kotak soal
+            const exampleBox = popup.querySelector('.learning-example');
+            exampleBox.addEventListener('mouseenter', () => {
+                exampleBox.style.transform = 'scale(1.05)';
+                exampleBox.style.boxShadow = '0 20px 40px rgba(255,215,0,0.4)';
+                exampleBox.style.borderColor = 'rgba(255,215,0,0.8)';
+            });
+            
+            exampleBox.addEventListener('mouseleave', () => {
+                exampleBox.style.transform = 'scale(1)';
+                exampleBox.style.boxShadow = '';
+                exampleBox.style.borderColor = 'rgba(255,215,0,0.5)';
+            });
+            
+            // Tambah sparkles
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.style.left = Math.random() * 100 + '%';
+                    sparkle.style.top = Math.random() * 100 + '%';
+                    sparkle.style.background = `radial-gradient(circle, ${['#ffd700', '#4ecdc4', '#ff6b6b', '#667eea'][Math.floor(Math.random() * 4)]}, transparent)`;
+                    sparkle.style.animationDelay = Math.random() * 1 + 's';
+                    overlay.appendChild(sparkle);
+                }, i * 100);
+            }
+            
+            // Play evaluation sound
+            playLearningSound();
+        }
+
+        // Pindah ke soal evaluasi berikutnya
+        function nextEvaluationQuestion() {
+            // Semua jawaban dianggap benar karena user sudah membaca
+            evaluationScore++;
+            
+            // Play correct sound
+            playDropSound();
+            
+            // Show feedback singkat
+            showReadingFeedback();
+            
+            // Pindah ke soal berikutnya
+            setTimeout(() => {
+                currentEvaluationIndex++;
+                const overlay = document.querySelector('.learning-popup-overlay');
+                if (overlay) {
+                    overlay.remove();
+                }
+                
+                setTimeout(() => {
+                    showEvaluationPopup();
+                }, 300);
+            }, 800);
+        }
+
+        // Show feedback setelah membaca
+        function showReadingFeedback() {
+            const popup = document.querySelector('.learning-popup');
+            if (!popup) return;
+            
+            const feedbackDiv = document.createElement('div');
+            feedbackDiv.style.cssText = `
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #4ecdc4, #44a08d);
+                color: white;
+                padding: 20px;
+                border-radius: 15px;
+                text-align: center;
+                font-size: 1.2rem;
+                font-weight: bold;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                z-index: 1000;
+                animation: popupSlideIn 0.3s ease-out;
+            `;
+            
+            const encouragements = [
+                '✅ Bagus! Alhamdulillah',
+                '✅ Hebat! Barakallahu fiik',
+                '✅ Mantap! Maasyaa Allah',
+                '✅ Keren! Lanjut terus',
+                '✅ Sempurna! Allahu akbar'
+            ];
+            
+            const randomEncouragement = encouragements[Math.floor(Math.random() * encouragements.length)];
+            feedbackDiv.innerHTML = randomEncouragement;
+            
+            popup.appendChild(feedbackDiv);
+        }
+
+        // Show hasil evaluasi
+        function showEvaluationResults() {
+            const overlay = document.createElement('div');
+            overlay.className = 'learning-popup-overlay';
+            
+            const popup = document.createElement('div');
+            popup.className = 'learning-popup';
+            
+            const percentage = 100; // Selalu 100% karena semua dianggap benar
+            const passed = true; // Selalu lulus
+            
+            popup.innerHTML = `
+                <div class="learning-popup-title">🎉 Hasil Evaluasi 🎉</div>
+                <div class="learning-popup-message">Alhamdulillah! Kamu lulus evaluasi Level 1!</div>
+                
+                <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 25px; border-radius: 20px; margin: 25px 0;">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">${evaluationScore}/12</div>
+                    <div style="font-size: 1.5rem; font-weight: bold;">100%</div>
+                    <div style="font-size: 1rem; opacity: 0.9; margin-top: 10px;">
+                        Lulus! ✅
+                    </div>
+                </div>
+                
+                <button class="learning-popup-button" onclick="advanceToLevel2()">
+                    Lanjut ke Level 2! 🚀
+                </button>
+            `;
+            
+            overlay.appendChild(popup);
+            document.body.appendChild(overlay);
+            
+            // Tambah celebration sparkles
+            for (let i = 0; i < 25; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.style.left = Math.random() * 100 + '%';
+                    sparkle.style.top = Math.random() * 100 + '%';
+                    sparkle.style.background = `radial-gradient(circle, #ffd700, transparent)`;
+                    sparkle.style.animationDelay = Math.random() * 1 + 's';
+                    overlay.appendChild(sparkle);
+                }, i * 50);
+            }
+            
+            // Play result sound
+            playLevelUpSound();
+        }
+
+        // Lanjut ke Level 2
+        function advanceToLevel2() {
+            // Tutup evaluation popup
+            const overlay = document.querySelector('.learning-popup-overlay');
+            if (overlay) {
+                overlay.remove();
+            }
+            
+            // Reset progress pembelajaran untuk Level 2
+            shownExamples = [];
+            evaluationMode = false;
+            winCount = 0; // Reset win count untuk level baru
+            
+            // Lanjut ke Level 2
+            level = 2;
+            
+            // Show level up effect
+            showLevel2Advancement();
+            
+            // Update stats
+            updateAllStats();
+            
+            // Play advancement sound
+            setTimeout(() => playLevelUpSound(), 500);
+        }
+
+        // Show efek naik Level 2
+        function showLevel2Advancement() {
+            const overlay = document.createElement('div');
+            overlay.className = 'islamic-text-overlay';
+            
+            const text = document.createElement('div');
+            text.className = 'alhamdulillah-text';
+            text.innerHTML = '🎊 LEVEL 2 🎊<br><span style="font-size: 0.6em; opacity: 0.9;">Barakallahu fiik!</span>';
+            
+            overlay.appendChild(text);
+            document.body.appendChild(overlay);
+            
+            // Tambah celebration sparkles
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.style.left = Math.random() * 100 + '%';
+                    sparkle.style.top = Math.random() * 100 + '%';
+                    sparkle.style.background = `radial-gradient(circle, ${['#ffd700', '#ff6b6b', '#4ecdc4', '#667eea'][Math.floor(Math.random() * 4)]}, transparent)`;
+                    sparkle.style.animationDelay = Math.random() * 1 + 's';
+                    overlay.appendChild(sparkle);
+                }, i * 50);
+            }
+            
+            // Remove setelah animasi
+            setTimeout(() => {
+                overlay.remove();
+            }, 4000);
+        }
+
+        // Show efek "Maasyaa Allah"
+        function showMaasyaAllahEffect(clearsCount = 0) {
+            const overlay = document.createElement('div');
+            overlay.className = 'islamic-text-overlay';
+            
+            const text = document.createElement('div');
+            text.className = 'maasyaallah-text';
+            
+            let message = '';
+            if (clearsCount > 1) {
+                message = `✨ ما شاء الله ✨<br><span style="font-size: 0.7em; opacity: 0.9;">${clearsCount} baris sekaligus!</span>`;
+            } else if (comboCount >= 2) {
+                message = `✨ ما شاء الله ✨<br><span style="font-size: 0.7em; opacity: 0.9;">Combo x${comboCount}</span>`;
+            } else {
+                message = `✨ ما شاء الله ✨`;
+            }
+            
+            text.innerHTML = message;
+            
+            overlay.appendChild(text);
+            document.body.appendChild(overlay);
+            
+            // Tambah sparkles dengan warna berbeda
+            const sparkleCount = clearsCount > 1 ? 20 : 15;
+            for (let i = 0; i < sparkleCount; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.style.left = Math.random() * 100 + '%';
+                    sparkle.style.top = Math.random() * 100 + '%';
+                    sparkle.style.background = `radial-gradient(circle, ${['#00ff88', '#00d4ff', '#ff6b6b', '#ffd700'][Math.floor(Math.random() * 4)]}, transparent)`;
+                    sparkle.style.animationDelay = Math.random() * 0.8 + 's';
+                    overlay.appendChild(sparkle);
+                }, i * 80);
+            }
+            
+            // Remove setelah animasi
+            setTimeout(() => {
+                overlay.remove();
+            }, 2000);
+        }
+
+        // ===== FUNGSI GAME OVER & RESET =====
+        
+        // Cek apakah ada piece yang bisa ditempatkan
+        function canPlaceAnyPiece() {
+            // Cek apakah ada pieces yang belum digunakan
+            const unusedPieces = currentPieces.filter(piece => !piece.used);
+            if (unusedPieces.length === 0) {
+                return true; // Tidak ada pieces tersisa, belum game over
+            }
+            
+            // Cek apakah ada unused piece yang bisa ditempatkan
+            for (let piece of unusedPieces) {
+                for (let row = 0; row < 8; row++) {
+                    for (let col = 0; col < 8; col++) {
+                        if (canPlacePiece(piece, row, col)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        // Cek game over
+        function checkGameOver() {
+            // Hanya cek game over jika ada unused pieces
+            const unusedPieces = currentPieces.filter(piece => !piece.used);
+            if (unusedPieces.length === 0) {
+                return false; // Semua pieces digunakan, akan generate yang baru
+            }
+            
+            return !canPlaceAnyPiece();
+        }
+
+        // Reset board
+        function resetBoard() {
+            // Hapus semua cells dengan animasi
+            const allCells = [];
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    if (gameBoard[row][col].filled) {
+                        allCells.push({ row, col });
+                        gameBoard[row][col].element.classList.add('clear-animation');
+                    }
+                }
+            }
+            
+            // Show reset message
+            showResetEffect();
+            
+            // Hapus semua cells setelah animasi
+            setTimeout(() => {
+                allCells.forEach(cell => {
+                    gameBoard[cell.row][cell.col].filled = false;
+                    gameBoard[cell.row][cell.col].letter = '';
+                    gameBoard[cell.row][cell.col].element.classList.remove('filled', 'clear-animation');
+                    gameBoard[cell.row][cell.col].element.textContent = '';
+                    gameBoard[cell.row][cell.col].element.style.background = '';
+                });
+                
+                // Tambah initial cells baru
+                setTimeout(() => {
+                    addInitialCells();
+                    
+                    // Generate pieces baru
+                    setTimeout(() => {
+                        generateNewPieces();
+                        
+                        // Tambah bonus score untuk bertahan sampai reset
+                        const resetBonus = 500 * level;
+                        score += resetBonus;
+                        updateAllStats();
+                        
+                        // Play reset sound
+                        playResetSound();
+                    }, 300);
+                }, 200);
+            }, 800);
+        }
+
+        // Show efek reset
+        function showResetEffect() {
+            const overlay = document.createElement('div');
+            overlay.className = 'islamic-text-overlay';
+            
+            const text = document.createElement('div');
+            text.className = 'maasyaallah-text';
+            text.innerHTML = '🔄 لا بأس 🔄<br><span style="font-size: 0.7em; opacity: 0.9;">+' + (500 * level) + ' bonus!</span>';
+            
+            overlay.appendChild(text);
+            document.body.appendChild(overlay);
+            
+            // Tambah sparkles
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.style.left = Math.random() * 100 + '%';
+                    sparkle.style.top = Math.random() * 100 + '%';
+                    sparkle.style.background = `radial-gradient(circle, ${['#4ecdc4', '#44a08d', '#667eea', '#764ba2'][Math.floor(Math.random() * 4)]}, transparent)`;
+                    sparkle.style.animationDelay = Math.random() * 0.8 + 's';
+                    overlay.appendChild(sparkle);
+                }, i * 80);
+            }
+            
+            // Remove setelah animasi
+            setTimeout(() => {
+                overlay.remove();
+            }, 2000);
+        }
+
+        // ===== FUNGSI UPDATE STATISTIK =====
+        
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+        }
+
+        function updateLevel() {
+            // Kalkulasi level sekarang ditangani di clearLinesWithAnimation
+            document.getElementById('level').textContent = level;
+        }
+
+        // Animasi level up
+        function showLevelUpAnimation() {
+            const levelElement = document.getElementById('level');
+            levelElement.style.transform = 'scale(1.5)';
+            levelElement.style.background = 'linear-gradient(45deg, #ffd700, #ff6b6b)';
+            levelElement.style.webkitBackgroundClip = 'text';
+            levelElement.style.webkitTextFillColor = 'transparent';
+            levelElement.style.backgroundClip = 'text';
+            levelElement.style.animation = 'levelUpPulse 1s ease-in-out';
+            
+            setTimeout(() => {
+                levelElement.style.transform = '';
+                levelElement.style.background = '';
+                levelElement.style.webkitBackgroundClip = '';
+                levelElement.style.webkitTextFillColor = '';
+                levelElement.style.backgroundClip = '';
+                levelElement.style.animation = '';
+            }, 1000);
+        }
+
+        function updateLinesCleared() {
+            document.getElementById('linesCleared').textContent = linesCleared;
+        }
+
+        function updateAllStats() {
+            updateScore();
+            updateLevel();
+            updateLinesCleared();
+        }
+
+        // ===== SISTEM SOUND EFFECTS =====
+        // Menggunakan Web Audio API untuk efek suara
+        
+        let audioContext;                 // Context untuk Web Audio API
+        let isAudioInitialized = false;  // Status inisialisasi audio
+
+        // Inisialisasi audio
+        function initAudio() {
+            if (isAudioInitialized) return;
+            
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                isAudioInitialized = true;
+            } catch (e) {
+                console.log('Web Audio API not supported');
+            }
+        }
+
+        // Fungsi utama untuk memainkan suara
+        function playSound(frequency, duration, type = 'sine', volume = 0.1) {
+            if (!isAudioInitialized || !audioContext) return;
+            
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                oscillator.type = type;
+                
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            } catch (e) {
+                console.log('Error playing sound:', e);
+            }
+        }
+
+        // ===== SOUND EFFECTS SPESIFIK =====
+        
+        // Sound saat mengambil piece - nada naik
+        function playPickupSound() {
+            playSound(400, 0.1, 'square', 0.08);
+            setTimeout(() => playSound(600, 0.1, 'square', 0.06), 50);
+        }
+
+        // Sound saat meletakkan piece - nada turun
+        function playDropSound() {
+            playSound(800, 0.15, 'triangle', 0.1);
+            setTimeout(() => playSound(600, 0.1, 'triangle', 0.08), 80);
+        }
+
+        // Sound saat tidak bisa meletakkan - buzz
+        function playInvalidSound() {
+            playSound(200, 0.3, 'sawtooth', 0.05);
+        }
+
+        // Sound saat baris terpenuhi - melodi naik
+        function playClearSound() {
+            const notes = [523, 659, 784, 1047]; // C5, E5, G5, C6
+            notes.forEach((note, index) => {
+                setTimeout(() => {
+                    playSound(note, 0.2, 'sine', 0.12);
+                }, index * 100);
+            });
+        }
+
+        // Sound saat level up - fanfare
+        function playLevelUpSound() {
+            const fanfare = [523, 659, 784, 1047, 1319]; // C5, E5, G5, C6, E6
+            fanfare.forEach((note, index) => {
+                setTimeout(() => {
+                    playSound(note, 0.3, 'triangle', 0.15);
+                }, index * 150);
+            });
+        }
+
+        // Sound saat reset board - gentle chime
+        function playResetSound() {
+            const chimes = [392, 523, 659, 784]; // G4, C5, E5, G5
+            chimes.forEach((note, index) => {
+                setTimeout(() => {
+                    playSound(note, 0.4, 'sine', 0.1);
+                }, index * 200);
+            });
+        }
+
+        // Sound saat popup belajar - gentle bell melody
+        function playLearningSound() {
+            const melody = [523, 659, 784, 659, 523]; // C5, E5, G5, E5, C5
+            melody.forEach((note, index) => {
+                setTimeout(() => {
+                    playSound(note, 0.5, 'sine', 0.12);
+                }, index * 300);
+            });
+        }
+
+        // ===== INISIALISASI AUDIO =====
+        // Inisialisasi audio pada interaksi user pertama
+        function handleFirstInteraction() {
+            initAudio();
+            document.removeEventListener('click', handleFirstInteraction);
+            document.removeEventListener('touchstart', handleFirstInteraction);
+        }
+
+        document.addEventListener('click', handleFirstInteraction);
+        document.addEventListener('touchstart', handleFirstInteraction);
+
+        // ===== INISIALISASI GAME =====
+        // Inisialisasi game saat halaman dimuat
+        window.addEventListener('load', initGame);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9782fd87d2556590',t:'MTc1NjcxMTA3Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
