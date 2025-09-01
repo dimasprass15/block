@@ -1,0 +1,1829 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blast Hijaiyah - Game Belajar Huruf Arab</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: white;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .game-title {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #ffd700, #ff6b6b, #4ecdc4, #45b7d1);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleGlow 3s ease-in-out infinite;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            letter-spacing: 2px;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .game-stats {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.1));
+            padding: 15px 25px;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255,255,255,0.3);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            text-align: center;
+            min-width: 100px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            opacity: 0.8;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ffd700, #ff6b6b, #4ecdc4);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: statGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes statGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(8, 60px);
+            grid-template-rows: repeat(8, 60px);
+            gap: 3px;
+            background: linear-gradient(145deg, rgba(0,0,0,0.4), rgba(255,255,255,0.1));
+            padding: 20px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 
+                0 20px 40px rgba(0,0,0,0.3),
+                inset 0 1px 0 rgba(255,255,255,0.2),
+                0 0 0 1px rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .grid-cell {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .grid-cell.filled {
+            color: white;
+            box-shadow: 
+                0 8px 25px rgba(0,0,0,0.3),
+                inset 0 1px 0 rgba(255,255,255,0.3);
+            transform: scale(1.05);
+            border: 2px solid rgba(255,255,255,0.4);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .grid-cell.highlight {
+            background: linear-gradient(135deg, rgba(255,215,0,0.25), rgba(255,165,0,0.15));
+            border: 2px solid rgba(255,215,0,0.4);
+            box-shadow: 
+                0 0 8px rgba(255,215,0,0.3),
+                inset 0 0 10px rgba(255,255,255,0.1);
+            transform: scale(1.02);
+            animation: gentlePulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes gentlePulse {
+            0% { 
+                background: linear-gradient(135deg, rgba(255,215,0,0.25), rgba(255,165,0,0.15));
+                box-shadow: 
+                    0 0 8px rgba(255,215,0,0.3),
+                    inset 0 0 10px rgba(255,255,255,0.1);
+            }
+            100% { 
+                background: linear-gradient(135deg, rgba(255,215,0,0.35), rgba(255,165,0,0.25));
+                box-shadow: 
+                    0 0 12px rgba(255,215,0,0.4),
+                    inset 0 0 15px rgba(255,255,255,0.15);
+            }
+        }
+
+        .pieces-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .piece {
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
+            border-radius: 15px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .piece:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            border-color: rgba(255,215,0,0.6);
+        }
+
+        .piece-grid {
+            display: grid;
+            gap: 2px;
+        }
+
+        .piece-cell {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .piece-cell.filled {
+            color: white;
+            box-shadow: 
+                0 4px 15px rgba(0,0,0,0.3),
+                inset 0 1px 0 rgba(255,255,255,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .piece-cell.empty {
+            background: transparent;
+        }
+
+        .clear-animation {
+            animation: clearEffect 0.8s ease-in-out;
+        }
+
+        @keyframes clearEffect {
+            0% { 
+                transform: scale(1) rotate(0deg); 
+                background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+                box-shadow: 0 0 20px rgba(255,107,107,0.6);
+            }
+            50% { 
+                transform: scale(1.5) rotate(180deg); 
+                background: linear-gradient(135deg, #00ff00, #32cd32);
+                box-shadow: 0 0 40px rgba(0,255,0,0.8);
+            }
+            100% { 
+                transform: scale(0) rotate(360deg); 
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                box-shadow: 0 0 50px rgba(102,126,234,1);
+                opacity: 0;
+            }
+        }
+
+        .islamic-text-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 1500;
+        }
+
+        .alhamdulillah-text {
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #ffd700, #ff6b6b, #4ecdc4, #45b7d1, #ffd700);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 50px rgba(255, 215, 0, 0.8);
+            animation: alhamdulillahEffect 3s ease-in-out;
+            text-align: center;
+            letter-spacing: 3px;
+            opacity: 0;
+        }
+
+        @keyframes alhamdulillahEffect {
+            0% {
+                opacity: 0;
+                transform: scale(0.3) translateY(100px) rotate(-10deg);
+                background-position: 0% 50%;
+            }
+            20% {
+                opacity: 1;
+                transform: scale(1.2) translateY(-20px) rotate(2deg);
+                background-position: 25% 50%;
+            }
+            80% {
+                transform: scale(1.05) translateY(-5px) rotate(0deg);
+                background-position: 100% 50%;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.8) translateY(-50px) rotate(0deg);
+                background-position: 100% 50%;
+            }
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, #ffd700, transparent);
+            border-radius: 50%;
+            animation: sparkleFloat 2s ease-in-out infinite;
+        }
+
+        @keyframes sparkleFloat {
+            0% {
+                opacity: 0;
+                transform: translateY(0px) scale(0);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(-30px) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-60px) scale(0);
+            }
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(78,205,196,0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(78,205,196,0.4);
+            background: linear-gradient(135deg, #44a08d, #4ecdc4);
+        }
+
+        .btn.secondary {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            box-shadow: 0 6px 20px rgba(149,165,166,0.3);
+        }
+
+        .btn.secondary:hover {
+            background: linear-gradient(135deg, #7f8c8d, #95a5a6);
+            box-shadow: 0 10px 25px rgba(149,165,166,0.4);
+        }
+
+        .btn.level-advance {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            box-shadow: 0 6px 20px rgba(255,107,107,0.3);
+        }
+
+        .btn.level-advance:hover {
+            background: linear-gradient(135deg, #ee5a24, #ff6b6b);
+            box-shadow: 0 10px 25px rgba(255,107,107,0.4);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            margin: 5% auto;
+            padding: 40px;
+            border-radius: 25px;
+            width: 90%;
+            max-width: 650px;
+            color: white;
+            box-shadow: 
+                0 25px 80px rgba(0,0,0,0.4),
+                inset 0 1px 0 rgba(255,255,255,0.3),
+                0 0 0 1px rgba(255,255,255,0.2);
+            border: 3px solid rgba(255,255,255,0.4);
+            position: relative;
+            max-height: 85vh;
+            overflow-y: auto;
+            backdrop-filter: blur(20px);
+            animation: modalSlideIn 0.5s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.8) translateY(-50px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+            top: 15px;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .learning-content {
+            text-align: center;
+        }
+
+        .learning-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 25px;
+            background: linear-gradient(45deg, #ffd700, #ff6b6b, #4ecdc4, #45b7d1);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleGlow 3s ease-in-out infinite;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .arabic-example {
+            font-size: 4rem;
+            font-weight: 900;
+            margin: 30px 0;
+            color: white;
+            text-shadow: 
+                0 0 20px rgba(255,215,0,0.8),
+                2px 2px 8px rgba(0,0,0,0.5);
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
+            padding: 20px;
+            border-radius: 20px;
+            border: 2px solid rgba(255,215,0,0.3);
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .pronunciation {
+            font-size: 1.8rem;
+            color: #ffd700;
+            font-weight: 700;
+            margin: 20px 0;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,215,0,0.1));
+            padding: 15px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,215,0,0.3);
+        }
+
+        .description {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: rgba(255,255,255,0.95);
+            margin: 25px 0;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+            padding: 25px;
+            border-radius: 20px;
+            border: 2px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .learning-footer {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .continue-btn {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(78,205,196,0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0 10px;
+        }
+
+        .continue-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(78,205,196,0.5);
+            background: linear-gradient(135deg, #44a08d, #4ecdc4);
+        }
+
+        .continue-btn.secondary {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            box-shadow: 0 8px 25px rgba(149,165,166,0.4);
+        }
+
+        .continue-btn.secondary:hover {
+            background: linear-gradient(135deg, #7f8c8d, #95a5a6);
+            box-shadow: 0 12px 35px rgba(149,165,166,0.5);
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid rgba(52,152,219,0.3);
+            border-radius: 10px;
+            font-size: 1.1rem;
+            margin: 15px 0;
+            background: rgba(255,255,255,0.9);
+            text-align: center;
+        }
+
+        .password-input:focus {
+            outline: none;
+            border-color: rgba(52,152,219,0.8);
+            box-shadow: 0 0 15px rgba(52,152,219,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .game-title {
+                font-size: 2.2rem;
+            }
+            
+            .game-board {
+                grid-template-columns: repeat(8, 45px);
+                grid-template-rows: repeat(8, 45px);
+                padding: 15px;
+            }
+            
+            .grid-cell {
+                width: 45px;
+                height: 45px;
+                font-size: 1.2rem;
+            }
+            
+            .piece-cell {
+                width: 30px;
+                height: 30px;
+                font-size: 1rem;
+            }
+            
+            .stat-item {
+                padding: 10px 15px;
+                min-width: 80px;
+            }
+            
+            .stat-value {
+                font-size: 1.4rem;
+            }
+            
+            .alhamdulillah-text {
+                font-size: 2.5rem;
+            }
+
+            .modal-content {
+                margin: 10% auto;
+                padding: 20px;
+                width: 95%;
+            }
+
+            .learning-title {
+                font-size: 1.5rem;
+            }
+
+            .arabic-example {
+                font-size: 2rem;
+            }
+
+            .pronunciation {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-header">
+        <h1 class="game-title">🕌 Blast Hijaiyah</h1>
+        <div class="game-stats">
+            <div class="stat-item">
+                <div class="stat-label">Skor</div>
+                <div class="stat-value" id="score">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Level</div>
+                <div class="stat-value" id="level">1</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Baris</div>
+                <div class="stat-value" id="linesCleared">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Progress</div>
+                <div class="stat-value" id="learningProgress">0/12</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-board" id="gameBoard"></div>
+
+    <div class="pieces-container" id="piecesContainer"></div>
+
+    <div class="controls">
+        <button class="btn" onclick="resetGame()">🔄 Reset Game</button>
+        <button class="btn secondary" onclick="showInstructions()">❓ Cara Main</button>
+        <button class="btn level-advance" onclick="showLevelAdvanceModal()">⬆️ Naik Level</button>
+    </div>
+
+    <!-- Learning Modal -->
+    <div id="learningModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeLearningModal()">&times;</span>
+            <div class="learning-content" id="learningContent">
+                <!-- Content will be dynamically generated -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Level Advance Modal -->
+    <div id="levelAdvanceModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeLevelAdvanceModal()">&times;</span>
+            <div class="learning-content">
+                <h2 class="learning-title">🔐 Naik Level</h2>
+                <p class="description">Masukkan password untuk naik ke level berikutnya:</p>
+                <input type="password" id="passwordInput" class="password-input" placeholder="Masukkan password...">
+                <div style="margin-top: 20px;">
+                    <button class="btn" onclick="checkPassword()">✅ Konfirmasi</button>
+                    <button class="btn secondary" onclick="closeLevelAdvanceModal()">❌ Batal</button>
+                </div>
+                <p style="margin-top: 15px; font-size: 0.9rem; color: #666;">
+                    💡 Hint: Password adalah nama game ini dalam bahasa Inggris (huruf kecil)
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== AUDIO SYSTEM =====
+        let audioContext;
+        let isAudioInitialized = false;
+
+        function initAudio() {
+            if (isAudioInitialized) return;
+            
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                isAudioInitialized = true;
+            } catch (e) {
+                console.log('Audio not supported');
+            }
+        }
+
+        function playSound(frequency, duration, type = 'sine') {
+            if (!isAudioInitialized || !audioContext) return;
+            
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                oscillator.type = type;
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            } catch (e) {
+                console.log('Error playing sound:', e);
+            }
+        }
+
+        function playPlaceSound() {
+            playSound(440, 0.1);
+        }
+
+        function playClearSound() {
+            playSound(660, 0.3);
+            setTimeout(() => playSound(880, 0.2), 100);
+        }
+
+        function playLevelUpSound() {
+            playSound(523, 0.2);
+            setTimeout(() => playSound(659, 0.2), 150);
+            setTimeout(() => playSound(784, 0.3), 300);
+        }
+
+        // ===== GAME DATA =====
+        const hijaiyahLetters = [
+            { letter: 'ا', color: 'linear-gradient(135deg, #FFB6C1, #FFC0CB)' },
+            { letter: 'ب', color: 'linear-gradient(135deg, #98FB98, #90EE90)' },
+            { letter: 'ت', color: 'linear-gradient(135deg, #87CEEB, #87CEFA)' },
+            { letter: 'ث', color: 'linear-gradient(135deg, #DDA0DD, #E6E6FA)' },
+            { letter: 'ج', color: 'linear-gradient(135deg, #F0E68C, #FFFFE0)' },
+            { letter: 'ح', color: 'linear-gradient(135deg, #FFA07A, #FFB07A)' },
+            { letter: 'خ', color: 'linear-gradient(135deg, #20B2AA, #48D1CC)' },
+            { letter: 'د', color: 'linear-gradient(135deg, #F5DEB3, #FFEAA7)' },
+            { letter: 'ذ', color: 'linear-gradient(135deg, #CD853F, #D2B48C)' },
+            { letter: 'ر', color: 'linear-gradient(135deg, #FF69B4, #FF91A4)' },
+            { letter: 'ز', color: 'linear-gradient(135deg, #40E0D0, #7FDBDA)' },
+            { letter: 'س', color: 'linear-gradient(135deg, #9370DB, #BA55D3)' },
+            { letter: 'ش', color: 'linear-gradient(135deg, #32CD32, #7CFC00)' },
+            { letter: 'ص', color: 'linear-gradient(135deg, #FF6347, #FF7F7F)' },
+            { letter: 'ض', color: 'linear-gradient(135deg, #4169E1, #6495ED)' },
+            { letter: 'ط', color: 'linear-gradient(135deg, #FF8C00, #FFA500)' },
+            { letter: 'ظ', color: 'linear-gradient(135deg, #8FBC8F, #98FB98)' },
+            { letter: 'ع', color: 'linear-gradient(135deg, #DC143C, #F08080)' },
+            { letter: 'غ', color: 'linear-gradient(135deg, #00CED1, #40E0D0)' },
+            { letter: 'ف', color: 'linear-gradient(135deg, #9932CC, #DA70D6)' },
+            { letter: 'ق', color: 'linear-gradient(135deg, #228B22, #32CD32)' },
+            { letter: 'ك', color: 'linear-gradient(135deg, #FF4500, #FF6347)' },
+            { letter: 'ل', color: 'linear-gradient(135deg, #4682B4, #5F9EA0)' },
+            { letter: 'م', color: 'linear-gradient(135deg, #D2691E, #F4A460)' },
+            { letter: 'ن', color: 'linear-gradient(135deg, #FF1493, #FF69B4)' },
+            { letter: 'ه', color: 'linear-gradient(135deg, #00FA9A, #7FFFD4)' },
+            { letter: 'و', color: 'linear-gradient(135deg, #8A2BE2, #9370DB)' },
+            { letter: 'ي', color: 'linear-gradient(135deg, #FF7F50, #FFA07A)' }
+        ];
+
+        const pieceShapes = [
+            [[1]],
+            [[1, 1, 1]],
+            [[1], [1], [1]],
+            [[1, 0], [1, 0], [1, 1]],
+            [[1, 1], [1, 1]],
+            [[1, 1, 1], [0, 1, 0]],
+            [[1, 1, 0], [0, 1, 1]]
+        ];
+
+        // ===== PANDUAN MENAMBAH KONTEN BARU =====
+        /*
+        🎯 CARA MENAMBAH LEVEL & SOAL BARU:
+        
+        1️⃣ TAMBAH LEARNING MODULES (Baris 200-250):
+           - Copy format yang ada
+           - Ganti "title" dengan judul pelajaran
+           - Ganti "arabic" dengan teks Arab
+           - Bisa tambah "pronunciation", "meaning", "example"
+        
+        2️⃣ TAMBAH LEVEL REQUIREMENTS (Baris 800-850):
+           - Ubah angka di "gameVictories % 2" untuk mengatur kapan popup muncul
+           - Contoh: "% 3" = setiap 3 kemenangan
+        
+        3️⃣ TAMBAH EVALUASI/QUIZ (Baris 900-1000):
+           - Tambah property "quiz" di learningModules
+           - Format: { question: "...", options: [...], correct: 0 }
+        
+        4️⃣ TAMBAH LEVEL BARU (Baris 1200):
+           - Ubah rumus level: Math.floor(linesCleared / 10) + 1
+           - Contoh: / 15 = lebih sulit naik level
+        
+        📝 CONTOH PENAMBAHAN:
+        {
+            title: "Surat Al-Fatihah Ayat 1",
+            arabic: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+            pronunciation: "Bismillahir-rahmanir-rahim",
+            meaning: "Dengan nama Allah Yang Maha Pengasih lagi Maha Penyayang",
+            quiz: {
+                question: "Apa arti 'Bismillah'?",
+                options: ["Dengan nama Allah", "Alhamdulillah", "Subhanallah"],
+                correct: 0
+            }
+        }
+        */
+
+        // Learning content data - TAMBAH MODUL BARU DI SINI
+        const learningModules = [
+            // LEVEL 1: Huruf Dasar
+            {
+                title: "Huruf Ba dan Ta",
+                arabic: "بَتَ",
+                level: 1,
+                pronunciation: "Ba - Ta",
+                meaning: "Huruf Ba (ب) dan Ta (ت)"
+            },
+            {
+                title: "Huruf Ta dan Ra",
+                arabic: "تَرَ",
+                level: 1,
+                pronunciation: "Ta - Ra", 
+                meaning: "Huruf Ta (ت) dan Ra (ر)"
+            },
+            {
+                title: "Huruf Jim dan Ha",
+                arabic: "جَحَ",
+                level: 1,
+                pronunciation: "Jim - Ha",
+                meaning: "Huruf Jim (ج) dan Ha (ح)"
+            },
+            
+            // LEVEL 2: Kombinasi Huruf
+            {
+                title: "Huruf Dal dan Dzal",
+                arabic: "دَذَ",
+                level: 2,
+                pronunciation: "Dal - Dzal",
+                meaning: "Huruf Dal (د) dan Dzal (ذ)",
+                quiz: {
+                    question: "Mana yang merupakan huruf Dal?",
+                    options: ["د", "ذ", "ر"],
+                    correct: 0
+                }
+            },
+            {
+                title: "Huruf Ra dan Zai", 
+                arabic: "رَزَ",
+                level: 2,
+                pronunciation: "Ra - Zai",
+                meaning: "Huruf Ra (ر) dan Zai (ز)"
+            },
+            {
+                title: "Huruf Sin dan Syin",
+                arabic: "سَشَ", 
+                level: 2,
+                pronunciation: "Sin - Syin",
+                meaning: "Huruf Sin (س) dan Syin (ش)"
+            },
+            
+            // LEVEL 3: Huruf Sulit
+            {
+                title: "Huruf Shad dan Dhad",
+                arabic: "صَضَ",
+                level: 3,
+                pronunciation: "Shad - Dhad",
+                meaning: "Huruf Shad (ص) dan Dhad (ض)",
+                quiz: {
+                    question: "Huruf Dhad disebut juga?",
+                    options: ["Huruf Arab", "Huruf Dhad", "Huruf unik Arab"],
+                    correct: 2
+                }
+            },
+            {
+                title: "Huruf Tha dan Zha",
+                arabic: "طَظَ",
+                level: 3,
+                pronunciation: "Tha - Zha", 
+                meaning: "Huruf Tha (ط) dan Zha (ظ)"
+            },
+            {
+                title: "Huruf Ain dan Ghain",
+                arabic: "عَغَ",
+                level: 3,
+                pronunciation: "Ain - Ghain",
+                meaning: "Huruf Ain (ع) dan Ghain (غ)"
+            },
+            
+            // LEVEL 4: Kata Sederhana
+            {
+                title: "Kata 'Kitab'",
+                arabic: "كِتَابٌ",
+                level: 4,
+                pronunciation: "Kitabun",
+                meaning: "Sebuah buku",
+                quiz: {
+                    question: "Apa arti 'كِتَابٌ'?",
+                    options: ["Buku", "Pena", "Kertas"],
+                    correct: 0
+                }
+            },
+            {
+                title: "Kata 'Bayt'", 
+                arabic: "بَيْتٌ",
+                level: 4,
+                pronunciation: "Baytun",
+                meaning: "Sebuah rumah"
+            },
+            
+            // LEVEL 5: Ayat Pendek
+            {
+                title: "Surat Al-Ikhlas Ayat 1",
+                arabic: "قُلْ هُوَ اللَّهُ أَحَدٌ",
+                level: 5,
+                pronunciation: "Qul huwallahu ahad",
+                meaning: "Katakanlah: Dia-lah Allah, Yang Maha Esa",
+                quiz: {
+                    question: "Surat Al-Ikhlas berbicara tentang?",
+                    options: ["Keesaan Allah", "Shalat", "Puasa"],
+                    correct: 0
+                }
+            }
+            
+            // 🔥 TAMBAH MODUL BARU DI SINI:
+            // {
+            //     title: "Judul Pelajaran Anda",
+            //     arabic: "النص العربي",
+            //     level: 6,
+            //     pronunciation: "Cara baca",
+            //     meaning: "Artinya",
+            //     quiz: {
+            //         question: "Pertanyaan Anda?",
+            //         options: ["Pilihan A", "Pilihan B", "Pilihan C"],
+            //         correct: 0  // Index jawaban benar (0, 1, atau 2)
+            //     }
+            // }
+        ];
+
+        // ===== GAME STATE =====
+        let score = 0;
+        let level = 1;
+        let linesCleared = 0;
+        let gameBoard = [];
+        let currentPieces = [];
+        let selectedPiece = null;
+        let learningProgress = 0;
+        let currentLearningModule = 0;
+        let gameVictories = 0; // Track total victories (line clears + board resets)
+        let gameData = {
+            score: 0,
+            level: 1,
+            linesCleared: 0,
+            learningProgress: 0,
+            gameVictories: 0
+        };
+
+        // ===== LOCAL STORAGE =====
+        function saveGameData() {
+            gameData = {
+                score: score,
+                level: level,
+                linesCleared: linesCleared,
+                learningProgress: learningProgress,
+                gameVictories: gameVictories
+            };
+            localStorage.setItem('blastHijaiyahData', JSON.stringify(gameData));
+        }
+
+        function loadGameData() {
+            const saved = localStorage.getItem('blastHijaiyahData');
+            if (saved) {
+                gameData = JSON.parse(saved);
+                score = gameData.score || 0;
+                level = gameData.level || 1;
+                linesCleared = gameData.linesCleared || 0;
+                learningProgress = gameData.learningProgress || 0;
+                gameVictories = gameData.gameVictories || 0;
+            }
+        }
+
+        // ===== GAME INITIALIZATION =====
+        function initGame() {
+            loadGameData();
+            createGameBoard();
+            generateNewPieces();
+            updateAllStats();
+        }
+
+        function createGameBoard() {
+            const board = document.getElementById('gameBoard');
+            board.innerHTML = '';
+            gameBoard = [];
+
+            for (let row = 0; row < 8; row++) {
+                gameBoard[row] = [];
+                for (let col = 0; col < 8; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    cell.addEventListener('click', () => handleCellClick(row, col));
+                    
+                    board.appendChild(cell);
+                    gameBoard[row][col] = { filled: false, letter: '', element: cell };
+                }
+            }
+            
+            addInitialCells();
+        }
+
+        function addInitialCells() {
+            const cellCount = Math.floor(Math.random() * 5) + 8;
+            const positions = [];
+            
+            while (positions.length < cellCount) {
+                const row = Math.floor(Math.random() * 8);
+                const col = Math.floor(Math.random() * 8);
+                const posKey = `${row}-${col}`;
+                
+                if (!positions.includes(posKey)) {
+                    positions.push(posKey);
+                    
+                    const randomLetter = hijaiyahLetters[Math.floor(Math.random() * hijaiyahLetters.length)];
+                    gameBoard[row][col].filled = true;
+                    gameBoard[row][col].letter = randomLetter.letter;
+                    gameBoard[row][col].element.classList.add('filled');
+                    gameBoard[row][col].element.textContent = randomLetter.letter;
+                    gameBoard[row][col].element.style.background = randomLetter.color;
+                }
+            }
+        }
+
+        // ===== PIECE MANAGEMENT =====
+        function generateNewPieces() {
+            currentPieces = [];
+            const container = document.getElementById('piecesContainer');
+            container.innerHTML = '';
+
+            for (let i = 0; i < 3; i++) {
+                const shape = pieceShapes[Math.floor(Math.random() * pieceShapes.length)];
+                const piece = createPiece(shape, i);
+                currentPieces.push(piece);
+                container.appendChild(piece.element);
+            }
+        }
+
+        function createPiece(shape, id) {
+            const pieceDiv = document.createElement('div');
+            pieceDiv.className = 'piece';
+            pieceDiv.dataset.pieceId = id;
+
+            const grid = document.createElement('div');
+            grid.className = 'piece-grid';
+            
+            const cellSize = window.innerWidth <= 768 ? '30px' : '40px';
+            grid.style.gridTemplateColumns = `repeat(${shape[0].length}, ${cellSize})`;
+            grid.style.gridTemplateRows = `repeat(${shape.length}, ${cellSize})`;
+
+            const cells = [];
+            for (let row = 0; row < shape.length; row++) {
+                for (let col = 0; col < shape[row].length; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'piece-cell';
+                    
+                    if (shape[row][col] === 1) {
+                        cell.classList.add('filled');
+                        const randomLetter = hijaiyahLetters[Math.floor(Math.random() * hijaiyahLetters.length)];
+                        cell.textContent = randomLetter.letter;
+                        cell.style.background = randomLetter.color;
+                        cells.push({ row, col, letter: randomLetter.letter, color: randomLetter.color });
+                    } else {
+                        cell.classList.add('empty');
+                    }
+                    
+                    grid.appendChild(cell);
+                }
+            }
+
+            pieceDiv.appendChild(grid);
+            pieceDiv.addEventListener('click', () => selectPiece(id));
+
+            return {
+                element: pieceDiv,
+                shape: shape,
+                cells: cells,
+                id: id,
+                used: false
+            };
+        }
+
+        // ===== PIECE SELECTION AND PLACEMENT =====
+        function selectPiece(id) {
+            if (currentPieces[id].used) return;
+            
+            currentPieces.forEach(piece => {
+                piece.element.style.border = '2px solid rgba(255,255,255,0.3)';
+                piece.element.style.boxShadow = '0 8px 25px rgba(0,0,0,0.2)';
+            });
+            
+            selectedPiece = currentPieces[id];
+            selectedPiece.element.style.border = '3px solid #ffd700';
+            selectedPiece.element.style.boxShadow = '0 0 20px rgba(255,215,0,0.6)';
+            
+            clearHighlights();
+            showValidPlacements();
+        }
+
+        function showValidPlacements() {
+            if (!selectedPiece) return;
+            
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    if (canPlacePiece(selectedPiece, row, col)) {
+                        gameBoard[row][col].element.classList.add('highlight');
+                    }
+                }
+            }
+        }
+
+        function handleCellClick(row, col) {
+            if (!selectedPiece || selectedPiece.used) return;
+            
+            if (canPlacePiece(selectedPiece, row, col)) {
+                placePiece(selectedPiece, row, col);
+                playPlaceSound();
+                selectedPiece.element.style.display = 'none';
+                selectedPiece.used = true;
+                selectedPiece = null;
+                
+                clearHighlights();
+                
+                setTimeout(() => {
+                    checkForClears();
+                    
+                    if (currentPieces.every(piece => piece.used)) {
+                        setTimeout(() => {
+                            generateNewPieces();
+                            // Check if any new pieces can be placed
+                            setTimeout(() => {
+                                checkGameState();
+                            }, 100);
+                        }, 500);
+                    } else {
+                        // Check if remaining pieces can be placed
+                        setTimeout(() => {
+                            checkGameState();
+                        }, 100);
+                    }
+                }, 100);
+            }
+        }
+
+        function canPlacePiece(piece, startRow, startCol) {
+            for (let cell of piece.cells) {
+                const targetRow = startRow + cell.row;
+                const targetCol = startCol + cell.col;
+                
+                if (targetRow < 0 || targetRow >= 8 || targetCol < 0 || targetCol >= 8) {
+                    return false;
+                }
+                
+                if (gameBoard[targetRow][targetCol].filled) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function placePiece(piece, startRow, startCol) {
+            piece.cells.forEach(cell => {
+                const targetRow = startRow + cell.row;
+                const targetCol = startCol + cell.col;
+                
+                gameBoard[targetRow][targetCol].filled = true;
+                gameBoard[targetRow][targetCol].letter = cell.letter;
+                gameBoard[targetRow][targetCol].element.classList.add('filled');
+                gameBoard[targetRow][targetCol].element.textContent = cell.letter;
+                gameBoard[targetRow][targetCol].element.style.background = cell.color;
+            });
+            
+            const baseScore = piece.cells.length * 10;
+            const levelMultiplier = Math.max(1, level * 0.5);
+            score += Math.floor(baseScore * levelMultiplier);
+            updateAllStats();
+            saveGameData();
+        }
+
+        function clearHighlights() {
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    gameBoard[row][col].element.classList.remove('highlight');
+                }
+            }
+        }
+
+        // ===== GAME STATE MANAGEMENT =====
+        function checkGameState() {
+            const availablePieces = currentPieces.filter(piece => !piece.used);
+            let canPlaceAny = false;
+            
+            // Check if any available piece can be placed anywhere on the board
+            for (let piece of availablePieces) {
+                for (let row = 0; row < 8; row++) {
+                    for (let col = 0; col < 8; col++) {
+                        if (canPlacePiece(piece, row, col)) {
+                            canPlaceAny = true;
+                            break;
+                        }
+                    }
+                    if (canPlaceAny) break;
+                }
+                if (canPlaceAny) break;
+            }
+            
+            // If no pieces can be placed, reset the board
+            if (!canPlaceAny && availablePieces.length > 0) {
+                setTimeout(() => {
+                    resetBoardWithAnimation();
+                }, 500);
+            }
+        }
+        
+        function resetBoardWithAnimation() {
+            // Show reset notification
+            showResetNotification();
+            
+            // Board reset is NOT counted as victory - only line clears count
+            
+            // Clear all filled cells with animation
+            const filledCells = [];
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    if (gameBoard[row][col].filled) {
+                        filledCells.push({row, col});
+                        gameBoard[row][col].element.classList.add('clear-animation');
+                    }
+                }
+            }
+            
+            // Clear the cells after animation
+            setTimeout(() => {
+                filledCells.forEach(({row, col}) => {
+                    gameBoard[row][col].filled = false;
+                    gameBoard[row][col].letter = '';
+                    gameBoard[row][col].element.classList.remove('filled', 'clear-animation');
+                    gameBoard[row][col].element.textContent = '';
+                    gameBoard[row][col].element.style.background = '';
+                });
+                
+                // Add new random cells
+                setTimeout(() => {
+                    addInitialCells();
+                    clearHighlights();
+                    selectedPiece = null;
+                    
+                    // Reset piece selections
+                    currentPieces.forEach(piece => {
+                        if (!piece.used) {
+                            piece.element.style.border = '2px solid rgba(255,255,255,0.3)';
+                            piece.element.style.boxShadow = '0 8px 25px rgba(0,0,0,0.2)';
+                        }
+                    });
+                    
+                    // Board reset doesn't trigger learning popup - only line clears do
+                    
+                    updateAllStats();
+                    saveGameData();
+                }, 300);
+            }, 800);
+        }
+        
+        function showResetNotification() {
+            const overlay = document.createElement('div');
+            overlay.className = 'islamic-text-overlay';
+            
+            const text = document.createElement('div');
+            text.className = 'alhamdulillah-text';
+            text.innerHTML = '🔄 لا بأس، نبدأ من جديد 🔄';
+            text.style.fontSize = '2.5rem';
+            
+            overlay.appendChild(text);
+            document.body.appendChild(overlay);
+            
+            // Add sparkle effects
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.style.left = Math.random() * 100 + '%';
+                    sparkle.style.top = Math.random() * 100 + '%';
+                    sparkle.style.animationDelay = Math.random() * 1 + 's';
+                    overlay.appendChild(sparkle);
+                }, i * 100);
+            }
+            
+            setTimeout(() => {
+                overlay.remove();
+            }, 3000);
+        }
+
+        // ===== LINE CLEARING =====
+        function checkForClears() {
+            const rowsToClear = [];
+            const colsToClear = [];
+            
+            for (let row = 0; row < 8; row++) {
+                if (gameBoard[row].every(cell => cell.filled)) {
+                    rowsToClear.push(row);
+                }
+            }
+            
+            for (let col = 0; col < 8; col++) {
+                let columnFilled = true;
+                for (let row = 0; row < 8; row++) {
+                    if (!gameBoard[row][col].filled) {
+                        columnFilled = false;
+                        break;
+                    }
+                }
+                if (columnFilled) {
+                    colsToClear.push(col);
+                }
+            }
+            
+            if (rowsToClear.length > 0 || colsToClear.length > 0) {
+                const totalClears = rowsToClear.length + colsToClear.length;
+                
+                // Count this as one victory (combo counts as 1)
+                gameVictories++;
+                
+                if (totalClears >= 2) {
+                    showMaasyaaAllahEffect();
+                } else {
+                    showAlhamdulillahEffect();
+                }
+                
+                clearLinesWithAnimation(rowsToClear, colsToClear);
+                playClearSound();
+                
+                // Show learning popup based on levelSettings
+                if (gameVictories % levelSettings.learningTrigger === 0 && learningProgress < learningModules.length) {
+                    setTimeout(() => {
+                        showLearningPopup();
+                    }, 2000);
+                }
+            }
+        }
+
+        function clearLinesWithAnimation(rows, cols) {
+            const cellsToClear = new Set();
+            
+            rows.forEach(row => {
+                for (let col = 0; col < 8; col++) {
+                    cellsToClear.add(`${row}-${col}`);
+                }
+            });
+            
+            cols.forEach(col => {
+                for (let row = 0; row < 8; row++) {
+                    cellsToClear.add(`${row}-${col}`);
+                }
+            });
+            
+            const previousLevel = level;
+            linesCleared += rows.length + cols.length;
+            
+            cellsToClear.forEach(cellKey => {
+                const [row, col] = cellKey.split('-').map(Number);
+                gameBoard[row][col].element.classList.add('clear-animation');
+            });
+            
+            setTimeout(() => {
+                cellsToClear.forEach(cellKey => {
+                    const [row, col] = cellKey.split('-').map(Number);
+                    gameBoard[row][col].filled = false;
+                    gameBoard[row][col].letter = '';
+                    gameBoard[row][col].element.classList.remove('filled', 'clear-animation');
+                    gameBoard[row][col].element.textContent = '';
+                    gameBoard[row][col].element.style.background = '';
+                });
+                
+                const newLevel = Math.floor(linesCleared / levelSettings.linesPerLevel) + 1;
+                const clearedCount = cellsToClear.size;
+                let baseScore = clearedCount * 50 + (rows.length + cols.length) * 100;
+                const levelMultiplier = Math.max(1, newLevel * 0.5);
+                score += Math.floor(baseScore * levelMultiplier);
+                
+                if (newLevel > previousLevel) {
+                    level = newLevel;
+                    playLevelUpSound();
+                }
+                
+                updateAllStats();
+                saveGameData();
+            }, 500);
+        }
+
+        // ===== VISUAL EFFECTS =====
+        function showAlhamdulillahEffect() {
+            const overlay = document.createElement('div');
+            overlay.className = 'islamic-text-overlay';
+            
+            const text = document.createElement('div');
+            text.className = 'alhamdulillah-text';
+            text.innerHTML = '🌟 الحمد لله 🌟';
+            
+            overlay.appendChild(text);
+            document.body.appendChild(overlay);
+            
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.style.left = Math.random() * 100 + '%';
+                    sparkle.style.top = Math.random() * 100 + '%';
+                    sparkle.style.animationDelay = Math.random() * 1 + 's';
+                    overlay.appendChild(sparkle);
+                }, i * 100);
+            }
+            
+            setTimeout(() => {
+                overlay.remove();
+            }, 3000);
+        }
+
+        function showMaasyaaAllahEffect() {
+            const overlay = document.createElement('div');
+            overlay.className = 'islamic-text-overlay';
+            
+            const text = document.createElement('div');
+            text.className = 'alhamdulillah-text';
+            text.innerHTML = '✨ ماشاء الله ✨';
+            
+            overlay.appendChild(text);
+            document.body.appendChild(overlay);
+            
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.style.left = Math.random() * 100 + '%';
+                    sparkle.style.top = Math.random() * 100 + '%';
+                    sparkle.style.animationDelay = Math.random() * 1 + 's';
+                    overlay.appendChild(sparkle);
+                }, i * 50);
+            }
+            
+            setTimeout(() => {
+                overlay.remove();
+            }, 3000);
+        }
+
+        // ===== LEVEL-BASED LEARNING SYSTEM =====
+        
+        // 🎯 PENGATURAN LEVEL - UBAH DI SINI:
+        const levelSettings = {
+            // Kapan popup pembelajaran muncul (setiap X kemenangan)
+            learningTrigger: 2,  // Ubah angka ini: 1=setiap kemenangan, 3=setiap 3 kemenangan
+            
+            // Berapa baris untuk naik level
+            linesPerLevel: 10,   // Ubah angka ini: 5=mudah, 15=sulit
+            
+            // Level minimum untuk modul tertentu
+            levelRequirements: {
+                1: 1,  // Level 1 bisa akses modul level 1
+                2: 3,  // Level 3 baru bisa akses modul level 2  
+                3: 5,  // Level 5 baru bisa akses modul level 3
+                4: 8,  // Level 8 baru bisa akses modul level 4
+                5: 12  // Level 12 baru bisa akses modul level 5
+            }
+        };
+        
+        // Fungsi untuk mendapatkan modul yang tersedia berdasarkan level
+        function getAvailableModules() {
+            return learningModules.filter(module => {
+                const requiredLevel = levelSettings.levelRequirements[module.level] || 1;
+                return level >= requiredLevel && learningProgress < learningModules.length;
+            });
+        }
+        
+        // Fungsi untuk mendapatkan modul berikutnya
+        function getNextModule() {
+            const availableModules = getAvailableModules();
+            if (availableModules.length === 0) return null;
+            
+            // Cari modul yang belum dipelajari
+            for (let i = learningProgress; i < learningModules.length; i++) {
+                const module = learningModules[i];
+                const requiredLevel = levelSettings.levelRequirements[module.level] || 1;
+                if (level >= requiredLevel) {
+                    return module;
+                }
+            }
+            return null;
+        }
+
+        function showLearningPopup() {
+            const module = getNextModule();
+            if (!module) return;
+            
+            const modal = document.getElementById('learningModal');
+            const content = document.getElementById('learningContent');
+            
+            // Generate content based on module properties
+            let contentHTML = `
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">📚</div>
+                    <div style="font-size: 1rem; color: #ffd700; font-weight: 600;">
+                        Level ${module.level} • Progress: ${learningProgress + 1}/${learningModules.length}
+                    </div>
+                </div>
+                
+                <h2 class="learning-title">${module.title}</h2>
+                
+                <div style="background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1)); padding: 20px; border-radius: 20px; margin: 20px 0; border: 2px solid rgba(255,215,0,0.3);">
+                    <p style="font-size: 1.2rem; color: #ffd700; margin-bottom: 15px; font-weight: 600;">
+                        👨‍🏫 Ikuti bacaan Ustadz/Ustadzah:
+                    </p>
+                    <div style="font-size: 6rem; font-weight: 900; color: white; text-shadow: 0 0 30px rgba(255,215,0,0.8), 3px 3px 10px rgba(0,0,0,0.7); text-align: center; margin: 30px 0; background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05)); padding: 30px; border-radius: 25px; border: 3px solid rgba(255,215,0,0.4);">
+                        ${module.arabic}
+                    </div>
+                    ${module.pronunciation ? `
+                        <div style="font-size: 1.5rem; color: #ffd700; text-align: center; font-weight: 600; margin-top: 15px;">
+                            🔊 ${module.pronunciation}
+                        </div>
+                    ` : ''}
+                </div>
+                
+                ${module.meaning ? `
+                    <div style="background: linear-gradient(135deg, rgba(78,205,196,0.2), rgba(78,205,196,0.1)); padding: 20px; border-radius: 20px; margin: 20px 0; border: 2px solid rgba(78,205,196,0.3);">
+                        <p style="font-size: 1.2rem; color: #4ecdc4; margin-bottom: 15px; font-weight: 600; text-align: center;">
+                            📖 Artinya:
+                        </p>
+                        <div style="font-size: 1.4rem; color: white; text-align: center; font-weight: 600;">
+                            ${module.meaning}
+                        </div>
+                    </div>
+                ` : ''}
+                
+                <div style="background: linear-gradient(135deg, rgba(255,107,107,0.2), rgba(255,107,107,0.1)); padding: 20px; border-radius: 20px; margin: 20px 0; border: 2px solid rgba(255,107,107,0.3);">
+                    <p style="font-size: 1.2rem; color: #ff6b6b; margin-bottom: 15px; font-weight: 600; text-align: center;">
+                        📝 Sekarang coba baca sendiri:
+                    </p>
+                    <div style="font-size: 5rem; font-weight: 900; color: white; text-shadow: 0 0 25px rgba(255,107,107,0.8), 2px 2px 8px rgba(0,0,0,0.6); text-align: center; margin: 25px 0; background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); padding: 25px; border-radius: 20px; border: 2px solid rgba(255,107,107,0.3);">
+                        ${module.arabic}
+                    </div>
+                </div>
+            `;
+            
+            // Add quiz if available
+            if (module.quiz) {
+                contentHTML += `
+                    <div id="quizSection" style="background: linear-gradient(135deg, rgba(138,43,226,0.2), rgba(138,43,226,0.1)); padding: 25px; border-radius: 20px; margin: 20px 0; border: 2px solid rgba(138,43,226,0.3);">
+                        <p style="font-size: 1.3rem; color: #8a2be2; margin-bottom: 20px; font-weight: 700; text-align: center;">
+                            🧠 Evaluasi: ${module.quiz.question}
+                        </p>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            ${module.quiz.options.map((option, index) => `
+                                <button onclick="selectQuizAnswer(${index})" 
+                                        class="quiz-option" 
+                                        data-index="${index}"
+                                        style="background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1)); 
+                                               border: 2px solid rgba(255,255,255,0.3); 
+                                               color: white; 
+                                               padding: 15px; 
+                                               border-radius: 15px; 
+                                               font-size: 1.1rem; 
+                                               font-weight: 600; 
+                                               cursor: pointer; 
+                                               transition: all 0.3s ease;
+                                               text-align: center;">
+                                    ${String.fromCharCode(65 + index)}. ${option}
+                                </button>
+                            `).join('')}
+                        </div>
+                        <div id="quizResult" style="margin-top: 15px; text-align: center; font-weight: 600;"></div>
+                    </div>
+                `;
+            }
+            
+            contentHTML += `
+                <div class="learning-footer">
+                    <button class="continue-btn" onclick="continueLearning()" ${module.quiz ? 'id="continueBtn" style="display:none;"' : ''}>
+                        ✅ Sudah Bisa! Lanjut
+                    </button>
+                    <button class="continue-btn secondary" onclick="skipLearning()">
+                        ⏭️ Lewati
+                    </button>
+                </div>
+            `;
+            
+            content.innerHTML = contentHTML;
+            
+            modal.style.display = 'block';
+            
+            // Add sparkle effects to the modal
+            setTimeout(() => {
+                const modalContent = modal.querySelector('.modal-content');
+                for (let i = 0; i < 15; i++) {
+                    setTimeout(() => {
+                        const sparkle = document.createElement('div');
+                        sparkle.className = 'sparkle';
+                        sparkle.style.position = 'absolute';
+                        sparkle.style.left = Math.random() * 100 + '%';
+                        sparkle.style.top = Math.random() * 100 + '%';
+                        sparkle.style.animationDelay = Math.random() * 1 + 's';
+                        modalContent.appendChild(sparkle);
+                        
+                        setTimeout(() => {
+                            sparkle.remove();
+                        }, 2000);
+                    }, i * 100);
+                }
+            }, 300);
+        }
+
+        // ===== QUIZ SYSTEM =====
+        let currentQuizAnswer = null;
+        
+        function selectQuizAnswer(selectedIndex) {
+            const module = getNextModule();
+            if (!module || !module.quiz) return;
+            
+            currentQuizAnswer = selectedIndex;
+            const options = document.querySelectorAll('.quiz-option');
+            const resultDiv = document.getElementById('quizResult');
+            const continueBtn = document.getElementById('continueBtn');
+            
+            // Reset all options
+            options.forEach(option => {
+                option.style.background = 'linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1))';
+                option.style.border = '2px solid rgba(255,255,255,0.3)';
+            });
+            
+            // Check if answer is correct
+            const isCorrect = selectedIndex === module.quiz.correct;
+            
+            if (isCorrect) {
+                // Correct answer
+                options[selectedIndex].style.background = 'linear-gradient(135deg, rgba(0,255,0,0.3), rgba(0,255,0,0.2))';
+                options[selectedIndex].style.border = '2px solid rgba(0,255,0,0.6)';
+                resultDiv.innerHTML = `
+                    <div style="color: #00ff00; font-size: 1.2rem; margin-top: 10px;">
+                        ✅ Alhamdulillah! Jawaban benar! 🎉
+                    </div>
+                `;
+                score += 100; // Bonus for correct answer
+            } else {
+                // Wrong answer
+                options[selectedIndex].style.background = 'linear-gradient(135deg, rgba(255,0,0,0.3), rgba(255,0,0,0.2))';
+                options[selectedIndex].style.border = '2px solid rgba(255,0,0,0.6)';
+                
+                // Show correct answer
+                options[module.quiz.correct].style.background = 'linear-gradient(135deg, rgba(0,255,0,0.3), rgba(0,255,0,0.2))';
+                options[module.quiz.correct].style.border = '2px solid rgba(0,255,0,0.6)';
+                
+                resultDiv.innerHTML = `
+                    <div style="color: #ff6b6b; font-size: 1.1rem; margin-top: 10px;">
+                        ❌ Jawaban kurang tepat. Jawaban yang benar: <strong>${module.quiz.options[module.quiz.correct]}</strong>
+                    </div>
+                `;
+                score += 25; // Consolation points
+            }
+            
+            // Show continue button
+            if (continueBtn) {
+                continueBtn.style.display = 'inline-block';
+            }
+            
+            // Disable all options
+            options.forEach(option => {
+                option.style.pointerEvents = 'none';
+                option.style.opacity = '0.8';
+            });
+            
+            updateAllStats();
+            saveGameData();
+        }
+
+        function continueLearning() {
+            learningProgress++;
+            score += 50; // Bonus for completing learning
+            updateAllStats();
+            saveGameData();
+            closeLearningModal();
+            
+            // Show completion effect
+            setTimeout(() => {
+                showAlhamdulillahEffect();
+            }, 200);
+        }
+
+        function skipLearning() {
+            learningProgress++;
+            updateAllStats();
+            saveGameData();
+            closeLearningModal();
+        }
+
+        function closeLearningModal() {
+            document.getElementById('learningModal').style.display = 'none';
+        }
+
+        // ===== LEVEL ADVANCE SYSTEM =====
+        function showLevelAdvanceModal() {
+            document.getElementById('levelAdvanceModal').style.display = 'block';
+            document.getElementById('passwordInput').focus();
+        }
+
+        function closeLevelAdvanceModal() {
+            document.getElementById('levelAdvanceModal').style.display = 'none';
+            document.getElementById('passwordInput').value = '';
+        }
+
+        function checkPassword() {
+            const password = document.getElementById('passwordInput').value.toLowerCase();
+            
+            if (password === 'blast') {
+                level += 5;
+                score += 1000;
+                playLevelUpSound();
+                updateAllStats();
+                saveGameData();
+                closeLevelAdvanceModal();
+                
+                setTimeout(() => {
+                    alert('🎉 Selamat! Level berhasil dinaikkan!\n\n✨ Bonus: +1000 poin\n📈 Level +5');
+                }, 100);
+            } else {
+                alert('❌ Password salah! Coba lagi.');
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('passwordInput').focus();
+            }
+        }
+
+        // Handle Enter key in password input
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('passwordInput');
+            if (passwordInput) {
+                passwordInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        checkPassword();
+                    }
+                });
+            }
+        });
+
+        // ===== UI UPDATES =====
+        function updateAllStats() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('level').textContent = level;
+            document.getElementById('linesCleared').textContent = linesCleared;
+            document.getElementById('learningProgress').textContent = `${learningProgress}/${learningModules.length}`;
+        }
+
+        // ===== GAME CONTROLS =====
+        function resetGame() {
+            if (confirm('🔄 Apakah Anda yakin ingin mereset game?\n\n⚠️ Semua progress akan hilang!')) {
+                score = 0;
+                level = 1;
+                linesCleared = 0;
+                learningProgress = 0;
+                gameVictories = 0;
+                selectedPiece = null;
+                
+                localStorage.removeItem('blastHijaiyahData');
+                initGame();
+            }
+        }
+
+        function showInstructions() {
+            alert(`🕌 Cara Main Blast Hijaiyah:
+
+🎮 GAMEPLAY:
+1. Klik piece (kotak huruf) untuk memilihnya
+2. Klik area kuning di papan untuk menempatkan piece
+3. Isi baris atau kolom penuh untuk menghapusnya
+4. Dapatkan poin dan naik level!
+
+📚 SISTEM PEMBELAJARAN:
+• Popup pembelajaran muncul setiap ${levelSettings.learningTrigger} kemenangan
+• Modul pembelajaran bertingkat berdasarkan level
+• Quiz evaluasi dengan bonus poin
+• Progress tersimpan otomatis
+
+🔐 FITUR KHUSUS:
+• Tombol "Naik Level" dengan password: "blast"
+• Bonus +5 level dan +1000 poin
+
+🎵 EFEK ISLAMI:
+• "الحمد لله" untuk 1 baris
+• "ماشاء الله" untuk 2+ baris sekaligus
+
+📝 UNTUK DEVELOPER:
+• Edit learningModules untuk tambah konten
+• Ubah levelSettings untuk atur kesulitan
+• Tambah quiz dengan property "quiz"
+• Level requirements bisa diatur per modul
+
+Selamat bermain dan belajar! 📚✨`);
+        }
+
+        // ===== INITIALIZATION =====
+        function handleFirstInteraction() {
+            initAudio();
+            document.removeEventListener('click', handleFirstInteraction);
+            document.removeEventListener('touchstart', handleFirstInteraction);
+        }
+
+        document.addEventListener('click', handleFirstInteraction);
+        document.addEventListener('touchstart', handleFirstInteraction);
+
+        // Close modals when clicking outside
+        window.addEventListener('click', function(event) {
+            const learningModal = document.getElementById('learningModal');
+            const levelAdvanceModal = document.getElementById('levelAdvanceModal');
+            
+            if (event.target === learningModal) {
+                closeLearningModal();
+            }
+            if (event.target === levelAdvanceModal) {
+                closeLevelAdvanceModal();
+            }
+        });
+
+        // Start game when page loads
+        window.addEventListener('load', () => {
+            initGame();
+        });
+
+        // Initialize game
+        initGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'978356ff7559f906',t:'MTc1NjcxNDczNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
