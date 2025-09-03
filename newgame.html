@@ -1,0 +1,2328 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quran Quest - Puzzle Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(15px);
+            padding: 25px;
+            border-radius: 20px;
+            width: min(95vw, 520px);
+            height: min(95vw, 520px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+            margin: 0 auto;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .grid-cell {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            cursor: pointer;
+            position: relative;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            backdrop-filter: blur(5px);
+        }
+        
+        .grid-cell:hover {
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: scale(1.02);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .grid-cell:active {
+            transform: scale(0.95);
+            transition: all 0.08s ease;
+        }
+        
+        .grid-cell.tap-feedback {
+            transform: scale(1.1);
+            border-color: rgba(139, 115, 255, 0.8);
+            box-shadow: 0 0 15px rgba(139, 115, 255, 0.5);
+            background: rgba(139, 115, 255, 0.2);
+        }
+        
+        .grid-cell.filled {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Amiri', serif;
+            font-weight: 700;
+            font-size: clamp(18px, 3.5vw, 28px);
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8), 0 0 8px rgba(0,0,0,0.6);
+            position: relative;
+        }
+        
+        .grid-cell.filled::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+            border-radius: 6px;
+            pointer-events: none;
+        }
+        
+        .hijaiyah-alif { background: rgba(139, 115, 85, 0.7) !important; }
+        .hijaiyah-ba { background: rgba(107, 141, 181, 0.7) !important; }
+        .hijaiyah-ta { background: rgba(123, 160, 91, 0.7) !important; }
+        .hijaiyah-tsa { background: rgba(184, 149, 107, 0.7) !important; }
+        .hijaiyah-jim { background: rgba(155, 123, 181, 0.7) !important; }
+        .hijaiyah-ha { background: rgba(107, 181, 160, 0.7) !important; }
+        .hijaiyah-kha { background: rgba(181, 149, 107, 0.7) !important; }
+        .hijaiyah-dal { background: rgba(107, 123, 139, 0.7) !important; }
+        .hijaiyah-dzal { background: rgba(139, 155, 155, 0.7) !important; }
+        .hijaiyah-ra { background: rgba(181, 107, 139, 0.7) !important; }
+        .hijaiyah-za { background: rgba(181, 117, 107, 0.7) !important; }
+        .hijaiyah-sin { background: rgba(123, 139, 155, 0.7) !important; }
+        .hijaiyah-syin { background: rgba(139, 123, 107, 0.7) !important; }
+        .hijaiyah-shad { background: rgba(107, 155, 139, 0.7) !important; }
+        .hijaiyah-dhad { background: rgba(123, 155, 107, 0.7) !important; }
+        .hijaiyah-tha { background: rgba(181, 155, 107, 0.7) !important; }
+        .hijaiyah-zha { background: rgba(139, 107, 181, 0.7) !important; }
+        .hijaiyah-ain { background: rgba(107, 123, 181, 0.7) !important; }
+        .hijaiyah-ghain { background: rgba(107, 139, 181, 0.7) !important; }
+        .hijaiyah-fa { background: rgba(107, 181, 181, 0.7) !important; }
+        .hijaiyah-qaf { background: rgba(155, 181, 107, 0.7) !important; }
+        .hijaiyah-kaf { background: rgba(181, 181, 107, 0.7) !important; }
+        .hijaiyah-lam { background: rgba(181, 165, 107, 0.7) !important; }
+        .hijaiyah-mim { background: rgba(181, 133, 107, 0.7) !important; }
+        .hijaiyah-nun { background: rgba(149, 107, 181, 0.7) !important; }
+        .hijaiyah-waw { background: rgba(181, 107, 149, 0.7) !important; }
+        .hijaiyah-ha2 { background: rgba(181, 107, 107, 0.7) !important; }
+        .hijaiyah-ya { background: rgba(133, 181, 107, 0.7) !important; }
+        
+        .grid-cell.highlight {
+            background: rgba(139, 115, 255, 0.4) !important;
+            border-color: rgba(139, 115, 255, 0.8) !important;
+            transform: scale(1.08);
+            box-shadow: 0 0 15px rgba(139, 115, 255, 0.4);
+            animation: previewPulse 0.3s ease-in-out;
+        }
+        
+        @keyframes previewPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.12); }
+            100% { transform: scale(1.08); }
+        }
+        
+        .grid-cell.invalid {
+            background: rgba(255, 107, 107, 0.4);
+            border-color: #ff4757;
+        }
+        
+        .grid-cell.clearing {
+            animation: clearBlock 0.6s ease-out;
+        }
+        
+        .grid-cell.clue {
+            background: rgba(139, 115, 255, 0.3) !important;
+            border-color: rgba(139, 115, 255, 0.7) !important;
+            animation: shapePreview 1.5s infinite;
+            transform: scale(1.05);
+            box-shadow: 0 0 12px rgba(139, 115, 255, 0.3);
+        }
+        
+        .grid-cell.tap-zone {
+            background: rgba(255, 215, 0, 0.4) !important;
+            border: 3px solid rgba(255, 215, 0, 0.8) !important;
+            animation: tapIndicator 1.2s infinite;
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .grid-cell.tap-zone::after {
+            content: "👆";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 16px;
+            animation: bounce 1s infinite;
+        }
+        
+        @keyframes shapePreview {
+            0%, 100% { 
+                opacity: 0.6; 
+                transform: scale(1.05);
+                box-shadow: 0 0 12px rgba(139, 115, 255, 0.3);
+            }
+            50% { 
+                opacity: 0.9; 
+                transform: scale(1.08);
+                box-shadow: 0 0 16px rgba(139, 115, 255, 0.5);
+            }
+        }
+        
+        @keyframes tapIndicator {
+            0%, 100% { 
+                opacity: 0.8; 
+                transform: scale(1.1);
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+            }
+            50% { 
+                opacity: 1; 
+                transform: scale(1.15);
+                box-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
+            }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.2); }
+        }
+        
+        @keyframes clearBlock {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.8; background: #ffa502; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        
+        .piece-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 140px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            cursor: grab;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        
+        .piece-container:hover {
+            border-color: rgba(139, 115, 255, 0.8);
+            transform: translateY(-6px) scale(1.05);
+            box-shadow: 0 12px 30px rgba(139, 115, 255, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .piece-container.selected {
+            border-color: rgba(139, 115, 255, 0.9);
+            background: rgba(139, 115, 255, 0.2);
+            transform: scale(1.12);
+            box-shadow: 0 12px 35px rgba(139, 115, 255, 0.4);
+            animation: selectedPulse 1.5s infinite;
+        }
+        
+        .piece-container.used {
+            opacity: 0.3;
+            cursor: not-allowed;
+            border-color: #64748b;
+        }
+        
+        .piece-container:active {
+            transform: scale(0.95);
+            transition: all 0.08s ease;
+        }
+        
+        @keyframes selectedPulse {
+            0%, 100% { box-shadow: 0 12px 35px rgba(139, 115, 255, 0.4); }
+            50% { box-shadow: 0 12px 35px rgba(139, 115, 255, 0.6), 0 0 20px rgba(139, 115, 255, 0.3); }
+        }
+        
+        .piece-grid {
+            display: grid;
+            gap: 3px;
+        }
+        
+        .piece-cell {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            transition: all 0.15s ease;
+        }
+        
+        .piece-cell.active {
+            background: linear-gradient(135deg, rgba(139, 115, 255, 0.8), rgba(118, 75, 162, 0.8));
+            box-shadow: 0 2px 6px rgba(139, 115, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .piece-cell.empty {
+            background: transparent;
+        }
+        
+        .floating-score {
+            position: absolute;
+            font-weight: bold;
+            color: #ffa502;
+            font-size: 28px;
+            pointer-events: none;
+            animation: floatUp 2s ease-out forwards;
+            z-index: 100;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            50% { transform: translateY(-30px) scale(1.3); }
+            100% { opacity: 0; transform: translateY(-80px) scale(0.8); }
+        }
+        
+        .combo-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 18px;
+            transform: scale(0);
+            animation: comboAppear 0.6s ease-out forwards;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+        
+        @keyframes comboAppear {
+            0% { transform: scale(0) rotate(-15deg); }
+            50% { transform: scale(1.2) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        .main-screen {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .game-screen {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .logo-text {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .play-button {
+            background: linear-gradient(135deg, #2ed573, #26d0ce);
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(46, 213, 115, 0.3);
+        }
+        
+        .play-button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 35px rgba(46, 213, 115, 0.4);
+        }
+        
+        .menu-button {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.3);
+        }
+        
+        .menu-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+        }
+        
+        .score-display {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border: 3px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .game-over-modal {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            border: 3px solid #3498db;
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Menu Screen -->
+    <div id="main-screen" class="main-screen">
+        <div class="text-center">
+            <!-- Logo -->
+            <div class="mb-12 relative">
+                <!-- Background glow effect -->
+                <div class="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-3xl blur-3xl opacity-30 animate-pulse"></div>
+                
+                <!-- Main title container -->
+                <div class="relative bg-gradient-to-br from-gray-900/80 to-black/60 backdrop-blur-lg rounded-3xl p-8 border-4 border-gradient shadow-2xl">
+                    <!-- Arabic style decorative border -->
+                    <div class="absolute inset-2 border-2 border-yellow-400/30 rounded-2xl"></div>
+                    
+                    <!-- Title -->
+                    <div class="text-center space-y-2">
+                        <h1 class="text-7xl md:text-8xl font-black bg-gradient-to-r from-yellow-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent drop-shadow-2xl transform hover:scale-105 transition-all duration-500" style="font-family: 'Fredoka', sans-serif; text-shadow: 0 0 30px rgba(255,215,0,0.8), 0 0 60px rgba(255,215,0,0.4);">
+                            QURAN
+                        </h1>
+                        
+                        <!-- Decorative separator -->
+                        <div class="flex items-center justify-center space-x-4 my-4">
+                            <div class="w-16 h-1 bg-gradient-to-r from-transparent via-yellow-400 to-transparent rounded-full"></div>
+                            <div class="text-4xl">✨</div>
+                            <div class="w-16 h-1 bg-gradient-to-r from-transparent via-yellow-400 to-transparent rounded-full"></div>
+                        </div>
+                        
+                        <h1 class="text-6xl md:text-7xl font-black bg-gradient-to-r from-red-400 via-pink-500 to-purple-600 bg-clip-text text-transparent drop-shadow-2xl transform hover:scale-105 transition-all duration-500" style="font-family: 'Fredoka', sans-serif; text-shadow: 0 0 30px rgba(255,100,100,0.8);">
+                            QUEST
+                        </h1>
+                    </div>
+                    
+                    <!-- Subtitle -->
+                    <div class="mt-6 px-6">
+                        <p class="text-xl md:text-2xl text-white/90 font-medium text-center leading-relaxed" style="font-family: 'Fredoka', sans-serif;">
+                            Belajar baca Quran menyenangkan! 📖✨
+                        </p>
+                    </div>
+                    
+                    <!-- Floating decorative elements -->
+                    <div class="absolute -top-4 -left-4 text-3xl animate-bounce" style="animation-delay: 0s;">🌟</div>
+                    <div class="absolute -top-4 -right-4 text-3xl animate-bounce" style="animation-delay: 0.5s;">⭐</div>
+                    <div class="absolute -bottom-4 -left-4 text-3xl animate-bounce" style="animation-delay: 1s;">💫</div>
+                    <div class="absolute -bottom-4 -right-4 text-3xl animate-bounce" style="animation-delay: 1.5s;">✨</div>
+                </div>
+            </div>
+            
+            <!-- Menu Buttons -->
+            <div class="space-y-6">
+                <button onclick="startGame()" class="play-button text-white font-bold text-2xl px-16 py-6 rounded-2xl block mx-auto">
+                    🎮 MAIN SEKARANG
+                </button>
+                
+                <div class="grid grid-cols-2 gap-6 max-w-md mx-auto">
+                    <button onclick="showLeaderboard()" class="menu-button text-white font-bold text-lg px-8 py-4 rounded-xl">
+                        🏆 SKOR TINGGI
+                    </button>
+                    <button onclick="showTutorial()" class="menu-button text-white font-bold text-lg px-8 py-4 rounded-xl">
+                        📚 CARA MAIN
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Level & Score Display -->
+            <div class="mt-12 flex justify-center space-x-6">
+                <div class="score-display px-6 py-4 rounded-2xl text-center">
+                    <div class="text-blue-400 text-lg font-bold">LEVEL SAAT INI</div>
+                    <div id="main-current-level" class="text-white text-3xl font-bold">1</div>
+                </div>
+                <div class="score-display px-6 py-4 rounded-2xl text-center">
+                    <div class="text-yellow-400 text-lg font-bold">SKOR TERBAIK</div>
+                    <div id="main-best-score" class="text-white text-3xl font-bold">0</div>
+                </div>
+            </div>
+            
+            <!-- Admin Panel Button -->
+            <div class="mt-8">
+                <button onclick="showAdminPanel()" class="bg-gray-700 bg-opacity-60 hover:bg-gray-600 hover:bg-opacity-80 text-white font-bold text-sm px-6 py-3 rounded-xl transition-all border border-gray-500 border-opacity-40">
+                    ⚙️ ADMIN PANEL
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="game-screen hidden">
+        <div class="container mx-auto px-4 py-6">
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-6">
+                <button onclick="backToMenu()" class="bg-red-500 bg-opacity-80 hover:bg-red-600 hover:bg-opacity-90 backdrop-blur-lg text-white font-bold px-6 py-3 rounded-xl transition-all border border-white border-opacity-20">
+                    ← MENU
+                </button>
+                
+                <div class="flex space-x-6">
+                    <div class="score-display px-4 py-3 rounded-xl text-center">
+                        <div class="text-blue-400 text-sm font-bold">LEVEL</div>
+                        <div id="current-level-display" class="text-white text-2xl font-bold">1</div>
+                    </div>
+                    <div class="score-display px-4 py-3 rounded-xl text-center">
+                        <div class="text-yellow-400 text-sm font-bold">SKOR</div>
+                        <div id="current-score" class="text-white text-2xl font-bold">0</div>
+                    </div>
+                    <div class="score-display px-4 py-3 rounded-xl text-center">
+                        <div class="text-purple-400 text-sm font-bold">TERBAIK</div>
+                        <div id="game-best-score" class="text-white text-2xl font-bold">0</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Game Board -->
+            <div class="flex justify-center mb-8">
+                <div id="game-board" class="game-grid relative"></div>
+            </div>
+            
+            <!-- Pieces Area -->
+            <div class="max-w-2xl mx-auto">
+                <div class="bg-black bg-opacity-20 p-6 rounded-2xl backdrop-blur-lg border border-white border-opacity-20">
+                    <div id="pieces-area" class="grid gap-6">
+                        <!-- Pieces will be generated here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Game Stats -->
+            <div class="flex justify-center mt-6 space-x-8 text-center">
+                <div>
+                    <div class="text-green-400 text-lg font-bold" id="lines-cleared">0</div>
+                    <div class="text-white text-sm">BARIS HANCUR</div>
+                </div>
+                <div>
+                    <div class="text-orange-400 text-lg font-bold" id="best-combo">0</div>
+                    <div class="text-white text-sm">COMBO TERBAIK</div>
+                </div>
+                <div>
+                    <div class="text-blue-400 text-lg font-bold" id="blocks-placed">0</div>
+                    <div class="text-white text-sm">BLOK DITEMPATKAN</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div id="game-over-modal" class="game-over-modal fixed inset-0 flex items-center justify-center hidden z-50">
+        <div class="modal-content p-8 rounded-2xl text-center max-w-md mx-4">
+            <h2 class="text-4xl font-bold text-red-400 mb-4">GAME OVER!</h2>
+            <div class="space-y-4 mb-8">
+                <div>
+                    <div class="text-yellow-400 text-lg font-bold">SKOR AKHIR</div>
+                    <div id="final-score" class="text-white text-3xl font-bold">0</div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <div class="text-green-400 font-bold" id="final-lines">0</div>
+                        <div class="text-white">Baris Hancur</div>
+                    </div>
+                    <div>
+                        <div class="text-orange-400 font-bold" id="final-combo">0</div>
+                        <div class="text-white">Combo Terbaik</div>
+                    </div>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <button onclick="restartGame()" class="play-button text-white font-bold text-xl px-12 py-4 rounded-xl w-full">
+                    🔄 MAIN LAGI
+                </button>
+                <button onclick="backToMenu()" class="menu-button text-white font-bold text-lg px-12 py-3 rounded-xl w-full">
+                    🏠 MENU UTAMA
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaderboard Modal -->
+    <div id="leaderboard-modal" class="game-over-modal fixed inset-0 flex items-center justify-center hidden z-50">
+        <div class="modal-content p-8 rounded-2xl max-w-md mx-4">
+            <h2 class="text-3xl font-bold text-yellow-400 mb-6 text-center">🏆 SKOR TINGGI</h2>
+            <div class="space-y-3 mb-6">
+                <div class="flex justify-between items-center bg-yellow-600 bg-opacity-20 p-3 rounded-lg">
+                    <span class="text-yellow-400 font-bold">🥇 #1</span>
+                    <span class="text-white font-bold" id="leaderboard-1">0</span>
+                </div>
+                <div class="flex justify-between items-center bg-gray-600 bg-opacity-20 p-3 rounded-lg">
+                    <span class="text-gray-400 font-bold">🥈 #2</span>
+                    <span class="text-white font-bold">850,000</span>
+                </div>
+                <div class="flex justify-between items-center bg-orange-600 bg-opacity-20 p-3 rounded-lg">
+                    <span class="text-orange-400 font-bold">🥉 #3</span>
+                    <span class="text-white font-bold">720,000</span>
+                </div>
+                <div class="flex justify-between items-center bg-blue-600 bg-opacity-20 p-3 rounded-lg">
+                    <span class="text-blue-400 font-bold">#4</span>
+                    <span class="text-white font-bold">650,000</span>
+                </div>
+                <div class="flex justify-between items-center bg-purple-600 bg-opacity-20 p-3 rounded-lg">
+                    <span class="text-purple-400 font-bold">#5</span>
+                    <span class="text-white font-bold">580,000</span>
+                </div>
+            </div>
+            <button onclick="closeLeaderboard()" class="menu-button text-white font-bold text-lg px-8 py-3 rounded-xl w-full">
+                TUTUP
+            </button>
+        </div>
+    </div>
+
+    <!-- Learning Popup Modal -->
+    <div id="learning-popup" class="game-over-modal fixed inset-0 flex items-center justify-center hidden z-50">
+        <div class="modal-content p-8 rounded-2xl text-center max-w-md mx-4 relative overflow-hidden">
+            <!-- Animated background -->
+            <div class="absolute inset-0 bg-gradient-to-br from-purple-600/20 via-blue-600/20 to-green-600/20 animate-pulse"></div>
+            
+            <!-- Content -->
+            <div class="relative z-10">
+                <h2 class="text-4xl font-bold text-yellow-400 mb-6 animate-bounce">🎉 BARIS HANCUR!</h2>
+                
+                <!-- Main message -->
+                <div class="bg-black/30 p-6 rounded-xl mb-6 border-2 border-yellow-400/50">
+                    <p class="text-2xl text-white font-bold mb-4" style="font-family: 'Fredoka', sans-serif;">
+                        Mari belajar dulu!<br>
+                        Ikuti bacaan Ustaz-Ustazah
+                    </p>
+                </div>
+                
+                <!-- Arabic letter display -->
+                <div class="bg-gradient-to-br from-indigo-600/40 to-purple-600/40 p-8 rounded-2xl mb-6 border-3 border-white/30">
+                    <div class="text-8xl mb-4 animate-pulse text-white" id="popup-arabic-letter" style="font-family: 'Amiri', serif; text-shadow: 0 0 20px rgba(255,255,255,0.8), 2px 2px 4px rgba(0,0,0,0.8);">
+                        ح
+                    </div>
+                    <div class="text-lg text-white/80" id="popup-letter-meaning">
+                        Huruf ke-6 dalam Hijaiyah
+                    </div>
+                </div>
+                
+                <!-- Continue button -->
+                <button onclick="closeLearningPopup()" class="play-button text-white font-bold text-xl px-12 py-4 rounded-xl w-full transform hover:scale-105 transition-all">
+                    ✨ LANJUT BELAJAR
+                </button>
+            </div>
+            
+            <!-- Floating decorative elements -->
+            <div class="absolute top-4 left-4 text-2xl animate-bounce" style="animation-delay: 0s;">⭐</div>
+            <div class="absolute top-4 right-4 text-2xl animate-bounce" style="animation-delay: 0.5s;">🌟</div>
+            <div class="absolute bottom-4 left-4 text-2xl animate-bounce" style="animation-delay: 1s;">💫</div>
+            <div class="absolute bottom-4 right-4 text-2xl animate-bounce" style="animation-delay: 1.5s;">✨</div>
+        </div>
+    </div>
+
+    <!-- Level Complete Modal -->
+    <div id="level-complete-modal" class="game-over-modal fixed inset-0 flex items-center justify-center hidden z-50">
+        <div class="modal-content p-8 rounded-2xl text-center max-w-lg mx-4 relative overflow-hidden">
+            <!-- Animated celebration background -->
+            <div class="absolute inset-0 bg-gradient-to-br from-green-500/30 via-yellow-500/30 to-orange-500/30 animate-pulse"></div>
+            
+            <!-- Confetti effect -->
+            <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                <div class="absolute top-0 left-1/4 text-4xl animate-bounce" style="animation-delay: 0s;">🎉</div>
+                <div class="absolute top-0 right-1/4 text-4xl animate-bounce" style="animation-delay: 0.3s;">🎊</div>
+                <div class="absolute top-1/4 left-0 text-3xl animate-bounce" style="animation-delay: 0.6s;">⭐</div>
+                <div class="absolute top-1/4 right-0 text-3xl animate-bounce" style="animation-delay: 0.9s;">🌟</div>
+                <div class="absolute bottom-1/4 left-1/3 text-3xl animate-bounce" style="animation-delay: 1.2s;">✨</div>
+                <div class="absolute bottom-1/4 right-1/3 text-3xl animate-bounce" style="animation-delay: 1.5s;">💫</div>
+            </div>
+            
+            <!-- Content -->
+            <div class="relative z-10">
+                <h2 class="text-5xl font-bold text-yellow-400 mb-4 animate-pulse">🏆 LEVEL SELESAI!</h2>
+                
+                <!-- Achievement message -->
+                <div class="bg-gradient-to-br from-green-600/40 to-blue-600/40 p-6 rounded-xl mb-6 border-2 border-yellow-400/50">
+                    <p class="text-2xl text-white font-bold mb-2" style="font-family: 'Fredoka', sans-serif;">
+                        Alhamdulillah! 🤲
+                    </p>
+                    <p class="text-lg text-white/90" id="level-complete-message">
+                        Anda telah menyelesaikan Level 1!
+                    </p>
+                </div>
+                
+                <!-- Stats display -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-black/30 p-4 rounded-lg">
+                        <div class="text-green-400 text-2xl font-bold" id="level-complete-lines">0</div>
+                        <div class="text-white text-sm">Baris Hancur</div>
+                    </div>
+                    <div class="bg-black/30 p-4 rounded-lg">
+                        <div class="text-yellow-400 text-2xl font-bold" id="level-complete-score">0</div>
+                        <div class="text-white text-sm">Total Skor</div>
+                    </div>
+                </div>
+                
+                <!-- Action buttons -->
+                <div class="space-y-4">
+                    <button id="next-level-btn" onclick="proceedToNextLevel()" class="play-button text-white font-bold text-xl px-12 py-4 rounded-xl w-full transform hover:scale-105 transition-all">
+                        🚀 LANJUT KE LEVEL BERIKUTNYA
+                    </button>
+                    <button onclick="repeatCurrentLevel()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg px-12 py-3 rounded-xl w-full transform hover:scale-105 transition-all">
+                        🔄 ULANGI LEVEL INI
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Next Level Not Available Modal -->
+    <div id="next-level-unavailable-modal" class="game-over-modal fixed inset-0 flex items-center justify-center hidden z-50">
+        <div class="modal-content p-8 rounded-2xl text-center max-w-lg mx-4 relative overflow-hidden">
+            <!-- Background -->
+            <div class="absolute inset-0 bg-gradient-to-br from-orange-600/20 via-red-600/20 to-purple-600/20"></div>
+            
+            <!-- Content -->
+            <div class="relative z-10">
+                <h2 class="text-4xl font-bold text-orange-400 mb-6">📚 LEVEL BERIKUTNYA</h2>
+                
+                <!-- Main message -->
+                <div class="bg-black/30 p-6 rounded-xl mb-6 border-2 border-orange-400/50">
+                    <div class="text-6xl mb-4">👨‍🏫</div>
+                    <p class="text-2xl text-white font-bold mb-4" style="font-family: 'Fredoka', sans-serif;">
+                        Level berikutnya belum dibuat
+                    </p>
+                    <p class="text-lg text-white/90 mb-4">
+                        Silakan hubungi Ustaz/Ustazah untuk membuat level baru
+                    </p>
+                    <div class="bg-gradient-to-r from-blue-600/30 to-purple-600/30 p-4 rounded-lg">
+                        <p class="text-white font-bold text-lg" id="next-level-info">
+                            Level 2 diperlukan untuk melanjutkan
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Action buttons -->
+                <div class="space-y-4">
+                    <button onclick="repeatCurrentLevel()" class="play-button text-white font-bold text-xl px-12 py-4 rounded-xl w-full transform hover:scale-105 transition-all">
+                        🔄 ULANGI LEVEL SAAT INI
+                    </button>
+                    <button onclick="backToMenuFromModal()" class="menu-button text-white font-bold text-lg px-12 py-3 rounded-xl w-full transform hover:scale-105 transition-all">
+                        🏠 KEMBALI KE MENU
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Decorative elements -->
+            <div class="absolute top-4 left-4 text-2xl animate-bounce" style="animation-delay: 0s;">📖</div>
+            <div class="absolute top-4 right-4 text-2xl animate-bounce" style="animation-delay: 0.5s;">✏️</div>
+            <div class="absolute bottom-4 left-4 text-2xl animate-bounce" style="animation-delay: 1s;">🤲</div>
+            <div class="absolute bottom-4 right-4 text-2xl animate-bounce" style="animation-delay: 1.5s;">🕌</div>
+        </div>
+    </div>
+
+    <!-- Tutorial Modal -->
+    <div id="tutorial-modal" class="game-over-modal fixed inset-0 flex items-center justify-center hidden z-50">
+        <div class="modal-content p-8 rounded-2xl max-w-lg mx-4 max-h-96 overflow-y-auto">
+            <h2 class="text-3xl font-bold text-blue-400 mb-6 text-center">📚 CARA BERMAIN</h2>
+            <div class="space-y-4 text-white">
+                <div class="bg-black bg-opacity-30 p-4 rounded-lg">
+                    <h3 class="text-yellow-400 font-bold mb-2">🎯 TUJUAN</h3>
+                    <p class="text-sm">Tempatkan blok berisi huruf Hijaiyah ke grid 10x10. Isi baris atau kolom penuh untuk menghancurkannya dan belajar huruf Arab!</p>
+                </div>
+                <div class="bg-black bg-opacity-30 p-4 rounded-lg">
+                    <h3 class="text-green-400 font-bold mb-2">🎮 KONTROL</h3>
+                    <p class="text-sm">• Tap blok untuk pilih, lalu tap grid untuk tempatkan<br>• Atau drag & drop langsung ke grid<br>• Blok hijau berkedip = posisi valid</p>
+                </div>
+                <div class="bg-black bg-opacity-30 p-4 rounded-lg">
+                    <h3 class="text-orange-400 font-bold mb-2">💥 POIN & BELAJAR</h3>
+                    <p class="text-sm">• 1 baris = 10 poin<br>• 2 baris = 30 poin<br>• 3+ baris = 60+ poin<br>• Setiap blok berisi huruf Hijaiyah!</p>
+                </div>
+                <div class="bg-black bg-opacity-30 p-4 rounded-lg">
+                    <h3 class="text-red-400 font-bold mb-2">⚠️ GAME OVER</h3>
+                    <p class="text-sm">Game berakhir jika tidak ada ruang untuk menempatkan blok yang tersedia. Terus berlatih untuk menghafal huruf Hijaiyah!</p>
+                </div>
+            </div>
+            <button onclick="closeTutorial()" class="menu-button text-white font-bold text-lg px-8 py-3 rounded-xl w-full mt-6">
+                MENGERTI!
+            </button>
+        </div>
+    </div>
+
+    <!-- Custom Alert Modal -->
+    <div id="custom-alert-modal" class="game-over-modal fixed inset-0 flex items-center justify-center hidden z-[9999]">
+        <div class="modal-content p-8 rounded-2xl text-center max-w-md mx-4 relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-red-600/20 via-orange-600/20 to-yellow-600/20"></div>
+            <div class="relative z-10">
+                <h2 id="custom-alert-title" class="text-3xl font-bold text-red-400 mb-6"></h2>
+                <div class="bg-black/30 p-6 rounded-xl mb-6 border-2 border-red-400/50">
+                    <p id="custom-alert-message" class="text-lg text-white whitespace-pre-line"></p>
+                </div>
+                <button onclick="closeCustomModal()" class="menu-button text-white font-bold text-lg px-8 py-3 rounded-xl w-full">
+                    MENGERTI
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Confirmation Modal -->
+    <div id="custom-confirm-modal" class="game-over-modal fixed inset-0 flex items-center justify-center hidden z-[99999]">
+        <div class="modal-content p-8 rounded-2xl text-center max-w-md mx-4 relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-yellow-600/20 via-orange-600/20 to-red-600/20"></div>
+            <div class="relative z-10">
+                <h2 id="custom-confirm-title" class="text-3xl font-bold text-yellow-400 mb-6"></h2>
+                <div class="bg-black/30 p-6 rounded-xl mb-6 border-2 border-yellow-400/50">
+                    <p id="custom-confirm-message" class="text-lg text-white whitespace-pre-line"></p>
+                </div>
+                <div class="flex space-x-4">
+                    <button id="custom-confirm-yes" class="bg-red-600 hover:bg-red-700 text-white font-bold text-lg px-6 py-3 rounded-xl flex-1 transform hover:scale-105 transition-all">
+                        YA, LANJUTKAN
+                    </button>
+                    <button onclick="closeCustomConfirm()" class="bg-gray-600 hover:bg-gray-700 text-white font-bold text-lg px-6 py-3 rounded-xl flex-1 transform hover:scale-105 transition-all">
+                        BATAL
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Level Modal -->
+    <div id="edit-level-modal" class="game-over-modal fixed inset-0 flex items-center justify-center hidden z-[9999]">
+        <div class="modal-content p-8 rounded-2xl max-w-2xl mx-4 max-h-[90vh] overflow-y-auto relative">
+            <div class="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-indigo-600/20"></div>
+            <div class="relative z-10">
+                <h2 class="text-3xl font-bold text-blue-400 mb-6 text-center">✏️ EDIT LEVEL</h2>
+                
+                <div class="space-y-6 text-white">
+                    <div class="bg-black bg-opacity-30 p-4 rounded-lg">
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-bold mb-2">Nomor Level:</label>
+                                    <input type="number" id="edit-level-number" min="1" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" placeholder="1">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold mb-2">Nama Level:</label>
+                                    <input type="text" id="edit-level-name" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" placeholder="Hijaiyah">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-bold mb-2">Popup Setiap Berapa Baris Hancur:</label>
+                                <select id="edit-level-popup-trigger" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600">
+                                    <option value="1">Setiap 1 Baris Hancur</option>
+                                    <option value="2">Setiap 2 Baris Hancur</option>
+                                    <option value="3">Setiap 3 Baris Hancur</option>
+                                    <option value="4">Setiap 4 Baris Hancur</option>
+                                    <option value="5">Setiap 5 Baris Hancur</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-bold mb-2">Input Huruf untuk Level Ini:</label>
+                                <textarea id="edit-level-letters-input" class="w-full p-3 rounded bg-gray-700 text-white border border-gray-600 h-24 resize-none" placeholder="Masukkan huruf dipisah koma, contoh: ا,ب,ت,ث,ج,ح,خ,د,ذ,ر,ز,س,ش,ص,ض,ط,ظ,ع,غ,ف,ق,ك,ل,م,ن,و,ه,ي"></textarea>
+                                <div class="text-xs text-gray-400 mt-2">
+                                    <div>Contoh: ا,ب,ت,ث,ج,ح,خ,د,ذ,ر,ز,س,ش,ص,ض,ط,ظ,ع,غ,ف,ق,ك,ل,م,ن,و,ه,ي</div>
+                                    <div>Huruf terpilih: <span id="edit-selected-letters-count">0</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex space-x-4 mt-6">
+                    <button id="save-edit-level-btn" class="play-button text-white font-bold text-lg px-6 py-3 rounded-xl flex-1 transform hover:scale-105 transition-all">
+                        💾 SIMPAN PERUBAHAN
+                    </button>
+                    <button onclick="closeEditLevelModal()" class="menu-button text-white font-bold text-lg px-6 py-3 rounded-xl flex-1 transform hover:scale-105 transition-all">
+                        BATAL
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel Modal -->
+    <div id="admin-panel-modal" class="game-over-modal fixed inset-0 flex items-center justify-center hidden z-50">
+        <div class="modal-content p-8 rounded-2xl max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <h2 class="text-3xl font-bold text-purple-400 mb-6 text-center">⚙️ ADMIN PANEL</h2>
+            
+            <!-- Tab Navigation -->
+            <div class="flex space-x-2 mb-6">
+                <button id="tab-game" onclick="switchTab('game')" class="tab-button bg-purple-600 text-white px-4 py-2 rounded-lg font-bold">
+                    🎮 GAME
+                </button>
+                <button id="tab-levels" onclick="switchTab('levels')" class="tab-button bg-gray-600 text-white px-4 py-2 rounded-lg font-bold">
+                    📚 LEVEL
+                </button>
+            </div>
+            
+            <!-- Game Settings Tab -->
+            <div id="game-tab" class="tab-content">
+                <div class="space-y-6 text-white">
+                    <div class="bg-black bg-opacity-30 p-4 rounded-lg">
+                        <h3 class="text-yellow-400 font-bold mb-4">🎮 PENGATURAN LEVEL GAME</h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-bold mb-2">Tingkat Kesulitan:</label>
+                                <select id="difficulty-level" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600">
+                                    <option value="easy">Mudah (Lebih banyak ruang kosong)</option>
+                                    <option value="medium" selected>Sedang (Normal)</option>
+                                    <option value="hard">Sulit (Lebih banyak blok awal)</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-bold mb-2">Ukuran Grid:</label>
+                                <select id="grid-size" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600">
+                                    <option value="8" selected>8x8 (Normal)</option>
+                                    <option value="10">10x10 (Lebih Besar)</option>
+                                    <option value="6">6x6 (Lebih Kecil)</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-bold mb-2">Jumlah Piece:</label>
+                                <select id="piece-count" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600">
+                                    <option value="2">2 Piece</option>
+                                    <option value="3" selected>3 Piece (Normal)</option>
+                                    <option value="4">4 Piece</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+
+                </div>
+            </div>
+            
+            <!-- Custom Levels Tab -->
+            <div id="levels-tab" class="tab-content hidden">
+                <div class="space-y-6 text-white">
+                    <!-- Create New Level -->
+                    <div class="bg-black bg-opacity-30 p-4 rounded-lg">
+                        <h3 class="text-blue-400 font-bold mb-4">➕ BUAT LEVEL BARU</h3>
+                        
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-bold mb-2">Nomor Level:</label>
+                                    <input type="number" id="level-number" min="1" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" placeholder="1">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold mb-2">Nama Level:</label>
+                                    <input type="text" id="level-name" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" placeholder="Hijaiyah">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-bold mb-2">Popup Setiap Berapa Baris Hancur:</label>
+                                <select id="level-popup-trigger" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600">
+                                    <option value="1" selected>Setiap 1 Baris Hancur</option>
+                                    <option value="2">Setiap 2 Baris Hancur</option>
+                                    <option value="3">Setiap 3 Baris Hancur</option>
+                                    <option value="4">Setiap 4 Baris Hancur</option>
+                                    <option value="5">Setiap 5 Baris Hancur</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-bold mb-2">Input Huruf untuk Level Ini:</label>
+                                <textarea id="level-letters-input" class="w-full p-3 rounded bg-gray-700 text-white border border-gray-600 h-24 resize-none" placeholder="Masukkan huruf dipisah koma, contoh: ا,ب,ت,ث,ج,ح,خ,د,ذ,ر,ز,س,ش,ص,ض,ط,ظ,ع,غ,ف,ق,ك,ل,م,ن,و,ه,ي"></textarea>
+                                <div class="text-xs text-gray-400 mt-2">
+                                    <div>Contoh: ا,ب,ت,ث,ج,ح,خ,د,ذ,ر,ز,س,ش,ص,ض,ط,ظ,ع,غ,ف,ق,ك,ل,م,ن,و,ه,ي</div>
+                                    <div>Huruf terpilih: <span id="selected-letters-count">0</span></div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex space-x-2">
+                                <button onclick="createLevel()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg flex-1">
+                                    ✅ BUAT LEVEL
+                                </button>
+                                <button onclick="clearLevelForm()" class="bg-gray-600 hover:bg-gray-700 text-white font-bold px-4 py-2 rounded-lg">
+                                    🗑️ BERSIHKAN
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Existing Levels -->
+                    <div class="bg-black bg-opacity-30 p-4 rounded-lg">
+                        <h3 class="text-orange-400 font-bold mb-4">📋 LEVEL YANG SUDAH DIBUAT</h3>
+                        <div id="existing-levels" class="space-y-2">
+                            <!-- Existing levels will be displayed here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex space-x-4 mt-6">
+                <button onclick="saveAdminSettings()" class="play-button text-white font-bold text-lg px-6 py-3 rounded-xl flex-1">
+                    💾 SIMPAN
+                </button>
+                <button onclick="closeAdminPanel()" class="menu-button text-white font-bold text-lg px-6 py-3 rounded-xl flex-1">
+                    TUTUP
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Hijaiyah letters (Arabic alphabet)
+        const quranContent = [
+            { letter: 'ا', class: 'hijaiyah-alif', meaning: 'Alif' },
+            { letter: 'ب', class: 'hijaiyah-ba', meaning: 'Ba' },
+            { letter: 'ت', class: 'hijaiyah-ta', meaning: 'Ta' },
+            { letter: 'ث', class: 'hijaiyah-tsa', meaning: 'Tsa' },
+            { letter: 'ج', class: 'hijaiyah-jim', meaning: 'Jim' },
+            { letter: 'ح', class: 'hijaiyah-ha', meaning: 'Ha' },
+            { letter: 'خ', class: 'hijaiyah-kha', meaning: 'Kha' },
+            { letter: 'د', class: 'hijaiyah-dal', meaning: 'Dal' },
+            { letter: 'ذ', class: 'hijaiyah-dzal', meaning: 'Dzal' },
+            { letter: 'ر', class: 'hijaiyah-ra', meaning: 'Ra' },
+            { letter: 'ز', class: 'hijaiyah-za', meaning: 'Za' },
+            { letter: 'س', class: 'hijaiyah-sin', meaning: 'Sin' },
+            { letter: 'ش', class: 'hijaiyah-syin', meaning: 'Syin' },
+            { letter: 'ص', class: 'hijaiyah-shad', meaning: 'Shad' },
+            { letter: 'ض', class: 'hijaiyah-dhad', meaning: 'Dhad' },
+            { letter: 'ط', class: 'hijaiyah-tha', meaning: 'Tha' },
+            { letter: 'ظ', class: 'hijaiyah-zha', meaning: 'Zha' },
+            { letter: 'ع', class: 'hijaiyah-ain', meaning: 'Ain' },
+            { letter: 'غ', class: 'hijaiyah-ghain', meaning: 'Ghain' },
+            { letter: 'ف', class: 'hijaiyah-fa', meaning: 'Fa' },
+            { letter: 'ق', class: 'hijaiyah-qaf', meaning: 'Qaf' },
+            { letter: 'ك', class: 'hijaiyah-kaf', meaning: 'Kaf' },
+            { letter: 'ل', class: 'hijaiyah-lam', meaning: 'Lam' },
+            { letter: 'م', class: 'hijaiyah-mim', meaning: 'Mim' },
+            { letter: 'ن', class: 'hijaiyah-nun', meaning: 'Nun' },
+            { letter: 'و', class: 'hijaiyah-waw', meaning: 'Waw' },
+            { letter: 'ه', class: 'hijaiyah-ha2', meaning: 'Ha' },
+            { letter: 'ي', class: 'hijaiyah-ya', meaning: 'Ya' }
+        ];
+
+        // Game State
+        let gameState = {
+            board: Array(8).fill().map(() => Array(8).fill(0)),
+            boardLetters: Array(8).fill().map(() => Array(8).fill(null)),
+            score: 0,
+            bestScore: parseInt(localStorage.getItem('quran-quest-best') || '0'),
+            linesCleared: 0,
+            bestCombo: 0,
+            currentCombo: 0,
+            blocksPlaced: 0,
+            gameRunning: false,
+            gridSize: 8
+        };
+
+        // Admin Settings
+        let adminSettings = {
+            difficulty: 'medium',
+            gridSize: 8,
+            pieceCount: 3,
+            activeCustomLevel: '',
+            customLevelIndex: 0,
+            customLevelClearCount: 0,
+            currentGameLevel: 1
+        };
+
+        // Custom Levels Storage
+        let customLevels = {};
+
+        // Load admin settings from localStorage
+        function loadAdminSettings() {
+            const saved = localStorage.getItem('quran-quest-admin-settings');
+            if (saved) {
+                adminSettings = { ...adminSettings, ...JSON.parse(saved) };
+            }
+            
+            // Load custom levels
+            const savedLevels = localStorage.getItem('quran-quest-custom-levels');
+            if (savedLevels) {
+                customLevels = JSON.parse(savedLevels);
+            }
+        }
+
+        // Save custom levels to localStorage
+        function saveCustomLevels() {
+            localStorage.setItem('quran-quest-custom-levels', JSON.stringify(customLevels));
+        }
+
+        // Block shapes (Block Blast style)
+        const blockShapes = [
+            [[1]], // Single
+            [[1,1]], [[1],[1]], // 2-blocks
+            [[1,1,1]], [[1],[1],[1]], // 3-line
+            [[1,1],[1,0]], [[1,1],[0,1]], [[1,0],[1,1]], [[0,1],[1,1]], // L-shapes
+            [[1,1],[1,1]], // Square
+            [[1,1,1],[1,0,0]], [[1,1,1],[0,0,1]], [[1,0,0],[1,1,1]], [[0,0,1],[1,1,1]], // L4
+            [[1,1,1],[0,1,0]], [[1,0],[1,1],[1,0]], [[0,1,0],[1,1,1]], [[0,1],[1,1],[0,1]] // T-shapes
+        ];
+
+        let currentPieces = [];
+        let selectedPiece = null;
+        let selectedElement = null;
+
+        // Initialize
+        function init() {
+            loadAdminSettings();
+            updateBestScoreDisplay();
+        }
+
+        function updateBestScoreDisplay() {
+            document.getElementById('main-best-score').textContent = gameState.bestScore.toLocaleString();
+            document.getElementById('game-best-score').textContent = gameState.bestScore.toLocaleString();
+            document.getElementById('leaderboard-1').textContent = gameState.bestScore.toLocaleString();
+            document.getElementById('main-current-level').textContent = adminSettings.currentGameLevel;
+        }
+
+        function startGame() {
+            // Check if any custom levels exist
+            if (Object.keys(customLevels).length === 0) {
+                showCustomModal('⚠️ LEVEL BELUM DIBUAT!', 'Anda harus membuat level terlebih dahulu sebelum bisa bermain.\n\n📝 Silakan buka Admin Panel → Tab LEVEL untuk membuat level baru.');
+                return;
+            }
+            
+            // Find the lowest level number that exists
+            const levelNumbers = Object.keys(customLevels).map(levelId => parseInt(customLevels[levelId].number)).sort((a, b) => a - b);
+            const currentLevelNumber = adminSettings.currentGameLevel || 1;
+            
+            // Check if the current level exists
+            const currentLevelId = `level-${currentLevelNumber}`;
+            if (!customLevels[currentLevelId]) {
+                showCustomModal(`⚠️ LEVEL ${currentLevelNumber} BELUM DIBUAT!`, `Anda harus membuat Level ${currentLevelNumber} terlebih dahulu.\n\n📝 Silakan buka Admin Panel → Tab LEVEL untuk membuat level ini.`);
+                return;
+            }
+            
+            // Set the current level as active
+            adminSettings.activeCustomLevel = currentLevelId;
+            adminSettings.customLevelIndex = 0;
+            adminSettings.customLevelClearCount = 0;
+            
+            document.getElementById('main-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            initializeGame();
+        }
+
+        function backToMenu() {
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('main-screen').classList.remove('hidden');
+            document.getElementById('game-over-modal').classList.add('hidden');
+        }
+
+        function initializeGame() {
+            const gridSize = adminSettings.gridSize;
+            gameState = {
+                board: Array(gridSize).fill().map(() => Array(gridSize).fill(0)),
+                boardLetters: Array(gridSize).fill().map(() => Array(gridSize).fill(null)),
+                score: 0,
+                bestScore: parseInt(localStorage.getItem('quran-quest-best') || '0'),
+                linesCleared: 0,
+                bestCombo: 0,
+                currentCombo: 0,
+                blocksPlaced: 0,
+                gameRunning: true,
+                gridSize: gridSize
+            };
+            
+            createGameBoard();
+            addInitialBlocks();
+            generateNewPieces();
+            updateDisplay();
+        }
+
+        function addInitialBlocks() {
+            const gridSize = gameState.gridSize;
+            const cells = document.querySelectorAll('#game-board .grid-cell');
+            
+            // Generate initial blocks based on difficulty and grid size
+            let blockDensity = 0.3; // Default medium difficulty
+            if (adminSettings.difficulty === 'easy') blockDensity = 0.2;
+            if (adminSettings.difficulty === 'hard') blockDensity = 0.4;
+            
+            // Create scattered pattern for initial blocks
+            for (let row = 1; row < gridSize - 1; row++) {
+                for (let col = 1; col < gridSize - 1; col++) {
+                    // Skip center area for easier start
+                    const centerStart = Math.floor(gridSize / 3);
+                    const centerEnd = Math.floor(gridSize * 2 / 3);
+                    if (row >= centerStart && row <= centerEnd && col >= centerStart && col <= centerEnd) {
+                        continue;
+                    }
+                    
+                    if (Math.random() < blockDensity) {
+                        const randomLetter = quranContent[Math.floor(Math.random() * quranContent.length)];
+                        gameState.board[row][col] = 1;
+                        gameState.boardLetters[row][col] = randomLetter;
+                        const index = row * gridSize + col;
+                        cells[index].classList.add('filled', randomLetter.class);
+                        cells[index].textContent = randomLetter.letter;
+                    }
+                }
+            }
+        }
+
+        function createGameBoard() {
+            const board = document.getElementById('game-board');
+            const gridSize = gameState.gridSize;
+            board.innerHTML = '';
+            
+            // Update CSS grid template
+            board.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+            
+            for (let i = 0; i < gridSize * gridSize; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                cell.dataset.index = i;
+                cell.dataset.row = Math.floor(i / gridSize);
+                cell.dataset.col = i % gridSize;
+                
+                cell.addEventListener('dragover', e => e.preventDefault());
+                cell.addEventListener('drop', handleDrop);
+                cell.addEventListener('click', handleCellClick);
+                cell.addEventListener('touchend', handleCellClick);
+                
+                board.appendChild(cell);
+            }
+        }
+
+        function generateNewPieces() {
+            currentPieces = [];
+            const pieceCount = adminSettings.pieceCount;
+            
+            for (let i = 0; i < pieceCount; i++) {
+                const randomShape = blockShapes[Math.floor(Math.random() * blockShapes.length)];
+                currentPieces.push({
+                    shape: randomShape,
+                    used: false,
+                    id: i
+                });
+            }
+            renderPieces();
+        }
+
+        function renderPieces() {
+            const piecesArea = document.getElementById('pieces-area');
+            piecesArea.innerHTML = '';
+            
+            // Update grid layout based on piece count
+            const pieceCount = currentPieces.length;
+            piecesArea.style.gridTemplateColumns = `repeat(${pieceCount}, 1fr)`;
+            
+            currentPieces.forEach((piece, index) => {
+                const container = document.createElement('div');
+                container.className = `piece-container ${piece.used ? 'used' : ''}`;
+                container.dataset.pieceId = index;
+                
+                if (!piece.used) {
+                    container.draggable = true;
+                    container.addEventListener('dragstart', handleDragStart);
+                    container.addEventListener('click', () => selectPiece(index, container));
+                    container.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        selectPiece(index, container);
+                    });
+                }
+                
+                const grid = document.createElement('div');
+                grid.className = 'piece-grid';
+                grid.style.gridTemplateColumns = `repeat(${piece.shape[0].length}, 1fr)`;
+                
+                piece.shape.forEach(row => {
+                    row.forEach(cell => {
+                        const cellDiv = document.createElement('div');
+                        cellDiv.className = cell ? 'piece-cell active' : 'piece-cell empty';
+                        grid.appendChild(cellDiv);
+                    });
+                });
+                
+                container.appendChild(grid);
+                piecesArea.appendChild(container);
+            });
+        }
+
+        function selectPiece(pieceId, element) {
+            // Prevent double selection
+            if (selectedElement === element) {
+                // Deselect if tapping the same piece
+                selectedElement.classList.remove('selected');
+                selectedElement = null;
+                selectedPiece = null;
+                clearClues();
+                return;
+            }
+            
+            if (selectedElement) {
+                selectedElement.classList.remove('selected');
+            }
+            clearClues();
+
+            selectedPiece = currentPieces[pieceId];
+            selectedElement = element;
+            element.classList.add('selected');
+            
+            // Enhanced haptic feedback
+            if (navigator.vibrate) {
+                navigator.vibrate([50, 30, 50]);
+            }
+            
+            // Smooth transition to show clues
+            setTimeout(() => {
+                showAllClues();
+            }, 100);
+        }
+
+        function showAllClues() {
+            if (!selectedPiece) return;
+
+            const validPositions = [];
+            const gridSize = gameState.gridSize;
+            
+            // Find all valid positions
+            for (let row = 0; row < gridSize; row++) {
+                for (let col = 0; col < gridSize; col++) {
+                    if (canPlacePiece(row, col, selectedPiece.shape)) {
+                        validPositions.push({row, col});
+                    }
+                }
+            }
+            
+            // Show shape preview for all valid positions
+            validPositions.forEach(pos => {
+                showShapePreview(pos.row, pos.col, selectedPiece.shape);
+                // Mark the top-left corner of each valid position as tap zone
+                markTapZone(pos.row, pos.col);
+            });
+        }
+        
+        function showShapePreview(startRow, startCol, shape) {
+            const cells = document.querySelectorAll('#game-board .grid-cell');
+            const gridSize = gameState.gridSize;
+            
+            // Show the exact shape of the piece at this position
+            for (let row = 0; row < shape.length; row++) {
+                for (let col = 0; col < shape[row].length; col++) {
+                    if (shape[row][col] === 1) {
+                        const targetRow = startRow + row;
+                        const targetCol = startCol + col;
+                        const index = targetRow * gridSize + targetCol;
+                        
+                        if (targetRow >= 0 && targetRow < gridSize && targetCol >= 0 && targetCol < gridSize) {
+                            cells[index].classList.add('clue');
+                        }
+                    }
+                }
+            }
+        }
+        
+        function markTapZone(row, col) {
+            const cells = document.querySelectorAll('#game-board .grid-cell');
+            const gridSize = gameState.gridSize;
+            const index = row * gridSize + col;
+            
+            if (row >= 0 && row < gridSize && col >= 0 && col < gridSize) {
+                cells[index].classList.add('tap-zone');
+                // Store the position data for easy access
+                cells[index].dataset.tapRow = row;
+                cells[index].dataset.tapCol = col;
+            }
+        }
+
+
+
+        function clearClues() {
+            document.querySelectorAll('#game-board .grid-cell').forEach(cell => {
+                cell.classList.remove('clue', 'highlight', 'invalid', 'tap-zone');
+                // Clear tap zone data
+                delete cell.dataset.tapRow;
+                delete cell.dataset.tapCol;
+            });
+        }
+
+
+
+        function showPlacementPreview(startRow, startCol, shape) {
+            clearPlacementPreview();
+            const cells = document.querySelectorAll('#game-board .grid-cell');
+            const gridSize = gameState.gridSize;
+            
+            for (let row = 0; row < shape.length; row++) {
+                for (let col = 0; col < shape[row].length; col++) {
+                    if (shape[row][col] === 1) {
+                        const targetRow = startRow + row;
+                        const targetCol = startCol + col;
+                        const index = targetRow * gridSize + targetCol;
+                        cells[index].classList.add('highlight');
+                    }
+                }
+            }
+        }
+
+        function clearPlacementPreview() {
+            document.querySelectorAll('#game-board .grid-cell').forEach(cell => {
+                cell.classList.remove('highlight');
+            });
+        }
+
+        function handleCellClick(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (selectedPiece && !selectedPiece.used) {
+                let row, col;
+                
+                // Check if this is a tap zone (priority placement)
+                if (e.target.classList.contains('tap-zone')) {
+                    row = parseInt(e.target.dataset.tapRow);
+                    col = parseInt(e.target.dataset.tapCol);
+                } else {
+                    // Regular cell click
+                    row = parseInt(e.target.dataset.row);
+                    col = parseInt(e.target.dataset.col);
+                }
+                
+                // Try to place at the determined position
+                if (canPlacePiece(row, col, selectedPiece.shape)) {
+                    // Valid placement
+                    e.target.classList.add('tap-feedback');
+                    setTimeout(() => {
+                        e.target.classList.remove('tap-feedback');
+                        tryPlacePiece(row, col);
+                    }, 150);
+                    
+                    if (navigator.vibrate) {
+                        navigator.vibrate(50);
+                    }
+                } else {
+                    // Invalid placement feedback
+                    e.target.classList.add('tap-feedback');
+                    setTimeout(() => {
+                        e.target.classList.remove('tap-feedback');
+                    }, 150);
+                    
+                    if (navigator.vibrate) {
+                        navigator.vibrate([30, 30, 30]);
+                    }
+                }
+            }
+        }
+
+        function handleDragStart(e) {
+            const pieceId = parseInt(e.target.dataset.pieceId);
+            selectedPiece = currentPieces[pieceId];
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            if (selectedPiece && !selectedPiece.used) {
+                const row = parseInt(e.target.dataset.row);
+                const col = parseInt(e.target.dataset.col);
+                tryPlacePiece(row, col);
+            }
+        }
+
+        function tryPlacePiece(row, col) {
+            if (canPlacePiece(row, col, selectedPiece.shape)) {
+                // Success feedback
+                if (navigator.vibrate) {
+                    navigator.vibrate(100);
+                }
+                
+                placePiece(row, col, selectedPiece.shape);
+                selectedPiece.used = true;
+                gameState.blocksPlaced++;
+                
+                if (selectedElement) {
+                    selectedElement.classList.remove('selected');
+                    selectedElement.classList.add('used');
+                }
+                selectedPiece = null;
+                selectedElement = null;
+                clearClues();
+                
+                checkCompletedLines();
+                renderPieces();
+                updateDisplay();
+                
+                // Always check game over after placing a piece
+                setTimeout(() => {
+                    if (currentPieces.every(piece => piece.used)) {
+                        // All pieces used, generate new ones
+                        generateNewPieces();
+                        // Check game over with new pieces
+                        setTimeout(() => {
+                            if (isGameOver()) {
+                                endGame();
+                            }
+                        }, 100);
+                    } else {
+                        // Still have unused pieces, check if any can be placed
+                        if (isGameOver()) {
+                            endGame();
+                        }
+                    }
+                }, 700); // Wait for line clearing animation to complete
+            } else {
+                // Invalid placement feedback
+                if (navigator.vibrate) {
+                    navigator.vibrate([50, 50, 50]);
+                }
+                
+                // Show invalid animation
+                if (selectedElement) {
+                    selectedElement.style.animation = 'shake 0.5s ease-in-out';
+                    setTimeout(() => {
+                        selectedElement.style.animation = '';
+                    }, 500);
+                }
+            }
+        }
+
+        function canPlacePiece(startRow, startCol, shape) {
+            const gridSize = gameState.gridSize;
+            
+            for (let row = 0; row < shape.length; row++) {
+                for (let col = 0; col < shape[row].length; col++) {
+                    if (shape[row][col]) {
+                        const targetRow = startRow + row;
+                        const targetCol = startCol + col;
+                        
+                        if (targetRow < 0 || targetRow >= gridSize || targetCol < 0 || targetCol >= gridSize) {
+                            return false;
+                        }
+                        
+                        if (gameState.board[targetRow][targetCol]) {
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+        function placePiece(startRow, startCol, shape) {
+            const cells = document.querySelectorAll('#game-board .grid-cell');
+            const gridSize = gameState.gridSize;
+            
+            for (let row = 0; row < shape.length; row++) {
+                for (let col = 0; col < shape[row].length; col++) {
+                    if (shape[row][col]) {
+                        const targetRow = startRow + row;
+                        const targetCol = startCol + col;
+                        const index = targetRow * gridSize + targetCol;
+                        
+                        const randomLetter = quranContent[Math.floor(Math.random() * quranContent.length)];
+                        gameState.board[targetRow][targetCol] = 1;
+                        gameState.boardLetters[targetRow][targetCol] = randomLetter;
+                        
+                        cells[index].classList.add('filled', randomLetter.class);
+                        cells[index].textContent = randomLetter.letter;
+                    }
+                }
+            }
+        }
+
+        function checkCompletedLines() {
+            let linesCleared = 0;
+            const cells = document.querySelectorAll('#game-board .grid-cell');
+            const linesToClear = [];
+            const gridSize = gameState.gridSize;
+            
+            // Check rows
+            for (let row = 0; row < gridSize; row++) {
+                if (gameState.board[row].every(cell => cell === 1)) {
+                    linesToClear.push({type: 'row', index: row});
+                    linesCleared++;
+                }
+            }
+            
+            // Check columns
+            for (let col = 0; col < gridSize; col++) {
+                let columnFull = true;
+                for (let row = 0; row < gridSize; row++) {
+                    if (gameState.board[row][col] === 0) {
+                        columnFull = false;
+                        break;
+                    }
+                }
+                if (columnFull) {
+                    linesToClear.push({type: 'col', index: col});
+                    linesCleared++;
+                }
+            }
+            
+            if (linesCleared > 0) {
+                // Animate clearing
+                linesToClear.forEach(line => {
+                    if (line.type === 'row') {
+                        for (let col = 0; col < gridSize; col++) {
+                            const index = line.index * gridSize + col;
+                            cells[index].classList.add('clearing');
+                        }
+                    } else {
+                        for (let row = 0; row < gridSize; row++) {
+                            const index = row * gridSize + line.index;
+                            cells[index].classList.add('clearing');
+                        }
+                    }
+                });
+                
+                setTimeout(() => {
+                    linesToClear.forEach(line => {
+                        if (line.type === 'row') {
+                            for (let col = 0; col < gridSize; col++) {
+                                const index = line.index * gridSize + col;
+                                const cell = cells[index];
+                                // Remove all quran classes
+                                quranContent.forEach(letter => {
+                                    cell.classList.remove(letter.class);
+                                });
+                                cell.classList.remove('filled', 'clearing');
+                                cell.textContent = '';
+                                gameState.board[line.index][col] = 0;
+                                gameState.boardLetters[line.index][col] = null;
+                            }
+                        } else {
+                            for (let row = 0; row < gridSize; row++) {
+                                const index = row * gridSize + line.index;
+                                const cell = cells[index];
+                                // Remove all quran classes
+                                quranContent.forEach(letter => {
+                                    cell.classList.remove(letter.class);
+                                });
+                                cell.classList.remove('filled', 'clearing');
+                                cell.textContent = '';
+                                gameState.board[row][line.index] = 0;
+                                gameState.boardLetters[row][line.index] = null;
+                            }
+                        }
+                    });
+                }, 600);
+                
+                // Calculate score
+                gameState.currentCombo++;
+                gameState.linesCleared += linesCleared;
+                
+                let points = 10;
+                if (linesCleared >= 2) points = 30;
+                if (linesCleared >= 3) points = 60;
+                if (linesCleared >= 4) points = 100;
+                
+                points *= gameState.currentCombo;
+                gameState.score += points;
+                gameState.bestCombo = Math.max(gameState.bestCombo, gameState.currentCombo);
+                
+                showFloatingScore(points);
+                if (gameState.currentCombo > 1) {
+                    showComboIndicator(gameState.currentCombo);
+                }
+                
+                // Show learning popup after clearing animation completes
+                setTimeout(() => {
+                    showLearningPopup();
+                }, 800);
+                
+                if (gameState.score > gameState.bestScore) {
+                    gameState.bestScore = gameState.score;
+                    localStorage.setItem('quran-quest-best', gameState.bestScore.toString());
+                    updateBestScoreDisplay();
+                }
+            } else {
+                gameState.currentCombo = 0;
+            }
+        }
+
+        function showFloatingScore(points) {
+            const board = document.getElementById('game-board');
+            const floatingScore = document.createElement('div');
+            floatingScore.className = 'floating-score';
+            floatingScore.textContent = `+${points}`;
+            floatingScore.style.left = '50%';
+            floatingScore.style.top = '40%';
+            floatingScore.style.transform = 'translate(-50%, -50%)';
+            
+            board.appendChild(floatingScore);
+            
+            setTimeout(() => {
+                if (board.contains(floatingScore)) {
+                    board.removeChild(floatingScore);
+                }
+            }, 2000);
+        }
+
+        function showComboIndicator(combo) {
+            const board = document.getElementById('game-board');
+            const comboDiv = document.createElement('div');
+            comboDiv.className = 'combo-indicator';
+            comboDiv.textContent = `COMBO x${combo}!`;
+            
+            board.appendChild(comboDiv);
+            
+            setTimeout(() => {
+                if (board.contains(comboDiv)) {
+                    board.removeChild(comboDiv);
+                }
+            }, 2500);
+        }
+
+        function isGameOver() {
+            // Only check game over if game is still running
+            if (!gameState.gameRunning) {
+                return false;
+            }
+            
+            // Get all unused pieces
+            const unusedPieces = currentPieces.filter(piece => !piece.used);
+            
+            // If no pieces left, game is not over (this shouldn't happen in normal flow)
+            if (unusedPieces.length === 0) {
+                return false;
+            }
+            
+            // Check if ANY unused piece can be placed ANYWHERE on the board
+            for (let piece of unusedPieces) {
+                // Check every position on the board
+                for (let row = 0; row <= 8 - piece.shape.length; row++) {
+                    for (let col = 0; col <= 8 - piece.shape[0].length; col++) {
+                        if (canPlacePiece(row, col, piece.shape)) {
+                            return false; // Found a valid placement, game continues
+                        }
+                    }
+                }
+            }
+            
+            // No unused piece can be placed anywhere - GAME OVER
+            console.log('Game Over: No valid moves for remaining pieces');
+            return true;
+        }
+
+        function endGame() {
+            gameState.gameRunning = false;
+            
+            // Check if player should advance to next level
+            checkLevelProgression();
+            
+            document.getElementById('final-score').textContent = gameState.score.toLocaleString();
+            document.getElementById('final-lines').textContent = gameState.linesCleared;
+            document.getElementById('final-combo').textContent = gameState.bestCombo;
+            
+            setTimeout(() => {
+                document.getElementById('game-over-modal').classList.remove('hidden');
+            }, 1000);
+        }
+        
+        function checkLevelProgression() {
+            // Check if player has achieved enough score/lines to advance
+            const currentLevel = adminSettings.currentGameLevel;
+            const requiredLines = currentLevel * 10; // Each level requires 10 more lines than the previous
+            
+            if (gameState.linesCleared >= requiredLines) {
+                const nextLevel = currentLevel + 1;
+                const nextLevelId = `level-${nextLevel}`;
+                
+                // Show level complete modal
+                setTimeout(() => {
+                    showLevelCompleteModal(currentLevel, nextLevel, nextLevelId);
+                }, 1500);
+            }
+        }
+        
+        function showLevelCompleteModal(currentLevel, nextLevel, nextLevelId) {
+            // Update modal content
+            document.getElementById('level-complete-message').textContent = `Anda telah menyelesaikan Level ${currentLevel}!`;
+            document.getElementById('level-complete-lines').textContent = gameState.linesCleared;
+            document.getElementById('level-complete-score').textContent = gameState.score.toLocaleString();
+            
+            // Check if next level exists and update button
+            const nextLevelBtn = document.getElementById('next-level-btn');
+            if (customLevels[nextLevelId]) {
+                nextLevelBtn.textContent = `🚀 LANJUT KE LEVEL ${nextLevel}`;
+                nextLevelBtn.onclick = () => proceedToNextLevel(nextLevel, nextLevelId);
+            } else {
+                nextLevelBtn.textContent = `📚 LEVEL ${nextLevel} BELUM TERSEDIA`;
+                nextLevelBtn.onclick = () => showNextLevelUnavailable(nextLevel);
+            }
+            
+            // Show the modal
+            document.getElementById('level-complete-modal').classList.remove('hidden');
+        }
+        
+        function proceedToNextLevel(nextLevel, nextLevelId) {
+            if (customLevels[nextLevelId]) {
+                // Advance to next level
+                adminSettings.currentGameLevel = nextLevel;
+                adminSettings.activeCustomLevel = nextLevelId;
+                adminSettings.customLevelIndex = 0;
+                adminSettings.customLevelClearCount = 0;
+                localStorage.setItem('quran-quest-admin-settings', JSON.stringify(adminSettings));
+                
+                // Close modal and start new level
+                document.getElementById('level-complete-modal').classList.add('hidden');
+                updateBestScoreDisplay();
+                initializeGame();
+            } else {
+                showNextLevelUnavailable(nextLevel);
+            }
+        }
+        
+        function showNextLevelUnavailable(nextLevel) {
+            // Close level complete modal
+            document.getElementById('level-complete-modal').classList.add('hidden');
+            
+            // Update and show unavailable modal
+            document.getElementById('next-level-info').textContent = `Level ${nextLevel} diperlukan untuk melanjutkan`;
+            document.getElementById('next-level-unavailable-modal').classList.remove('hidden');
+        }
+        
+        function repeatCurrentLevel() {
+            // Close all modals
+            document.getElementById('level-complete-modal').classList.add('hidden');
+            document.getElementById('next-level-unavailable-modal').classList.add('hidden');
+            
+            // Reset level progress to repeat the current level
+            adminSettings.customLevelIndex = 0;
+            adminSettings.customLevelClearCount = 0;
+            localStorage.setItem('quran-quest-admin-settings', JSON.stringify(adminSettings));
+            
+            // Continue the current game with reset level progress
+            // Don't restart the entire game, just reset the level progress
+            showCustomModal('🔄 LEVEL DIULANG!', `Level ${adminSettings.currentGameLevel} dimulai dari awal!\n\nHuruf akan ditampilkan lagi sesuai urutan level ini.`);
+        }
+        
+        function backToMenuFromModal() {
+            // Close all modals
+            document.getElementById('level-complete-modal').classList.add('hidden');
+            document.getElementById('next-level-unavailable-modal').classList.add('hidden');
+            
+            // Go back to main menu
+            backToMenu();
+        }
+
+        function restartGame() {
+            document.getElementById('game-over-modal').classList.add('hidden');
+            initializeGame();
+        }
+
+        function updateDisplay() {
+            document.getElementById('current-score').textContent = gameState.score.toLocaleString();
+            document.getElementById('lines-cleared').textContent = gameState.linesCleared;
+            document.getElementById('best-combo').textContent = gameState.bestCombo;
+            document.getElementById('blocks-placed').textContent = gameState.blocksPlaced;
+            document.getElementById('current-level-display').textContent = adminSettings.currentGameLevel;
+        }
+
+        function showLeaderboard() {
+            document.getElementById('leaderboard-modal').classList.remove('hidden');
+        }
+
+        function closeLeaderboard() {
+            document.getElementById('leaderboard-modal').classList.add('hidden');
+        }
+
+        function showTutorial() {
+            document.getElementById('tutorial-modal').classList.remove('hidden');
+        }
+
+        function closeTutorial() {
+            document.getElementById('tutorial-modal').classList.add('hidden');
+        }
+
+        // Global variable to track if level should complete after learning popup
+        let shouldShowLevelComplete = false;
+        let levelCompleteData = null;
+
+        function showLearningPopup() {
+            // For custom levels, check the trigger count
+            if (adminSettings.activeCustomLevel && customLevels[adminSettings.activeCustomLevel]) {
+                const level = customLevels[adminSettings.activeCustomLevel];
+                if (level) {
+                    adminSettings.customLevelClearCount++;
+                    const shouldShow = (adminSettings.customLevelClearCount % level.popupTrigger === 0);
+                    localStorage.setItem('quran-quest-admin-settings', JSON.stringify(adminSettings));
+                    
+                    if (!shouldShow) return;
+                    
+                    // Get letter from custom level
+                    let selectedLetter;
+                    if (level.letters.length > 0) {
+                        // Get the letter character directly from the array
+                        const letterChar = level.letters[adminSettings.customLevelIndex % level.letters.length];
+                        
+                        // Find the corresponding letter object or create a simple one
+                        selectedLetter = quranContent.find(letter => letter.letter === letterChar);
+                        if (!selectedLetter) {
+                            // If not found in quranContent, create a simple object
+                            selectedLetter = {
+                                letter: letterChar,
+                                class: 'hijaiyah-custom',
+                                meaning: ''
+                            };
+                        }
+                        
+                        adminSettings.customLevelIndex++;
+                        localStorage.setItem('quran-quest-admin-settings', JSON.stringify(adminSettings));
+                        
+                        // Check if all letters in this level have been shown
+                        if (adminSettings.customLevelIndex >= level.letters.length) {
+                            // All letters shown, prepare for level complete after popup is closed
+                            shouldShowLevelComplete = true;
+                            levelCompleteData = level;
+                        }
+                    } else {
+                        selectedLetter = quranContent[0]; // Fallback
+                    }
+                    
+                    // Update popup content
+                    document.getElementById('popup-arabic-letter').textContent = selectedLetter.letter;
+                    
+                    // Update meaning based on level
+                    const meaningText = `${selectedLetter.meaning} - Level ${level.number}: ${level.name}`;
+                    document.getElementById('popup-letter-meaning').textContent = meaningText;
+                    
+                    // Show the popup
+                    document.getElementById('learning-popup').classList.remove('hidden');
+                }
+            }
+        }
+
+        function closeLearningPopup() {
+            document.getElementById('learning-popup').classList.add('hidden');
+            
+            // Check if level should complete after closing this popup
+            if (shouldShowLevelComplete && levelCompleteData) {
+                // Wait 2 seconds before showing level complete modal
+                setTimeout(() => {
+                    showCustomLevelComplete(levelCompleteData);
+                    // Reset the flags
+                    shouldShowLevelComplete = false;
+                    levelCompleteData = null;
+                }, 2000);
+            }
+        }
+
+        function showCustomLevelComplete(level) {
+            // Update modal content for custom level completion
+            document.getElementById('level-complete-message').textContent = `Alhamdulillah! Level ${level.number}: ${level.name} selesai!`;
+            document.getElementById('level-complete-lines').textContent = gameState.linesCleared;
+            document.getElementById('level-complete-score').textContent = gameState.score.toLocaleString();
+            
+            // Check if next level exists
+            const nextLevelNumber = parseInt(level.number) + 1;
+            const nextLevelId = `level-${nextLevelNumber}`;
+            const nextLevelBtn = document.getElementById('next-level-btn');
+            
+            if (customLevels[nextLevelId]) {
+                nextLevelBtn.textContent = `🚀 LANJUT KE LEVEL ${nextLevelNumber}`;
+                nextLevelBtn.onclick = () => proceedToCustomNextLevel(nextLevelNumber, nextLevelId);
+            } else {
+                nextLevelBtn.textContent = `📚 LEVEL ${nextLevelNumber} BELUM TERSEDIA`;
+                nextLevelBtn.onclick = () => showNextLevelUnavailable(nextLevelNumber);
+            }
+            
+            // Show the modal
+            document.getElementById('level-complete-modal').classList.remove('hidden');
+        }
+
+        function proceedToCustomNextLevel(nextLevelNumber, nextLevelId) {
+            if (customLevels[nextLevelId]) {
+                // Advance to next level
+                adminSettings.currentGameLevel = nextLevelNumber;
+                adminSettings.activeCustomLevel = nextLevelId;
+                adminSettings.customLevelIndex = 0;
+                adminSettings.customLevelClearCount = 0;
+                localStorage.setItem('quran-quest-admin-settings', JSON.stringify(adminSettings));
+                
+                // Close modal and continue playing with new level
+                document.getElementById('level-complete-modal').classList.add('hidden');
+                updateBestScoreDisplay();
+                
+                // Continue the current game with new level settings
+                // Don't restart the game, just continue with new level
+                showCustomModal('🎉 LEVEL BARU DIMULAI!', `Sekarang bermain di Level ${nextLevelNumber}!\n\nHuruf baru akan muncul sesuai dengan level ini.`);
+            } else {
+                showNextLevelUnavailable(nextLevelNumber);
+            }
+        }
+
+        // Admin Panel Functions
+        function showAdminPanel() {
+            loadAdminSettings();
+            updateAdminPanelUI();
+            setupLetterInput();
+            updateExistingLevels();
+            document.getElementById('admin-panel-modal').classList.remove('hidden');
+        }
+
+        function closeAdminPanel() {
+            document.getElementById('admin-panel-modal').classList.add('hidden');
+        }
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.getElementById('tab-game').classList.remove('bg-purple-600');
+            document.getElementById('tab-game').classList.add('bg-gray-600');
+            document.getElementById('tab-levels').classList.remove('bg-purple-600');
+            document.getElementById('tab-levels').classList.add('bg-gray-600');
+            
+            document.getElementById(`tab-${tabName}`).classList.remove('bg-gray-600');
+            document.getElementById(`tab-${tabName}`).classList.add('bg-purple-600');
+            
+            // Show/hide tab content
+            document.getElementById('game-tab').classList.add('hidden');
+            document.getElementById('levels-tab').classList.add('hidden');
+            document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+        }
+
+        function updateAdminPanelUI() {
+            document.getElementById('difficulty-level').value = adminSettings.difficulty;
+            document.getElementById('grid-size').value = adminSettings.gridSize;
+            document.getElementById('piece-count').value = adminSettings.pieceCount;
+        }
+
+
+
+        function setupLetterInput() {
+            const textarea = document.getElementById('level-letters-input');
+            if (textarea) {
+                textarea.addEventListener('input', updateSelectedLettersCount);
+            }
+        }
+
+        function updateSelectedLettersCount() {
+            const textarea = document.getElementById('level-letters-input');
+            if (textarea) {
+                const input = textarea.value.trim();
+                if (input === '') {
+                    document.getElementById('selected-letters-count').textContent = '0';
+                    return;
+                }
+                
+                const letters = input.split(',').map(letter => letter.trim()).filter(letter => letter !== '');
+                document.getElementById('selected-letters-count').textContent = letters.length;
+            }
+        }
+
+        function createLevel() {
+            const levelNumber = document.getElementById('level-number').value;
+            const levelName = document.getElementById('level-name').value;
+            const popupTrigger = parseInt(document.getElementById('level-popup-trigger').value);
+            const lettersInput = document.getElementById('level-letters-input').value.trim();
+            
+            if (!levelNumber || !levelName) {
+                showCustomModal('⚠️ DATA TIDAK LENGKAP', 'Mohon isi nomor level dan nama level!');
+                return;
+            }
+            
+            if (!lettersInput) {
+                showCustomModal('⚠️ HURUF BELUM DIISI', 'Mohon input huruf untuk level ini!');
+                return;
+            }
+            
+            const selectedLetters = lettersInput.split(',').map(letter => letter.trim()).filter(letter => letter !== '');
+            
+            if (selectedLetters.length === 0) {
+                showCustomModal('⚠️ HURUF TIDAK VALID', 'Mohon input minimal 1 huruf untuk level ini!');
+                return;
+            }
+            
+            const levelId = `level-${levelNumber}`;
+            
+            // Check if level already exists
+            if (customLevels[levelId]) {
+                if (!confirm(`Level ${levelNumber} sudah ada. Apakah Anda ingin menimpanya?`)) {
+                    return;
+                }
+            }
+            
+            // Create the level
+            customLevels[levelId] = {
+                number: levelNumber,
+                name: levelName,
+                letters: selectedLetters,
+                popupTrigger: popupTrigger,
+                createdAt: new Date().toISOString()
+            };
+            
+            // Save to localStorage
+            saveCustomLevels();
+            
+            // AUTO-APPLY: Set this level as active
+            adminSettings.activeCustomLevel = levelId;
+            adminSettings.customLevelIndex = 0;
+            adminSettings.customLevelClearCount = 0;
+            
+            // Save admin settings
+            localStorage.setItem('quran-quest-admin-settings', JSON.stringify(adminSettings));
+            
+            // Update UI to reflect the changes
+            updateExistingLevels();
+            clearLevelForm();
+            
+            showCustomModal('✅ LEVEL BERHASIL DIBUAT!', `Level ${levelNumber}: ${levelName} berhasil dibuat dengan ${selectedLetters.length} huruf!\n\n✅ Level ini sudah otomatis diaktifkan di pengaturan game!`);
+        }
+
+        function clearLevelForm() {
+            document.getElementById('level-number').value = '';
+            document.getElementById('level-name').value = '';
+            document.getElementById('level-popup-trigger').value = '1';
+            document.getElementById('level-letters-input').value = '';
+            
+            updateSelectedLettersCount();
+        }
+
+        function updateExistingLevels() {
+            const container = document.getElementById('existing-levels');
+            container.innerHTML = '';
+            
+            const levelIds = Object.keys(customLevels).sort((a, b) => {
+                const numA = parseInt(customLevels[a].number);
+                const numB = parseInt(customLevels[b].number);
+                return numA - numB;
+            });
+            
+            if (levelIds.length === 0) {
+                container.innerHTML = '<div class="text-gray-400 text-center py-4">Belum ada level yang dibuat</div>';
+                return;
+            }
+            
+            levelIds.forEach(levelId => {
+                const level = customLevels[levelId];
+                const div = document.createElement('div');
+                div.className = 'bg-gray-700 p-3 rounded-lg flex justify-between items-center';
+                
+                div.innerHTML = `
+                    <div>
+                        <div class="text-white font-bold">Level ${level.number}: ${level.name}</div>
+                        <div class="text-gray-300 text-sm">${level.letters.length} huruf • Popup setiap ${level.popupTrigger} baris hancur</div>
+                        <div class="text-gray-400 text-xs">Huruf: ${level.letters.join(', ')}</div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="editLevel('${levelId}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
+                            ✏️ Edit
+                        </button>
+                        <button onclick="deleteLevel('${levelId}')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm">
+                            🗑️ Hapus
+                        </button>
+                    </div>
+                `;
+                
+                container.appendChild(div);
+            });
+        }
+
+
+
+        // Global variable to store current editing level ID
+        let currentEditingLevelId = null;
+
+        function editLevel(levelId) {
+            const level = customLevels[levelId];
+            if (!level) return;
+            
+            // Store the level ID being edited
+            currentEditingLevelId = levelId;
+            
+            // Fill the edit form with existing data
+            document.getElementById('edit-level-number').value = level.number;
+            document.getElementById('edit-level-name').value = level.name;
+            document.getElementById('edit-level-popup-trigger').value = level.popupTrigger;
+            document.getElementById('edit-level-letters-input').value = level.letters.join(',');
+            
+            // Update letter count
+            updateEditSelectedLettersCount();
+            
+            // Setup event listener for letter input
+            const editTextarea = document.getElementById('edit-level-letters-input');
+            editTextarea.removeEventListener('input', updateEditSelectedLettersCount);
+            editTextarea.addEventListener('input', updateEditSelectedLettersCount);
+            
+            // Setup save button
+            const saveBtn = document.getElementById('save-edit-level-btn');
+            saveBtn.onclick = () => saveEditedLevel();
+            
+            // Show the edit modal
+            document.getElementById('edit-level-modal').classList.remove('hidden');
+        }
+
+        function updateEditSelectedLettersCount() {
+            const textarea = document.getElementById('edit-level-letters-input');
+            if (textarea) {
+                const input = textarea.value.trim();
+                if (input === '') {
+                    document.getElementById('edit-selected-letters-count').textContent = '0';
+                    return;
+                }
+                
+                const letters = input.split(',').map(letter => letter.trim()).filter(letter => letter !== '');
+                document.getElementById('edit-selected-letters-count').textContent = letters.length;
+            }
+        }
+
+        function closeEditLevelModal() {
+            document.getElementById('edit-level-modal').classList.add('hidden');
+            currentEditingLevelId = null;
+        }
+
+        function saveEditedLevel() {
+            if (!currentEditingLevelId) return;
+            
+            const levelNumber = document.getElementById('edit-level-number').value;
+            const levelName = document.getElementById('edit-level-name').value;
+            const popupTrigger = parseInt(document.getElementById('edit-level-popup-trigger').value);
+            const lettersInput = document.getElementById('edit-level-letters-input').value.trim();
+            
+            if (!levelNumber || !levelName) {
+                showCustomModal('⚠️ DATA TIDAK LENGKAP', 'Mohon isi nomor level dan nama level!');
+                return;
+            }
+            
+            if (!lettersInput) {
+                showCustomModal('⚠️ HURUF BELUM DIISI', 'Mohon input huruf untuk level ini!');
+                return;
+            }
+            
+            const selectedLetters = lettersInput.split(',').map(letter => letter.trim()).filter(letter => letter !== '');
+            
+            if (selectedLetters.length === 0) {
+                showCustomModal('⚠️ HURUF TIDAK VALID', 'Mohon input minimal 1 huruf untuk level ini!');
+                return;
+            }
+            
+            // Check if level number changed and conflicts with existing level
+            const newLevelId = `level-${levelNumber}`;
+            if (newLevelId !== currentEditingLevelId && customLevels[newLevelId]) {
+                showCustomModal('⚠️ NOMOR LEVEL SUDAH ADA', `Level ${levelNumber} sudah ada! Gunakan nomor level yang berbeda.`);
+                return;
+            }
+            
+            // Show confirmation before saving
+            showCustomConfirm(
+                '💾 KONFIRMASI EDIT',
+                `Apakah Anda yakin ingin menyimpan perubahan untuk Level ${levelNumber}: ${levelName}?\n\nPerubahan akan langsung tersimpan dan tidak bisa dibatalkan.`,
+                () => {
+                    // If level number changed, delete old entry and create new one
+                    if (newLevelId !== currentEditingLevelId) {
+                        delete customLevels[currentEditingLevelId];
+                        
+                        // Update active level reference if needed
+                        if (adminSettings.activeCustomLevel === currentEditingLevelId) {
+                            adminSettings.activeCustomLevel = newLevelId;
+                        }
+                    }
+                    
+                    // Save the updated level
+                    customLevels[newLevelId] = {
+                        number: levelNumber,
+                        name: levelName,
+                        letters: selectedLetters,
+                        popupTrigger: popupTrigger,
+                        createdAt: customLevels[currentEditingLevelId]?.createdAt || new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    };
+                    
+                    // Save to localStorage
+                    saveCustomLevels();
+                    localStorage.setItem('quran-quest-admin-settings', JSON.stringify(adminSettings));
+                    
+                    // Update UI
+                    updateExistingLevels();
+                    closeEditLevelModal();
+                    
+                    showCustomModal('✅ LEVEL BERHASIL DIUPDATE!', `Level ${levelNumber}: ${levelName} berhasil diperbarui dengan ${selectedLetters.length} huruf!`);
+                }
+            );
+        }
+
+        function deleteLevel(levelId) {
+            const level = customLevels[levelId];
+            if (!level) return;
+            
+            // Show custom confirmation dialog
+            showCustomConfirm(
+                '🗑️ KONFIRMASI HAPUS',
+                `Apakah Anda yakin ingin menghapus Level ${level.number}: ${level.name}?\n\nTindakan ini tidak dapat dibatalkan!\n\nLevel ini berisi ${level.letters.length} huruf: ${level.letters.join(', ')}`,
+                () => {
+                    // Delete the level
+                    delete customLevels[levelId];
+                    saveCustomLevels();
+                    updateExistingLevels();
+                    
+                    // If this was the active level, reset it
+                    if (adminSettings.activeCustomLevel === levelId) {
+                        adminSettings.activeCustomLevel = '';
+                        localStorage.setItem('quran-quest-admin-settings', JSON.stringify(adminSettings));
+                    }
+                    
+                    showCustomModal('🗑️ LEVEL DIHAPUS', `Level ${level.number}: ${level.name} berhasil dihapus!`);
+                }
+            );
+        }
+
+        function saveAdminSettings() {
+            adminSettings.difficulty = document.getElementById('difficulty-level').value;
+            adminSettings.gridSize = parseInt(document.getElementById('grid-size').value);
+            adminSettings.pieceCount = parseInt(document.getElementById('piece-count').value);
+            
+            // Reset custom level progress when changing active level
+            adminSettings.customLevelIndex = 0;
+            adminSettings.customLevelClearCount = 0;
+            
+            // Save to localStorage
+            localStorage.setItem('quran-quest-admin-settings', JSON.stringify(adminSettings));
+            
+            // Show success message
+            showCustomModal('💾 PENGATURAN TERSIMPAN', 'Pengaturan berhasil disimpan! Mulai game baru untuk menerapkan perubahan.');
+            
+            closeAdminPanel();
+        }
+
+
+
+        // Custom modal functions
+        function showCustomModal(title, message) {
+            const modal = document.getElementById('custom-alert-modal');
+            document.getElementById('custom-alert-title').textContent = title;
+            document.getElementById('custom-alert-message').textContent = message;
+            modal.classList.remove('hidden');
+        }
+        
+        function closeCustomModal() {
+            const modal = document.getElementById('custom-alert-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function showCustomConfirm(title, message, onConfirm) {
+            const modal = document.getElementById('custom-confirm-modal');
+            document.getElementById('custom-confirm-title').textContent = title;
+            document.getElementById('custom-confirm-message').textContent = message;
+            
+            // Set up the confirm button
+            const confirmBtn = document.getElementById('custom-confirm-yes');
+            confirmBtn.onclick = () => {
+                closeCustomConfirm();
+                if (onConfirm) onConfirm();
+            };
+            
+            modal.classList.remove('hidden');
+        }
+        
+        function closeCustomConfirm() {
+            const modal = document.getElementById('custom-confirm-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'979690ba0525fdf7',t:'MTc1NjkxNjMzMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
