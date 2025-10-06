@@ -1820,18 +1820,41 @@
         // ===== DATA PEMBELAJARAN =====
         // Contoh pembelajaran dengan kombinasi huruf Arab spesifik
         const learningExamples = [
-            { arabic: 'بَتَ', pronunciation: 'BA-TA' },
-            { arabic: 'بَدَ', pronunciation: 'BA-DA' },
-            { arabic: 'تَرَ', pronunciation: 'TA-RA' },
-            { arabic: 'تَتَ', pronunciation: 'TA-TA' },
-            { arabic: 'تَدَ', pronunciation: 'TA-DA' },
-            { arabic: 'بَوَ', pronunciation: 'BA-WA' },
-            { arabic: 'بَبَ', pronunciation: 'BA-BA' },
-            { arabic: 'تَزَ', pronunciation: 'TA-ZA' },
-            { arabic: 'بَرَ', pronunciation: 'BA-RA' },
-            { arabic: 'تَبَ', pronunciation: 'TA-BA' },
-            { arabic: 'دَرَ', pronunciation: 'DA-RA' },
-            { arabic: 'رَبَ', pronunciation: 'RA-BA' }
+            { arabic: 'ءَالَ', pronunciation: '' },
+            { arabic: 'ءَالُ', pronunciation: '' },
+            { arabic: 'أَنَا', pronunciation: '' },
+            { arabic: 'إِذَا', pronunciation: '' },
+            { arabic: 'خَابَ', pronunciation: '' },
+            { arabic: 'ذَاتِ', pronunciation: '' },
+            { arabic: 'صَالِ', pronunciation: '' },
+            { arabic: 'طَغَا', pronunciation: '' },
+            { arabic: 'دَعَا', pronunciation: '' },
+            { arabic: 'دَنَا', pronunciation: '' },
+            { arabic: 'خَافَ', pronunciation: '' },
+            { arabic: 'خَلَا', pronunciation: '' },
+            { arabic: 'بِي', pronunciation: '' },
+            { arabic: 'حِينَ', pronunciation: '' },
+            { arabic: 'أَخِي', pronunciation: '' },
+            { arabic: 'أَبِي', pronunciation: '' },
+            { arabic: 'دِينُ', pronunciation: '' },
+            { arabic: 'قِيلَ', pronunciation: '' },
+            { arabic: 'وَذِي', pronunciation: '' },
+            { arabic: 'فِيمَا', pronunciation: '' },
+            { arabic: 'فِينَا', pronunciation: '' },
+            { arabic: 'فِيهَا', pronunciation: '' },
+            { arabic: 'أَثَرِي', pronunciation: '' },
+            { arabic: 'ذُو', pronunciation: '' },
+            { arabic: 'أُوتَ', pronunciation: '' },
+            { arabic: 'أُوفِ', pronunciation: '' },
+            { arabic: 'دُونَ', pronunciation: '' },
+            { arabic: 'رُوحُ', pronunciation: '' },
+            { arabic: 'طُورِ', pronunciation: '' },
+            { arabic: 'فَذُو', pronunciation: '' },
+            { arabic: 'نُورَ', pronunciation: '' },
+            { arabic: 'أُوفِي', pronunciation: '' },
+            { arabic: 'يُوحَ', pronunciation: '' },
+            { arabic: 'يُوقَ', pronunciation: '' },
+            { arabic: 'كُونِي', pronunciation: '' }
         ];
 
         // ===== VARIABEL PEMBELAJARAN =====
@@ -1843,8 +1866,8 @@
 
         // ===== FUNGSI POPUP PEMBELAJARAN =====
         function showLearningPopup() {
-            // Cek apakah perlu mulai evaluasi setelah menampilkan semua 12 contoh
-            if (shownExamples.length >= 12 && !evaluationMode) {
+            // Cek apakah perlu mulai evaluasi setelah menampilkan semua 12 contoh (gua tambah jadi 30)
+            if (shownExamples.length >= 35 && !evaluationMode) {
                 // Show pesan transisi sebelum evaluasi
                 showEvaluationTransition();
                 return;
@@ -1920,7 +1943,7 @@
             popup.innerHTML = `
                 <div class="learning-popup-title">🎯 Saatnya Evaluasi! 🎯</div>
                 <div class="learning-popup-message">
-                    Alhamdulillah! Kamu sudah mempelajari 12 contoh bacaan hijaiyah.
+                    Alhamdulillah! Kamu sudah mempelajari 35 contoh bacaan hijaiyah.
                 </div>
                 <div class="learning-popup-instruction">
                     Sekarang waktunya ujian untuk naik ke Level 2!
